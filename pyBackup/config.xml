@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<backup>
+	<config>
+		<temporary>
+			<item limit="2.5GB">/run/</item>
+			<item limit="20GB">/media/BIG/TEMP/</item>
+		</temporary>
+		
+		<diffStrategy strategy="hash">
+			<filesize></filesize>
+			<filemtime></filemtime>
+			<filesize_filemtime></filesize_filemtime>
+			<hash>
+				<hash>md5</hash>
+			</hash>
+		</diffStrategy>
+		
+		<copyStrategy strategy="direct">
+			<direct></direct>
+			<maxSystemLoad>
+				<max>1.5</max>
+			</maxSystemLoad>
+		</copyStrategy>
+	</config>
+	
+	<locations>
+		<location>
+			<input>
+				<path recurse="True">/home/lucian/workspace/</path>
+			</input>
+			<output>
+				<path>/media/BIG/TEMP/testing-backups/</path>
+				<strategy strategy="copy">
+					<copy></copy>
+					<auto>
+						<compress>
+							<after>90d</after>
+							<type>tgz</type>
+							<strength>9</strength>
+						</compress>
+					</auto>
+					<archiveDir>
+						<type>tgz</type>
+						<strength>9</strength>
+					</archiveDir>
+					<archiveFile>
+						<type>zip</type>
+						<strength>9</strength>
+					</archiveFile>
+				</strategy>
+			</output>
+			<diffStrategy strategy="filesize"></diffStrategy>
+		</location>
+		
+		<!--  
+		<location>
+			<input>
+				<path recurse="False">/home/lucian/workspace/pyBackup/backup.py</path>
+			</input>
+			<output>
+				<path>/media/BIG/TEMP/testing-backups/</path>
+				<strategy strategy="copy">
+					<copy></copy>
+					<auto>
+						<compress>
+							<after>90d</after>
+							<type>tgz</type>
+							<strength>9</strength>
+						</compress>
+					</auto>
+					<archiveDir>
+						<type>tgz</type>
+						<strength>9</strength>
+					</archiveDir>
+					<archiveFile>
+						<type>zip</type>
+						<strength>9</strength>
+					</archiveFile>
+				</strategy>
+			</output>
+			<diffStrategy strategy="filesize"></diffStrategy>
+		</location>
+		-->
+		
+	</locations>
+</backup>
