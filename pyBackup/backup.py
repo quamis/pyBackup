@@ -24,8 +24,19 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 
 import config.reader;
+
 import pathReader.recursive;
 import pathReader.linear;
+
+import pathWriter.copy;
+
+import fileComparer.filesize;
+
+import folderComparer.general;
+
+import worker.general;
+
+
 
 __all__ = []
 __version__ = 0.1
@@ -103,20 +114,26 @@ USAGE
             print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
             
             print loc
-            pathInput = None
+            reader = None
             if loc['input']['recurse']==True:
-                pathInput = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
+                reader = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
             if loc['input']['recurse']==False:
-                pathInput = pathReader.linear.linear(loc['input']['path'], loc['input'])
+                reader = pathReader.linear.linear(loc['input']['path'], loc['input'])
                 
-            pathWriter = None
+            writer = None
             if loc['output']['strategy']['strategy']=='copy':
-                pathWriter = pathOutput.copy(loc['input']['path'], loc['input'])
+                writer = pathWriter.copy.copy(loc['output']['path'], loc['output']['strategy'])
             
+            fComparer = None
+            if loc['diffStrategy']['strategy']=='filesize':
+                fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
+
+            dComparer = folderComparer.general.general({})
+
+            # run the actual worker
+            wrk = worker.general.general(reader, writer, dComparer, fComparer)
+            wrk.run()
             
-            
-            print pathInput.getAll()
-        
         return 0
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
