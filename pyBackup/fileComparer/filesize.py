@@ -21,5 +21,8 @@ class filesize(object):
         raise "Not implemented"
         
     def isEqual(self, input, output):
-        return os.path.getsize(input) == os.path.getsize(output)
+        if os.path.exists(input) and os.path.exists(output):
+            return os.path.getsize(input) == os.path.getsize(output)
+        
+        return False
     

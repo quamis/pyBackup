@@ -10,10 +10,11 @@ class general(object):
     '''
 
 
-    def __init__(self, options):
+    def __init__(self, fileComparer, options):
         '''
         Initialize the object
         '''
+        self.fileComparer = fileComparer
         self.options = options
         
     def isEqual(self, input, output):

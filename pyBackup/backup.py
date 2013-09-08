@@ -114,11 +114,12 @@ USAGE
             print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
             
             print loc
-            reader = None
+            reader1 = None
+            reader2 = None
             if loc['input']['recurse']==True:
-                reader = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
+                reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
             if loc['input']['recurse']==False:
-                reader = pathReader.linear.linear(loc['input']['path'], loc['input'])
+                reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
                 
             writer = None
             if loc['output']['strategy']['strategy']=='copy':
@@ -128,10 +129,10 @@ USAGE
             if loc['diffStrategy']['strategy']=='filesize':
                 fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
 
-            dComparer = folderComparer.general.general({})
+            dComparer = folderComparer.general.general(fComparer, {})
 
             # run the actual worker
-            wrk = worker.general.general(reader, writer, dComparer, fComparer)
+            wrk = worker.general.general(reader1, writer, fComparer)
             wrk.run()
             
         return 0
