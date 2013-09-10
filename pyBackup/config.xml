@@ -49,7 +49,11 @@
 					</archiveFile>
 				</strategy>
 			</output>
-			<diffStrategy strategy="filesize"></diffStrategy>
+			<diffStrategy strategy="hash">
+				<hash>
+					<hash>md5</hash>
+				</hash>
+			</diffStrategy>
 		</location>
 		
 		<!--  

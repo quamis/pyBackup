@@ -33,6 +33,7 @@ import pathWriter.copy
 
 import fileComparer.filesize
 import fileComparer.filemtime
+import fileComparer.hash
 
 import folderComparer.general
 
@@ -117,12 +118,14 @@ USAGE
             print "backup %s, %s" % (loc['input']['path'], "recursive" if loc['input']['recurse'] else "non-recursive")
             print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
             
-            print loc
-            reader = None
+            reader1 = None
+            reader2 = None
             if loc['input']['recurse']==True:
-                reader = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
+                reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
+                reader2 = pathReader.recursive.recursive(loc['output']['path'], loc['input'])
             if loc['input']['recurse']==False:
-                reader = pathReader.linear.linear(loc['input']['path'], loc['input'])
+                reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
+                reader2 = pathReader.linear.linear(loc['output']['path'], loc['input'])
                 
             writer = None
             if loc['output']['strategy']['strategy']=='copy':
@@ -133,11 +136,13 @@ USAGE
                 fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
             if loc['diffStrategy']['strategy']=='filemtime':
                 fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
+            if loc['diffStrategy']['strategy']=='hash':
+                fComparer = fileComparer.hash.hash(loc['diffStrategy'])
 
             dComparer = folderComparer.general.general(fComparer, {})
             
             # run the actual worker
-            wrk = worker.general.general(reader, writer, fComparer)
+            wrk = worker.general.general(reader1, reader2, writer, fComparer)
             wrk.run()
             
         return 0

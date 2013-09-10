@@ -23,11 +23,6 @@ class recursive(object):
         
     def read(self):
         for root, dirs, files in os.walk(self.path):
-            """
-            for basename in dirs:
-                dirname = os.path.join(root, basename)+os.sep
-                yield dirname
-            """
             for basename in files:
                 if fnmatch.fnmatch(basename, "*"):
                     filename = os.path.join(root, basename)[len(self.path):]

@@ -21,10 +21,21 @@ class copy(object):
     def base(self):
         return self.path
     
-    def copy(self, input, output):
+    def addFile(self, input, output):
         self._mkdir(os.path.dirname(output))
         self._copyFile(input, output)
+        
+    def updateFile(self, input, output):
+        self._copyFile(input, output)
+        
+    def rmFile(self, output):
+        self._rmFile(file)
     
+    def _rmFile(self, file, progress_callback=None):
+        os.unlink(file)
+        if progress_callback is not None:
+            progress_callback(1)
+        
     def _copyFile(self, input, output, progress_callback=None):
         source = open(input, 'rb')
         dest = open(output, 'wb')
@@ -52,5 +63,6 @@ class copy(object):
         except OSError as exc: # Python >2.5
             if exc.errno == errno.EEXIST and os.path.isdir(path):
                 pass
-            else: raise
+            else:
+                raise
             

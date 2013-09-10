@@ -13,11 +13,12 @@ class general(object):
     '''
 
 
-    def __init__(self, reader, writer, fileComparer):
+    def __init__(self, inputReader, outputReader, writer, fileComparer):
         '''
         Initialize object
         '''
-        self.reader = reader
+        self.inputReader = inputReader
+        self.outputReader = outputReader
         self.writer = writer
         self.fileComparer = fileComparer
         
@@ -27,19 +28,47 @@ class general(object):
     def run(self):
         #print "\n".join(self.reader.getAll())
         
-        for p in self.reader.read():
-            pi = os.path.join(self.reader.base(), p)
-            po = os.path.join(self.writer.base(), p)
+        for (status, p, pi, po, hi, ho) in self.getDifferentFiles():
+            if status=="new":
+                print "[%s] %s" % (status, p)
+                self.writer.addFile(pi, po)
             
-            hi = self.fileComparer.hash(pi)
-            ho = self.fileComparer.hash(po)
-            
-            if hi != ho:
-                print "%s" % (pi)
-                self.writer.copy(pi, po)
-                self.worklog.append(pi, hi)
-            else:
-                #print "eq"
-                pass
+            """
+            if status=="old":
+                print "[%s] %s" % (status, p)
+                self.writer.rmFile(po)
+                
+            if status=="changed":
+                print "[%s] %s" % (status, p)
+                self.writer.updateFile(pi, po)
+            """
                 
         self.worklog.close()
+        
+    def getDifferentFiles(self):
+        outputFiles = self.outputReader.getAll()
+        
+        for p in self.inputReader.read():
+            pi = os.path.join(self.inputReader.base(), p)
+            hi = self.fileComparer.hash(pi)
+            po = os.path.join(self.outputReader.base(), p)
+            ho = None
+            
+            if p not in outputFiles:
+                yield ('new', p, pi, po, hi, ho)
+            else:
+                po = os.path.join(self.outputReader.base(), p)
+                ho = self.fileComparer.hash(po)
+                
+                if hi == ho:
+                    yield ('identical', p, pi, po, hi, ho)
+                else:
+                    yield ('changed', p, pi, po, hi, ho)
+                
+                outputFiles.remove(p)
+            
+        for p in outputFiles:
+            po = os.path.join(self.outputReader.base(), p)
+            ho = self.fileComparer.hash(po)
+            yield ('old', p, None, po, None, ho)
+            
