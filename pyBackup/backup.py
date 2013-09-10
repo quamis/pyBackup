@@ -23,18 +23,22 @@ import os
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 
-import config.reader;
+import config.reader
+import config.worklog
 
-import pathReader.recursive;
-import pathReader.linear;
+import pathReader.recursive
+import pathReader.linear
 
-import pathWriter.copy;
+import pathWriter.copy
 
-import fileComparer.filesize;
+import fileComparer.filesize
+import fileComparer.filemtime
 
-import folderComparer.general;
+import folderComparer.general
 
-import worker.general;
+import worker.general
+from config.worklog import worklog
+
 
 
 
@@ -114,12 +118,11 @@ USAGE
             print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
             
             print loc
-            reader1 = None
-            reader2 = None
+            reader = None
             if loc['input']['recurse']==True:
-                reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
+                reader = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
             if loc['input']['recurse']==False:
-                reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
+                reader = pathReader.linear.linear(loc['input']['path'], loc['input'])
                 
             writer = None
             if loc['output']['strategy']['strategy']=='copy':
@@ -128,11 +131,13 @@ USAGE
             fComparer = None
             if loc['diffStrategy']['strategy']=='filesize':
                 fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
+            if loc['diffStrategy']['strategy']=='filemtime':
+                fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
 
             dComparer = folderComparer.general.general(fComparer, {})
-
+            
             # run the actual worker
-            wrk = worker.general.general(reader1, writer, fComparer)
+            wrk = worker.general.general(reader, writer, fComparer)
             wrk.run()
             
         return 0
