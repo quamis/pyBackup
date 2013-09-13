@@ -27,6 +27,11 @@ class recursive(object):
                 if fnmatch.fnmatch(basename, "*"):
                     filename = os.path.join(root, basename)[len(self.path):]
                     yield filename
+                    
+            for basename in dirs:
+                if fnmatch.fnmatch(basename, "*"):
+                    filename = os.path.join(root, basename)[len(self.path):] + "/"
+                    yield filename
 
 
     def getAll(self):

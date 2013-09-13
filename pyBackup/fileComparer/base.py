@@ -16,6 +16,7 @@ class base(object):
         Initialize the class
         '''
         self.options = options
+        self.cacheData = None
         
     def getDifferences(self, input, output):
         raise "Not implemented"
@@ -23,5 +24,17 @@ class base(object):
     def exists(self, file):
         return os.path.exists(file)
     
-    def hash(self, file):
-        return "E" if self.exists(file) else "N"
+    def hash(self, absf, relf):
+        if self.cacheData and relf and relf in self.cacheData:
+            return self.cacheData[relf]['hash']
+        
+        return self._hash(absf)
+    
+    def _hash(self, absf):
+        return "E" if self.exists(absf) else "N"
+
+    def setCacheXml(self, root):
+        self.cacheData = {}
+        for tag in root.findall("./file"):
+            self.cacheData[tag.text] = tag.attrib
+            

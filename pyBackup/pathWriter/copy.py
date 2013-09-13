@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 Created on Sep 7, 2013
 
@@ -25,16 +27,23 @@ class copy(object):
         self._mkdir(os.path.dirname(output))
         self._copyFile(input, output)
         
+    def addDir(self, output):
+        self._mkdir(os.path.dirname(output))
+        
     def updateFile(self, input, output):
         self._copyFile(input, output)
         
     def rmFile(self, output):
-        self._rmFile(file)
+        self._rmFile(output)
+        
+    def rmDir(self, output):
+        self._rmDir(output)
     
     def _rmFile(self, file, progress_callback=None):
         os.unlink(file)
-        if progress_callback is not None:
-            progress_callback(1)
+        
+    def _rmDir(self, output, progress_callback=None):
+        os.rmdir(output)
         
     def _copyFile(self, input, output, progress_callback=None):
         source = open(input, 'rb')

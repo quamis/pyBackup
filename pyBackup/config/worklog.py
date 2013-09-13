@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 Created on Sep 1, 2013
 
@@ -24,7 +26,7 @@ class worklog(object):
             self.xml = ET.parse(self.xmlFile)
             self.xml = self.xml.getroot()
         except:
-            s = """<?xml version="1.0" encoding="UTF-8"?>
+            s = u"""<?xml version="1.0" encoding="UTF-8"?>
 <worklog>
     <setup>
         <ctime date="%s"/>
@@ -36,10 +38,14 @@ class worklog(object):
             self.xml = ET.fromstring(s)
         
 
-    def append(self, f, h):
+    def append(self, f, h, s):
         e = ET.Element('file')
-        e.text = f
+        if h is None:
+            h = ''
+        
+        e.text = f.decode("utf-8")
         e.set('hash', h)
+        e.set('status', s)
         self.xml.find('files').append(e)
         
     def close(self):

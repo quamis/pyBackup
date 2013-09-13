@@ -88,64 +88,66 @@ def main(argv=None): # IGNORE:C0111
 
 USAGE
 ''' % (program_shortdesc, str(__date__))
-
+    """
     try:
-        # Setup argument parser
-        parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
-        parser.add_argument("-c", "--config", dest="config", action="store", type=file, default=None, help="the xml config file")
-        parser.add_argument("-v", "--verbose", dest="verbose", action="count", help="set verbosity level [default: %(default)s]")
-        parser.add_argument('-V', '--version', action='version', version=program_version_message)
+    """
+    # Setup argument parser
+    parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
+    parser.add_argument("-c", "--config", dest="config", action="store", type=file, default=None, help="the xml config file")
+    parser.add_argument("-v", "--verbose", dest="verbose", action="count", help="set verbosity level [default: %(default)s]")
+    parser.add_argument('-V', '--version', action='version', version=program_version_message)
 
-        # Process arguments
-        args = parser.parse_args()
+    # Process arguments
+    args = parser.parse_args()
+    
+    """
+    if verbose > 0:
+        print("Verbose mode on")
+        if recurse:
+            print("Recursive mode on")
+        else:
+            print("Recursive mode off")
+    """
+    
+    if args.config is None:
+        raise CLIError("No config specified, nothing will be processed")
+    
+    cfgReader = config.reader.reader("config.xml")
+    #print reader.general()
+    #print reader.locations()
+    for loc in cfgReader.locations():
+        print "backup %s, %s" % (loc['input']['path'], "recursive" if loc['input']['recurse'] else "non-recursive")
+        print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
         
-        """
-        if verbose > 0:
-            print("Verbose mode on")
-            if recurse:
-                print("Recursive mode on")
-            else:
-                print("Recursive mode off")
-        """
-        
-        if args.config is None:
-            raise CLIError("No config specified, nothing will be processed")
-        
-        cfgReader = config.reader.reader("config.xml")
-        #print reader.general()
-        #print reader.locations()
-        for loc in cfgReader.locations():
-            print "backup %s, %s" % (loc['input']['path'], "recursive" if loc['input']['recurse'] else "non-recursive")
-            print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
+        reader1 = None
+        reader2 = None
+        if loc['input']['recurse']==True:
+            reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
+            reader2 = pathReader.recursive.recursive(loc['output']['path'], loc['input'])
+        if loc['input']['recurse']==False:
+            reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
+            reader2 = pathReader.linear.linear(loc['output']['path'], loc['input'])
             
-            reader1 = None
-            reader2 = None
-            if loc['input']['recurse']==True:
-                reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
-                reader2 = pathReader.recursive.recursive(loc['output']['path'], loc['input'])
-            if loc['input']['recurse']==False:
-                reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
-                reader2 = pathReader.linear.linear(loc['output']['path'], loc['input'])
-                
-            writer = None
-            if loc['output']['strategy']['strategy']=='copy':
-                writer = pathWriter.copy.copy(loc['output']['path'], loc['output']['strategy'])
-            
-            fComparer = None
-            if loc['diffStrategy']['strategy']=='filesize':
-                fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
-            if loc['diffStrategy']['strategy']=='filemtime':
-                fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
-            if loc['diffStrategy']['strategy']=='hash':
-                fComparer = fileComparer.hash.hash(loc['diffStrategy'])
+        writer = None
+        if loc['output']['strategy']['strategy']=='copy':
+            writer = pathWriter.copy.copy(loc['output']['path'], loc['output']['strategy'])
+        
+        fComparer = None
+        if loc['diffStrategy']['strategy']=='filesize':
+            fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
+        if loc['diffStrategy']['strategy']=='filemtime':
+            fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
+        if loc['diffStrategy']['strategy']=='hash':
+            fComparer = fileComparer.hash.hash(loc['diffStrategy'])
 
-            dComparer = folderComparer.general.general(fComparer, {})
-            
-            # run the actual worker
-            wrk = worker.general.general(reader1, reader2, writer, fComparer)
-            wrk.run()
-            
-        return 0
+        dComparer = folderComparer.general.general(fComparer, {})
+        
+        # run the actual worker
+        wrk = worker.general.general(reader1, reader2, writer, fComparer)
+        wrk.run()
+        
+    return 0
+    """
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
         return 0
@@ -157,6 +159,7 @@ USAGE
         sys.stderr.write(indent + "  for help use --help")
         sys.stderr.write("\n")
         return 2
+    """
 
 if __name__ == "__main__":
     if DEBUG:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on Sep 7, 2013
 
@@ -12,16 +13,16 @@ class hash(base.base):
     Compare 2 files by comparing their filesize
     '''
 
-    def hash(self, file):
-        if self.exists(file):
-            return super(hash, self).hash(file) + self.get_md5(file)
+    def _hash(self, f):
+        if self.exists(f):
+            return super(hash, self)._hash(f) + self.get_md5(f)
 
 
-    def get_md5(self, file):
-        f = open(file, 'rb')
+    def get_md5(self, f):
+        fi = open(f, 'rb')
         md5 = hashlib.md5()
         while True:
-            data = f.read(1024*1024)
+            data = fi.read(int(2.5*1024*1024))
             if not data:
                 break
             md5.update(data)

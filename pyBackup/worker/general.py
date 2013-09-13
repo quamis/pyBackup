@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 '''
 Created on Sep 7, 2013
 
 @author: lucian
 '''
-import os
+import sys, os
 import config.worklog
 
 
@@ -24,51 +26,90 @@ class general(object):
         
         self.worklog = config.worklog.worklog(os.path.join(self.writer.base(), "worklog.xml"))
         
+        self.fileComparer.setCacheXml(self.worklog.xml.find('files'))
+    
+    def _pre(self):
+        print "Start scanner"
+        
+    def _post(self):
+        print "\n\nWrite worklog" 
+        self.worklog.close()
+        print "Backup done"    
         
     def run(self):
-        #print "\n".join(self.reader.getAll())
+        self._pre();
         
-        for (status, p, pi, po, hi, ho) in self.getDifferentFiles():
-            if status=="new":
-                print "[%s] %s" % (status, p)
-                self.writer.addFile(pi, po)
+        print "Get filelist in the input folder"
+        total = len(self.inputReader.getAll())
+        
+        for (status, index, p, pi, po, hi, ho) in self.getDifferentFiles():
+            sys.stdout.write("\n%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
+            sys.stdout.flush()
             
-            """
+            if status=="new":
+                self.writer.addFile(pi, po)
+                
+            if status=="newdir":
+                self.writer.addDir(po)
+
             if status=="old":
-                print "[%s] %s" % (status, p)
                 self.writer.rmFile(po)
                 
-            if status=="changed":
-                print "[%s] %s" % (status, p)
-                self.writer.updateFile(pi, po)
-            """
+            if status=="olddir":
+                self.writer.rmDir(po)
                 
-        self.worklog.close()
+            if status=="changed":
+                self.writer.updateFile(pi, po)
+                
+            self.worklog.append(p, hi, status)
+        self._post();
+        
+    def _callback(self, index):
+        pass
         
     def getDifferentFiles(self):
+        print "Get filelist in the target folder"
         outputFiles = self.outputReader.getAll()
         
+        print "Start comparer"
+        index = 0
         for p in self.inputReader.read():
+            index+= 1
+            self._callback(index)
+            
             pi = os.path.join(self.inputReader.base(), p)
-            hi = self.fileComparer.hash(pi)
+            hi = None
             po = os.path.join(self.outputReader.base(), p)
             ho = None
-            
+            if os.path.isdir(pi):
+                if p not in outputFiles:
+                    yield ('newdir', index, p, pi, po, hi, ho)
+                else:
+                    yield ('dir', index, p, pi, po, hi, ho)
+                    outputFiles.remove(p)
+                continue
+                
+            hi = self.fileComparer.hash(pi, None)
+            ho = None
             if p not in outputFiles:
-                yield ('new', p, pi, po, hi, ho)
+                yield ('new', index, p, pi, po, hi, ho)
             else:
-                po = os.path.join(self.outputReader.base(), p)
-                ho = self.fileComparer.hash(po)
+                ho = self.fileComparer.hash(po, p)
                 
                 if hi == ho:
-                    yield ('identical', p, pi, po, hi, ho)
+                    yield ('file', index, p, pi, po, hi, ho)
                 else:
-                    yield ('changed', p, pi, po, hi, ho)
+                    yield ('changed', index, p, pi, po, hi, ho)
                 
                 outputFiles.remove(p)
             
+        outputFiles.sort(reverse=True)
         for p in outputFiles:
             po = os.path.join(self.outputReader.base(), p)
-            ho = self.fileComparer.hash(po)
-            yield ('old', p, None, po, None, ho)
+            if os.path.isdir(po):
+                yield ('olddir', index, p, None, po, None, None)
+            else:
+                ho = self.fileComparer.hash(po, p)
+                yield ('old', index, p, None, po, None, ho)
+            
             
