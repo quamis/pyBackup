@@ -21,22 +21,17 @@ class recursive(object):
     def base(self):
         return self.path
         
-    def read(self):
+    def getAll(self):
+        paths = []
         for root, dirs, files in os.walk(self.path):
             for basename in files:
                 if fnmatch.fnmatch(basename, "*"):
                     filename = os.path.join(root, basename)[len(self.path):]
-                    yield filename
+                    paths.append(filename)
                     
             for basename in dirs:
                 if fnmatch.fnmatch(basename, "*"):
                     filename = os.path.join(root, basename)[len(self.path):] + "/"
-                    yield filename
-
-
-    def getAll(self):
-        paths = []
-        for p in self.read():
-            paths.append(p)
-            
+                    paths.append(filename)
+                    
         return paths

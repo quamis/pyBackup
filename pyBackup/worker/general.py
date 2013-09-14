@@ -28,6 +28,9 @@ class general(object):
         self.worklog =  config.worklog.worklog(os.path.join(self.writer.base(), "_pyBackup.xml"))
         self.cache =    config.cache.cache(os.path.join(self.writer.base(), "_pyBackup.cache.xml"))
         
+        self.inputFiles =    None
+        self.outputFiles =    None
+        
         self.fileComparer.setCacheXml(self.cache)
     
     def _pre(self):
@@ -35,9 +38,16 @@ class general(object):
         print "Open cache"
         self.cache.open()
         
+        print "Get filelist in the input folder"
+        self.inputFiles = self.inputReader.getAll()
+        
+        print "Get filelist in the target folder"
+        self.outputFiles = self.outputReader.getAll()
+        
     def _post(self):
         print "\n\nWrite worklog" 
         self.worklog.close()
+        print "Write cache"
         self.cache.close()
         print "Backup done"    
         
@@ -45,24 +55,27 @@ class general(object):
         self._pre();
         
         print "Get filelist in the input folder"
-        total = len(self.inputReader.getAll())
+        totalFiles = len(set(self.inputFiles + self.outputFiles))
         
-        printnl = True
+        printType = None
         for (status, index, p, dt) in self.getDifferentFiles():
             if status in ('file', 'dir'):
-                if printnl:
+                if printType=="n":
                     sys.stdout.write("\n")
                 
-                printnl = False
-                sys.stdout.write("\r%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
+                sys.stdout.write("\r%04.1f    [%- 10s] %- 100s" % (100*float(index)/totalFiles, status, p[0:100]))
                 sys.stdout.flush()
+                printType = "o"
             else:
-                #print ("%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
-                sys.stdout.write("\n%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
+                if printType=="o":
+                    sys.stdout.write("\r")
+                else:
+                    sys.stdout.write("\n")
+                    
+                sys.stdout.write("%04.1f    [%- 10s] %- 100s" % (100*float(index)/totalFiles, status, p[0:100]))
                 sys.stdout.flush()
-                printnl = True
+                printType = "n"
                 
-            
             if status=="new":
                 self.writer.addFile(dt['pi'], dt['po'])
                 
@@ -91,12 +104,12 @@ class general(object):
         pass
         
     def getDifferentFiles(self):
-        print "Get filelist in the target folder"
-        outputFiles = self.outputReader.getAll()
-        
         print "Start comparer"
         index = 0
-        for p in self.inputReader.read():
+        
+        outputFiles = self.outputFiles
+        
+        for p in self.inputFiles:
             index+= 1
             self._callback(index)
             
@@ -148,6 +161,7 @@ class general(object):
             
         outputFiles.sort(reverse=True)
         for p in outputFiles:
+            index+= 1
             dt = {
                 'p': p,
                 'pi': None, 'po': None, 'hi': None, 'ho': None, 

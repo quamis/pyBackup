@@ -18,12 +18,5 @@ class linear(object):
         self.path = path
         self.options = options
         
-    def read(self):
-        yield self.path
-
     def getAll(self):
-        paths = []
-        for p in self.read():
-            paths.append(p)
-            
-        return paths
+        return [self.path]
