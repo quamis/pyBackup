@@ -15,8 +15,11 @@ class hash(base.base):
 
     def _hash(self, f):
         if self.exists(f):
-            return super(hash, self)._hash(f) + self.get_md5(f)
-
+            return "%s.%s.%s" % (
+                 super(hash, self)._hash(f),
+                 self.get_hexsize(f),
+                 self.get_md5(f)
+             )
 
     def get_md5(self, f):
         fi = open(f, 'rb')
@@ -28,3 +31,4 @@ class hash(base.base):
             md5.update(data)
             
         return md5.hexdigest()
+   

@@ -33,6 +33,9 @@ class base(object):
     def _hash(self, absf):
         return "E" if self.exists(absf) else "N"
 
+    def get_hexsize(self, f):
+        return "%x" % (os.path.getsize(f))
+    
     def setCacheXml(self, root):
         self.cacheData = {}
         for tag in root.findall("./file"):
