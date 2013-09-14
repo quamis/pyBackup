@@ -84,13 +84,20 @@ class reader(object):
             pass
         elif ret['strategy']=='hash':
             ret['hash'] = node.find("./hash/hash").text
+        elif ret['strategy']=='fasthash':
+            ret['hash'] = node.find("./fasthash/hash").text
+            ret['cache_enabled'] =      self._asBool(node.find("./fasthash/cache_enabled").text)
+            ret['cache_use_hints'] =    self._asBool(node.find("./fasthash/cache_use_hints").text)
             
         return ret
+    
+    def _asBool(self, text):
+        return True if text in ('True', 'true', '1', 'yes') else False
     
     def _read_input(self, node):
         ret = {}
         ret['path'] = node.find("./path").text
-        ret['recurse'] = True if node.find("./path").attrib['recurse'] in ('True', 'true', '1', 'yes') else False
+        ret['recurse'] = self._asBool(node.find("./path").attrib['recurse'])
         
         return ret
         

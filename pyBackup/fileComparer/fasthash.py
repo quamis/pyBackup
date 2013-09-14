@@ -10,18 +10,28 @@ import hashlib
 
 class fasthash(hash.hash):
     '''
-    Compare 2 files by comparing their filesize
+    Compare 2 files by comparing their hashes, in an error-prone but really fast way
     '''
-
+    def hash(self, absf, dt, dsrc):
+        if self.cache and self.options['cache_enabled'] and self.cache.exists(dt['p']):
+            if self.options['cache_use_hints'] and dsrc=='i':
+                ch = self.cache.get(dt['p'])
+                if dt['imtime']==ch['mtime'] and dt['isize']==ch['size'] :
+                    return self.cache.getHash(dt['p'])
+            if dsrc=='o':
+                return self.cache.getHash(dt['p'])
+        
+        return self._hash(absf)
+    
     def _hash(self, f):
         if self.exists(f):
             return "%s.%s.%s" % (
-                 super(fasthash, self)._hash(f),
-                 self.get_hexsize(f),
-                 self.get_md5_sparse(f)
-                 )
-
-    def get_md5_sparse(self, f):
+                 self._h_exists(f),
+                 self._h_hexsize(f),
+                 self._h_md5_sparse(f)
+             )
+            
+    def _h_md5_sparse(self, f):
         """
         calculate the md5 hash for a file, by reading sparse cheunks o \f data from it.
         Very fast compared to the direct approach, but error-prone, it may lead to false-positives(it may consider 2 files as equal, even if they aren't 
@@ -34,12 +44,21 @@ class fasthash(hash.hash):
         else:
             size = float(os.path.getsize(f))/(1024*1024*1024)
             
-            if size<0.25:
+            if size<0.02:   # 20Mb
                 read_chunk = int(2*1024*1024)
                 skip_chunk = int(0*1024*1024)
-            elif size<0.8:
+            elif size<0.10:   # 100Mb
                 read_chunk = int(2*1024*1024)
-                skip_chunk = int(1*1024*1024)
+                skip_chunk = int(0.25*1024*1024)
+            elif size<0.20:   # 200Mb
+                read_chunk = int(2*1024*1024)
+                skip_chunk = int(0.5*1024*1024)
+            elif size<0.25:
+                read_chunk = int(2*1024*1024)
+                skip_chunk = int(0.75*1024*1024)
+            elif size<1.0:
+                read_chunk = int(1*1024*1024)
+                skip_chunk = int(1.25*1024*1024)
             elif size<2.0:
                 read_chunk = int(2*1024*1024)
                 skip_chunk = int(2*1024*1024)

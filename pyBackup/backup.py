@@ -34,6 +34,7 @@ import pathWriter.copy
 import fileComparer.filesize
 import fileComparer.filemtime
 import fileComparer.hash
+import fileComparer.fasthash
 
 import folderComparer.general
 
@@ -139,6 +140,8 @@ USAGE
             fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
         if loc['diffStrategy']['strategy']=='hash':
             fComparer = fileComparer.hash.hash(loc['diffStrategy'])
+        if loc['diffStrategy']['strategy']=='fasthash':
+            fComparer = fileComparer.fasthash.fasthash(loc['diffStrategy'])
 
         dComparer = folderComparer.general.general(fComparer, {})
         

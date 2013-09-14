@@ -15,8 +15,11 @@ class base(object):
         '''
         Initialize the class
         '''
-        self.options = options
-        self.cacheData = None
+        self.options = {
+            'cache_enabled': True if ('cache_enabled' in options and options['cache_enabled']) else False,
+            'cache_use_hints': True if ('cache_use_hints' in options and options['cache_use_hints']) else False,
+        }
+        self.cache = None
         
     def getDifferences(self, input, output):
         raise "Not implemented"
@@ -24,20 +27,18 @@ class base(object):
     def exists(self, file):
         return os.path.exists(file)
     
-    def hash(self, absf, relf):
-        if self.cacheData and relf and relf in self.cacheData:
-            return self.cacheData[relf]['hash']
-        
+    def hash(self, absf, dt, dsrc):
         return self._hash(absf)
     
     def _hash(self, absf):
+        return self._h_exists(self, absf)
+    
+    def _h_exists(self, absf):
         return "E" if self.exists(absf) else "N"
 
-    def get_hexsize(self, f):
+    def _h_hexsize(self, f):
         return "%x" % (os.path.getsize(f))
     
-    def setCacheXml(self, root):
-        self.cacheData = {}
-        for tag in root.findall("./file"):
-            self.cacheData[tag.text] = tag.attrib
+    def setCacheXml(self, cache):
+        self.cache = cache
             
