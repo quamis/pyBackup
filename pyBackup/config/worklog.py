@@ -23,10 +23,18 @@ class worklog(object):
         self.date = datetime.datetime.now()
         
         try:
-            self.xml = ET.parse(self.xmlFile)
-            self.xml = self.xml.getroot()
+            self.loadData()
         except:
-            s = u"""<?xml version="1.0" encoding="UTF-8"?>
+            print "init XML %s" % self.xmlFile
+            self.loadDataDefault()
+        
+        
+    def loadData(self):
+        self.xml = ET.parse(self.xmlFile)
+        self.xml = self.xml.getroot()
+        
+    def loadDataDefault(self):
+        s = u"""<?xml version="1.0" encoding="UTF-8"?>
 <worklog>
     <setup>
         <ctime date="%s"/>
@@ -35,8 +43,7 @@ class worklog(object):
     </setup>
     <files />
 </worklog>""" % ( self.date.isoformat('T'))
-            self.xml = ET.fromstring(s)
-        
+        self.xml = ET.fromstring(s)
 
     def append(self, f, h, s):
         e = ET.Element('file')
