@@ -113,7 +113,7 @@ USAGE
     if args.config is None:
         raise CLIError("No config specified, nothing will be processed")
     
-    cfgReader = config.reader.reader("config.xml")
+    cfgReader = config.reader.reader(args.config)
     #print reader.general()
     #print reader.locations()
     for loc in cfgReader.locations():
