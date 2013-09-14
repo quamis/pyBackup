@@ -5,9 +5,9 @@ WIP
 
 TODO
 ---------------
-
 - incearca sa detectezi fisierele mutate/redenumite (am acelasi hash deja in cache, dar in alt path, sters, si pot fac un move local in backup direct).
 - determine an ETA.... somehow:)
+- system load protection. Daca load-ul in sistem creste peste X, fa sleep
 
 
 DONE
