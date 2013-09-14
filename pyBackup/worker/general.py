@@ -7,6 +7,7 @@ Created on Sep 7, 2013
 '''
 import sys, os
 import config.worklog
+import config.cache
 
 
 class general(object):
@@ -24,16 +25,20 @@ class general(object):
         self.writer = writer
         self.fileComparer = fileComparer
         
-        self.worklog = config.worklog.worklog(os.path.join(self.writer.base(), "worklog.xml"))
+        self.worklog =  config.worklog.worklog(os.path.join(self.writer.base(), "_pyBackup.xml"))
+        self.cache =    config.cache.cache(os.path.join(self.writer.base(), "_pyBackup.cache.xml"))
         
-        self.fileComparer.setCacheXml(self.worklog.xml.find('files'))
+        self.fileComparer.setCacheXml(self.cache)
     
     def _pre(self):
         print "Start scanner"
+        print "Open cache"
+        self.cache.open()
         
     def _post(self):
         print "\n\nWrite worklog" 
         self.worklog.close()
+        self.cache.close()
         print "Backup done"    
         
     def run(self):
@@ -42,26 +47,44 @@ class general(object):
         print "Get filelist in the input folder"
         total = len(self.inputReader.getAll())
         
-        for (status, index, p, pi, po, hi, ho) in self.getDifferentFiles():
-            sys.stdout.write("\n%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
-            sys.stdout.flush()
+        printnl = True
+        for (status, index, p, dt) in self.getDifferentFiles():
+            if status in ('file', 'dir'):
+                if printnl:
+                    sys.stdout.write("\n")
+                
+                printnl = False
+                sys.stdout.write("\r%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
+                sys.stdout.flush()
+            else:
+                #print ("%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
+                sys.stdout.write("\n%04.1f    [%- 10s] %- 100s" % (100*float(index)/total, status, p[0:100]))
+                sys.stdout.flush()
+                printnl = True
+                
             
             if status=="new":
-                self.writer.addFile(pi, po)
+                self.writer.addFile(dt['pi'], dt['po'])
                 
             if status=="newdir":
-                self.writer.addDir(po)
+                self.writer.addDir(dt['po'])
 
             if status=="old":
-                self.writer.rmFile(po)
+                self.writer.rmFile(dt['po'])
                 
             if status=="olddir":
-                self.writer.rmDir(po)
+                self.writer.rmDir(dt['po'])
                 
             if status=="changed":
-                self.writer.updateFile(pi, po)
+                self.writer.updateFile(dt['pi'], dt['po'])
                 
-            self.worklog.append(p, hi, status)
+            
+            self.cache.set(p, {
+               'status':    status,
+               'hash':      dt['hi'], 
+               'size':      dt['isize'],
+               'mtime':     dt['imtime'],
+               })
         self._post();
         
     def _callback(self, index):
@@ -77,39 +100,64 @@ class general(object):
             index+= 1
             self._callback(index)
             
-            pi = os.path.join(self.inputReader.base(), p)
-            hi = None
-            po = os.path.join(self.outputReader.base(), p)
-            ho = None
-            if os.path.isdir(pi):
+            dt = {
+                'p': p,
+                'pi': None, 'po': None, 'hi': None, 'ho': None,
+                'isize': None, 'imtime': None,
+                'osize': None, 'omtime': None,
+            }
+            dt['p'] =  p
+            dt['pi'] = os.path.join(self.inputReader.base(), p)
+            dt['po'] = os.path.join(self.outputReader.base(), p)
+            
+            if os.path.isdir(dt['pi']):
                 if p not in outputFiles:
-                    yield ('newdir', index, p, pi, po, hi, ho)
+                    yield ('newdir', index, p, dt)
                 else:
-                    yield ('dir', index, p, pi, po, hi, ho)
+                    yield ('dir', index, p, dt)
                     outputFiles.remove(p)
                 continue
+            
+            try:
+                dt['isize'] =   os.path.getsize(dt['pi'])
+                dt['imtime'] =  os.path.getmtime(dt['pi'])
+            except OSError:
+                print "File went missing %s" % ( p )
+                continue
                 
-            hi = self.fileComparer.hash(pi, None)
-            ho = None
+            dt['hi'] = self.fileComparer.hash(dt['pi'], dt, 'i')
+            dt['ho'] = None
             if p not in outputFiles:
-                yield ('new', index, p, pi, po, hi, ho)
+                yield ('new', index, p, dt)
             else:
-                ho = self.fileComparer.hash(po, p)
+                try:
+                    dt['osize'] =   os.path.getsize(dt['po'])
+                    dt['omtime'] =  os.path.getmtime(dt['po'])
+                except OSError:
+                    print "File went missing %s" % ( p )
+                    continue
+            
+                dt['ho'] = self.fileComparer.hash(dt['po'], dt, 'o')
                 
-                if hi == ho:
-                    yield ('file', index, p, pi, po, hi, ho)
+                if dt['hi'] == dt['ho']:
+                    yield ('file', index, p, dt)
                 else:
-                    yield ('changed', index, p, pi, po, hi, ho)
+                    yield ('changed', index, p, dt)
                 
                 outputFiles.remove(p)
             
         outputFiles.sort(reverse=True)
         for p in outputFiles:
-            po = os.path.join(self.outputReader.base(), p)
-            if os.path.isdir(po):
-                yield ('olddir', index, p, None, po, None, None)
+            dt = {
+                'p': p,
+                'pi': None, 'po': None, 'hi': None, 'ho': None, 
+                'isize': None, 'imtime': None,
+                'osize': None, 'omtime': None,
+            }
+            dt['po']= os.path.join(self.outputReader.base(), p)
+            if os.path.isdir(dt['po']):
+                yield ('olddir', index, p, dt)
             else:
-                ho = self.fileComparer.hash(po, p)
-                yield ('old', index, p, None, po, None, ho)
+                yield ('old', index, p, dt)
             
             
