@@ -107,8 +107,27 @@ class general(object):
         print "Start comparer"
         index = 0
         
-        outputFiles = self.outputFiles
+        removedFiles = []
+        for p in self.outputFiles:
+            if p not in self.inputFiles:
+                removedFiles.append(p)
         
+        removedFiles.sort(reverse=True)
+        for p in removedFiles:
+            index+= 1
+            dt = {
+                'p': p,
+                'pi': None, 'po': None, 'hi': None, 'ho': None, 
+                'isize': None, 'imtime': None,
+                'osize': None, 'omtime': None,
+            }
+            dt['po']= os.path.join(self.outputReader.base(), p)
+            if os.path.isdir(dt['po']):
+                yield ('olddir', index, p, dt)
+            else:
+                yield ('old', index, p, dt)
+
+                        
         for p in self.inputFiles:
             index+= 1
             self._callback(index)
@@ -124,11 +143,10 @@ class general(object):
             dt['po'] = os.path.join(self.outputReader.base(), p)
             
             if os.path.isdir(dt['pi']):
-                if p not in outputFiles:
+                if p not in self.outputFiles:
                     yield ('newdir', index, p, dt)
                 else:
                     yield ('dir', index, p, dt)
-                    outputFiles.remove(p)
                 continue
             
             try:
@@ -140,7 +158,7 @@ class general(object):
                 
             dt['hi'] = self.fileComparer.hash(dt['pi'], dt, 'i')
             dt['ho'] = None
-            if p not in outputFiles:
+            if p not in self.outputFiles:
                 yield ('new', index, p, dt)
             else:
                 try:
@@ -157,21 +175,5 @@ class general(object):
                 else:
                     yield ('changed', index, p, dt)
                 
-                outputFiles.remove(p)
-            
-        outputFiles.sort(reverse=True)
-        for p in outputFiles:
-            index+= 1
-            dt = {
-                'p': p,
-                'pi': None, 'po': None, 'hi': None, 'ho': None, 
-                'isize': None, 'imtime': None,
-                'osize': None, 'omtime': None,
-            }
-            dt['po']= os.path.join(self.outputReader.base(), p)
-            if os.path.isdir(dt['po']):
-                yield ('olddir', index, p, dt)
-            else:
-                yield ('old', index, p, dt)
             
             
