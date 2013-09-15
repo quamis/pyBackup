@@ -5,6 +5,8 @@ WIP
 
 TODO
 ---------------
+- message-passing, sau callbacks, ca sa pot refolosi modulul in alt proiect
+- reader-ul sa poata sari peste unele foldere(workspace/\.metadata, firefox/.+\/Cache\/, thumbnails)
 - determine an ETA.... somehow:)
 - system load protection. Daca load-ul in sistem creste peste X, fa sleep
 

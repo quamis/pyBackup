@@ -35,7 +35,7 @@ class general(object):
     
     def _pre(self):
         print "Start scanner"
-        print "Open cache"
+        print "Open & preload cache"
         self.cache.open()
         
         print "Get filelist in the input folder"
@@ -54,8 +54,8 @@ class general(object):
     def run(self):
         self._pre();
         
-        print "Get filelist in the input folder"
         totalFiles = len(set(self.inputFiles + self.outputFiles))
+        print "I need to go over %d files. %d are in the input folder, and %d in the output folder" % (totalFiles, len(self.inputFiles), len(self.outputFiles))
         
         printType = None
         for (status, index, p, dt) in self.getDifferentFiles():
@@ -100,6 +100,18 @@ class general(object):
                })
         self._post();
         
+        stats = self.writer.getStats()
+        print "Copied %.2fMb of data, (added %d files, with a total of %.2fMb, and updated %d files with a total of %.2fMb)" % (
+              float(stats['addFile']['size']+stats['updateFile']['size'])/(1024*1024),
+              stats['addFile']['count'], float(stats['addFile']['size'])/(1024*1024),
+              stats['updateFile']['count'], float(stats['updateFile']['size'])/(1024*1024),
+          ) 
+        print "Freed %.2fMb of data, ( removed %d files)" % (
+             float(stats['rmFile']['size'])/(1024*1024), stats['rmFile']['count'] 
+         )
+        
+        print "\n\n"
+        
     def _callback(self, index):
         pass
         
@@ -107,11 +119,12 @@ class general(object):
         print "Start comparer"
         index = 0
         
+        print "    Lookup missing files"
         removedFiles = []
         for p in self.outputFiles:
             if p not in self.inputFiles:
                 removedFiles.append(p)
-        
+                
         removedFiles.sort(reverse=True)
         for p in removedFiles:
             index+= 1
@@ -127,7 +140,7 @@ class general(object):
             else:
                 yield ('old', index, p, dt)
 
-                        
+        print "    Lookup new & changed files"
         for p in self.inputFiles:
             index+= 1
             self._callback(index)
