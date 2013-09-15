@@ -24,7 +24,6 @@
 	</config>
 	
 	<locations>
-		
 		<location>
 			<input>
 				<path recurse="True">/media/BIG/pictures/pictures-extra/fotografiate/Oldies/prin 2008/</path>
@@ -67,6 +66,12 @@
 		<location>
 			<input>
 				<path recurse="True">/home/lucian/</path>
+				<ignore>
+					<ignore target="file" type="startswith">.cache/</ignore>
+					<ignore target="all" type="startswith">workspace/.metadata/</ignore>
+					<ignore target="file" type="endswith">.log</ignore>
+					<ignore target="file" type="endswith">.pyc</ignore>
+				</ignore>
 			</input>
 			<output>
 				<path>/run/media/lucian/Backup/temp/2/</path>

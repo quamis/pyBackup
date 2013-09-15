@@ -98,7 +98,14 @@ class reader(object):
         ret = {}
         ret['path'] = node.find("./path").text
         ret['recurse'] = self._asBool(node.find("./path").attrib['recurse'])
-        
+        ret['ignore'] = []
+        for ig in node.findall("./ignore/ignore"):
+            ret['ignore'].append({
+                  'target':     ig.attrib['target'],
+                  'type':       ig.attrib['type'],
+                  'content':    ig.text,
+            })
+
         return ret
         
     

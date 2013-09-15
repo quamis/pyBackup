@@ -124,10 +124,14 @@ USAGE
         reader2 = None
         if loc['input']['recurse']==True:
             reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
-            reader2 = pathReader.recursive.recursive(loc['output']['path'], loc['input'])
+            reader2 = pathReader.recursive.recursive(loc['output']['path'], {'ignore': 
+                   [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
+            })
         if loc['input']['recurse']==False:
             reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
-            reader2 = pathReader.linear.linear(loc['output']['path'], loc['input'])
+            reader2 = pathReader.linear.linear(loc['output']['path'], {'ignore': 
+                   [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
+            })
             
         writer = None
         if loc['output']['strategy']['strategy']=='copy':

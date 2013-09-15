@@ -6,7 +6,6 @@ WIP
 TODO
 ---------------
 - message-passing, sau callbacks, ca sa pot refolosi modulul in alt proiect
-- reader-ul sa poata sari peste unele foldere(workspace/\.metadata, firefox/.+\/Cache\/, thumbnails)
 - determine an ETA.... somehow:)
 - system load protection. Daca load-ul in sistem creste peste X, fa sleep
 
@@ -18,3 +17,4 @@ DONE
 - renunta la a tine lista de fisiere cached in acelasi fisier cu cel de cfg. Foloseste alt fisier, special pt asta. comprima-l pe disc
 - renunta la iterator, si foloseste getAll(), elimina iteratorul intern pt getAll.
 	- fa intai delete, si apoi update, apoi insert
+- reader-ul sa poata sari peste unele foldere(workspace/\.metadata, firefox/.+\/Cache\/, thumbnails)
