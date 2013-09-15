@@ -2,3 +2,4 @@
 /.pydevproject
 *.pyc
 /.log
+/realcfg.xml
