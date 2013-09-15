@@ -105,10 +105,15 @@ class general(object):
               float(stats['addFile']['size']+stats['updateFile']['size'])/(1024*1024),
               stats['addFile']['count'], float(stats['addFile']['size'])/(1024*1024),
               stats['updateFile']['count'], float(stats['updateFile']['size'])/(1024*1024),
-          ) 
+        ) 
         print "Freed %.2fMb of data, ( removed %d files)" % (
-             float(stats['rmFile']['size'])/(1024*1024), stats['rmFile']['count'] 
-         )
+             float(stats['rmFile']['size'])/(1024*1024), stats['rmFile']['count'], 
+        )
+        
+        stats = self.cache.getStats()
+        print "Cache reports %d hits & %d misses" % (
+              stats['hits'], stats['misses'], 
+        )
         
         print "\n\n"
         

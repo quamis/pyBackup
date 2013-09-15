@@ -20,6 +20,13 @@ class cache(worklog.worklog):
         worklog.worklog.__init__(self, xmlFile)
         self.existingData = {}
         self.newData = {}
+        self.stats = {
+          'hits': 0,
+          'misses': 0,
+        }
+        
+    def getStats(self):
+        return self.stats
         
     def loadData(self):
         f = gzip.open(self.xmlFile+".gz", 'rb')
@@ -35,7 +42,14 @@ class cache(worklog.worklog):
             self.existingData[tag.text] = tag.attrib
             
     def exists(self, p):
-        return p in self.existingData
+        ret = p in self.existingData
+        
+        if ret: 
+            self.stats['hits']+=1
+        else:
+            self.stats['misses']+=1
+            
+        return ret
     
     def getHash(self, p):
         return self.get(p)['hash']
