@@ -24,13 +24,13 @@
 	</config>
 	
 	<locations>
-		<!-- 
+		
 		<location>
 			<input>
 				<path recurse="True">/media/BIG/pictures/pictures-extra/fotografiate/Oldies/prin 2008/</path>
 			</input>
 			<output>
-				<path>/run/media/lucian/Backup/temp/pictures/</path>
+				<path>/run/media/lucian/Backup/temp/1/</path>
 				<strategy strategy="copy">
 					<copy></copy>
 					<auto>
@@ -62,15 +62,14 @@
 				</hash>
 			</diffStrategy>
 		</location>
-		 -->
+		 
 		
-		<!--  -->
 		<location>
 			<input>
 				<path recurse="True">/home/lucian/</path>
 			</input>
 			<output>
-				<path>/run/media/lucian/Backup/temp/</path>
+				<path>/run/media/lucian/Backup/temp/2/</path>
 				<strategy strategy="copy">
 					<copy></copy>
 					<auto>
