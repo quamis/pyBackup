@@ -62,8 +62,26 @@
 			</diffStrategy>
 		</location> -->
 		 
+		 <location>
+			<input>
+				<path recurse="True">/home/lucian/tmp/</path>
+			</input>
+			<output>
+				<path>/run/media/lucian/Backup/temp/3/</path>
+				<strategy strategy="copy">
+					<copy></copy>
+				</strategy>
+			</output>
+			<diffStrategy strategy="fasthash">
+				<fasthash>
+					<hash>md5</hash>
+					<cache_enabled>True</cache_enabled>
+					<cache_use_hints>True</cache_use_hints>
+				</fasthash>
+			</diffStrategy>
+		</location>
 		
-		<location>
+		<!-- <location>
 			<input>
 				<path recurse="True">/home/lucian/</path>
 				<ignore>
@@ -101,7 +119,7 @@
 					<cache_use_hints>True</cache_use_hints>
 				</fasthash>
 			</diffStrategy>
-		</location>
+		</location> -->
 
 		
 		<!--  
