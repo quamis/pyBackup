@@ -24,7 +24,7 @@
 	</config>
 	
 	<locations>
-		<location>
+		<!-- <location>
 			<input>
 				<path recurse="True">/media/BIG/pictures/pictures-extra/fotografiate/Oldies/prin 2008/</path>
 			</input>
@@ -60,7 +60,7 @@
 					<hash>md5</hash>
 				</hash>
 			</diffStrategy>
-		</location>
+		</location> -->
 		 
 		
 		<location>
