@@ -32,7 +32,7 @@ class fasthash(hash.hash):
         if self.cache and self.options['cache_enabled'] and self.cache.exists(dt['p']):
             if self.options['cache_use_hints'] and dsrc=='i':
                 ch = self.cache.get(dt['p'])
-                if dt['imtime']==ch['mtime'] and dt['isize']==ch['size'] :
+                if int(dt['imtime'])==ch['mtime'] and dt['isize']==ch['size']:
                     self.stats['calls_cached']+=1
                     return self.cache.getHash(dt['p'])
             if dsrc=='o':

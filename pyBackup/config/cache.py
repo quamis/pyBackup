@@ -39,7 +39,7 @@ class cache(worklog.worklog):
     
     def open(self):
         for tag in self.xml.findall("files/file"):
-            self.existingData[tag.text] = tag.attrib
+            self.existingData[tag.text.encode('utf-8')] = tag.attrib
             
     def exists(self, p):
         ret = p in self.existingData
@@ -61,7 +61,7 @@ class cache(worklog.worklog):
            'hash': item['h'],
            'status': item['s'],
            'size': int(item['sz']),
-           'mtime': float(item['mt']),
+           'mtime': int(float(item['mt'])),
         }
         return ret
     
@@ -71,6 +71,7 @@ class cache(worklog.worklog):
     def close(self):
         files = self.xml.find('files')
         files.clear()
+        
         for p in self.newData:
             try:
                 item = self.newData[p] 
@@ -80,7 +81,7 @@ class cache(worklog.worklog):
                 e.set('h', item['hash'] if item['hash'] else '')
                 e.set('s', item['status'] if item['status'] else '')
                 e.set('sz', str(item['size']) if item['size'] else '0')
-                e.set('mt', str(float(item['mtime'])) if item['mtime'] else '0.0')
+                e.set('mt', str(int(item['mtime'])) if item['mtime'] else '0')
                 files.append(e)
             except UnicodeDecodeError:
                 print "Cannot write cache for %s" % (p)
