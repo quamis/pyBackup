@@ -58,15 +58,18 @@ class cache(worklog.worklog):
         files = self.xml.find('files')
         files.clear()
         for p in self.newData:
-            item = self.newData[p] 
-            e = ET.Element('file')
-
-            e.text = (p if p else '').decode("utf-8")
-            e.set('h', item['hash'] if item['hash'] else '')
-            e.set('s', item['status'] if item['status'] else '')
-            e.set('sz', str(item['size']) if item['size'] else '0')
-            e.set('mt', str(float(item['mtime'])) if item['mtime'] else '0.0')
-            files.append(e)
+            try:
+                item = self.newData[p] 
+                e = ET.Element('file')
+    
+                e.text = (p if p else '').decode("utf-8")
+                e.set('h', item['hash'] if item['hash'] else '')
+                e.set('s', item['status'] if item['status'] else '')
+                e.set('sz', str(item['size']) if item['size'] else '0')
+                e.set('mt', str(float(item['mtime'])) if item['mtime'] else '0.0')
+                files.append(e)
+            except UnicodeDecodeError:
+                print "Cannot write cache for %s" % (p)
         
         self.xml.find("setup/mtime").set("time", self.date.isoformat('T'))
         e = ET.Element('mtime', {'date': self.date.isoformat('T')})
