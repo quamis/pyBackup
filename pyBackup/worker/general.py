@@ -116,9 +116,10 @@ class general(object):
         )
         
         stats = self.fileComparer.getStats()
-        print "Comparer reports %d cached calls & %d real calls" % (
-              stats['calls_cached'], stats['calls_real'], 
-        )
+        if 'calls_cached' in stats and 'calls_real' in stats:
+            print "Comparer reports %d cached calls & %d real calls" % (
+                  stats['calls_cached'], stats['calls_real'], 
+            )
         
         if '_h_md5_sparse_type' in stats:
             print "    comparer internal calls distribution:"
