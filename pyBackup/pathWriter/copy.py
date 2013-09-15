@@ -19,21 +19,47 @@ class copy(object):
         '''
         self.path = path
         self.options = options
+        self.stats = {
+          'addFile': {
+            'count': 0,
+            'size': 0,
+          },
+          'rmFile': {
+            'count': 0,
+            'size': 0,
+          },
+          'updateFile': {
+            'count': 0,
+            'size': 0,
+            'dsize': 0,
+          },
+        }
+        
+    def getStats(self):
+        return self.stats
     
     def base(self):
         return self.path
     
     def addFile(self, input, output):
+        self.stats['addFile']['count']+=1
+        self.stats['addFile']['size']+=os.path.getsize(input)
         self._mkdir(os.path.dirname(output))
         self._copyFile(input, output)
+        
         
     def addDir(self, output):
         self._mkdir(os.path.dirname(output))
         
     def updateFile(self, input, output):
+        self.stats['updateFile']['count']+=1
+        self.stats['updateFile']['size']+=os.path.getsize(input)
+        self.stats['updateFile']['dsize']+=os.path.getsize(output) - os.path.getsize(input)
         self._copyFile(input, output)
         
     def rmFile(self, output):
+        self.stats['rmFile']['count']+=1
+        self.stats['rmFile']['size']+=os.path.getsize(output)
         self._rmFile(output)
         
     def rmDir(self, output):
