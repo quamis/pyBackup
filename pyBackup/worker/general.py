@@ -120,12 +120,7 @@ class general(object):
         index = 0
         
         print "    Lookup missing files"
-        removedFiles = []
-        for p in self.outputFiles:
-            if p not in self.inputFiles:
-                removedFiles.append(p)
-                
-        removedFiles.sort(reverse=True)
+        removedFiles = list(set(self.outputFiles) - set(self.inputFiles)).sort(reverse=True)
         for p in removedFiles:
             index+= 1
             dt = {
