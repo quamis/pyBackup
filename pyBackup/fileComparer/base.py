@@ -19,8 +19,19 @@ class base(object):
             'cache_enabled': True if ('cache_enabled' in options and options['cache_enabled']) else False,
             'cache_use_hints': True if ('cache_use_hints' in options and options['cache_use_hints']) else False,
         }
-        self.cache = None
         
+        self.stats = {
+        }
+        
+        self.cache = None
+        self.init()
+        
+    def init(self):
+        pass
+        
+    def getStats(self):
+        return self.stats
+    
     def getDifferences(self, input, output):
         raise "Not implemented"
         

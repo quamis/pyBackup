@@ -115,6 +115,17 @@ class general(object):
               stats['hits'], stats['misses'], 
         )
         
+        stats = self.fileComparer.getStats()
+        print "Comparer reports %d cached calls & %d real calls" % (
+              stats['calls_cached'], stats['calls_real'], 
+        )
+        
+        if '_h_md5_sparse_type' in stats:
+            print "    comparer internal calls distribution:"
+            for (sz, sk) in stats['_h_md5_sparse_type']:
+                if stats['_h_md5_sparse_type'][(sz, sk)]>0:
+                    print "        %.2f %.2f: %d" % (sz, sk, stats['_h_md5_sparse_type'][(sz, sk)])
+        
         print "\n\n"
         
     def _callback(self, index):
