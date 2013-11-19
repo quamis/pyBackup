@@ -18,3 +18,8 @@ DONE
 - renunta la iterator, si foloseste getAll(), elimina iteratorul intern pt getAll.
 	- fa intai delete, si apoi update, apoi insert
 - reader-ul sa poata sari peste unele foldere(workspace/\.metadata, firefox/.+\/Cache\/, thumbnails)
+
+
+EXAMPLE USAGE:
+---------------
+./backup.py -c ./realcfg.xml
