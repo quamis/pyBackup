@@ -45,9 +45,9 @@ from config.worklog import worklog
 
 
 __all__ = []
-__version__ = 0.1
+__version__ = 1
 __date__ = '2013-09-01'
-__updated__ = '2013-09-01'
+__updated__ = '2013-12-01'
 
 DEBUG = 0
 TESTRUN = 0
