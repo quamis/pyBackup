@@ -5,6 +5,8 @@ WIP
 
 TODO
 ---------------
+- add support for webdav(ownclod) backups
+- add support for skipping some files/folders(to be able to skip "-nobackup" folders)
 - incearca sa detectezi fisierele mutate/redenumite (am acelasi hash deja in cache, dar in alt path, sters, si pot fac un move local in backup direct).
 - interfata de configurare
 - message-passing, sau callbacks, ca sa pot refolosi modulul in alt proiect
