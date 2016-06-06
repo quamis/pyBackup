@@ -8,9 +8,9 @@ backup is a script to help me backing up my important stuff fron my local deskto
 It defines classes_and_methods
 
 @author:     quamis@gmail.com
-        
+
 @copyright:  2013 quamis@gmail.com. All rights reserved.
-        
+
 @license:    license
 
 @contact:    quamis@gmail.com
@@ -19,35 +19,15 @@ It defines classes_and_methods
 
 import sys
 import os
+import json
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 
-import config.reader
-import config.worklog
-
-import pathReader.recursive
-import pathReader.linear
-
-import pathWriter.copy
-
-import fileComparer.filesize
-import fileComparer.filemtime
-import fileComparer.hash
-import fileComparer.fasthash
-
-import folderComparer.general
-
-import worker.general
-from config.worklog import worklog
-
-
-
-
 __all__ = []
-__version__ = 1
-__date__ = '2013-09-01'
-__updated__ = '2013-12-01'
+__version__ = 2
+__date__ = '2013-02-01'
+__updated__ = '2016-02-01'
 
 DEBUG = 0
 TESTRUN = 0
@@ -78,12 +58,12 @@ def main(argv=None): # IGNORE:C0111
     program_shortdesc = __import__('__main__').__doc__.split("\n")[1]
     program_license = '''%s
 
-  Created by user_name on %s.
-  Copyright 2013 organization_name. All rights reserved.
-  
+  Created by quamis on %s.
+  Copyright 2013 quamis @t gmail . com. All rights reserved.
+
   Licensed under the Apache License 2.0
   http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Distributed on an "AS IS" basis without warranties
   or conditions of any kind, either express or implied.
 
@@ -100,7 +80,7 @@ USAGE
 
     # Process arguments
     args = parser.parse_args()
-    
+
     """
     if verbose > 0:
         print("Verbose mode on")
@@ -109,50 +89,60 @@ USAGE
         else:
             print("Recursive mode off")
     """
-    
+
     if args.config is None:
         raise CLIError("No config specified, nothing will be processed")
-    
-    cfgReader = config.reader.reader(args.config)
-    #print reader.general()
-    #print reader.locations()
-    for loc in cfgReader.locations():
-        print "backup %s, %s" % (loc['input']['path'], "recursive" if loc['input']['recurse'] else "non-recursive")
-        print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
-        
-        reader1 = None
-        reader2 = None
-        if loc['input']['recurse']==True:
-            reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
-            reader2 = pathReader.recursive.recursive(loc['output']['path'], {'ignore': 
-                   [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
-            })
-        if loc['input']['recurse']==False:
-            reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
-            reader2 = pathReader.linear.linear(loc['output']['path'], {'ignore': 
-                   [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
-            })
-            
-        writer = None
-        if loc['output']['strategy']['strategy']=='copy':
-            writer = pathWriter.copy.copy(loc['output']['path'], loc['output']['strategy'])
-        
-        fComparer = None
-        if loc['diffStrategy']['strategy']=='filesize':
-            fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
-        if loc['diffStrategy']['strategy']=='filemtime':
-            fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
-        if loc['diffStrategy']['strategy']=='hash':
-            fComparer = fileComparer.hash.hash(loc['diffStrategy'])
-        if loc['diffStrategy']['strategy']=='fasthash':
-            fComparer = fileComparer.fasthash.fasthash(loc['diffStrategy'])
 
-        dComparer = folderComparer.general.general(fComparer, {})
-        
-        # run the actual worker
-        wrk = worker.general.general(reader1, reader2, writer, fComparer)
-        wrk.run()
-        
+    try:
+        config = json.load(args.config)
+    except ValueError as e:
+        print "Error loading config file: " + str(e)
+        exit()
+
+    for source in config['sourceLocations']:
+        print "backup folder %s with %s" % (source['path'], source['reader'])
+
+        sourceReader = SourceReader.
+
+    #print reader.locations()
+    #
+    # for loc in cfgReader.locations():
+    #     print "backup %s, %s" % (loc['input']['path'], "recursive" if loc['input']['recurse'] else "non-recursive")
+    #     print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
+    #
+    #     reader1 = None
+    #     reader2 = None
+    #     if loc['input']['recurse']==True:
+    #         reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
+    #         reader2 = pathReader.recursive.recursive(loc['output']['path'], {'ignore':
+    #                [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
+    #         })
+    #     if loc['input']['recurse']==False:
+    #         reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
+    #         reader2 = pathReader.linear.linear(loc['output']['path'], {'ignore':
+    #                [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
+    #         })
+    #
+    #     writer = None
+    #     if loc['output']['strategy']['strategy']=='copy':
+    #         writer = pathWriter.copy.copy(loc['output']['path'], loc['output']['strategy'])
+    #
+    #     fComparer = None
+    #     if loc['diffStrategy']['strategy']=='filesize':
+    #         fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
+    #     if loc['diffStrategy']['strategy']=='filemtime':
+    #         fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
+    #     if loc['diffStrategy']['strategy']=='hash':
+    #         fComparer = fileComparer.hash.hash(loc['diffStrategy'])
+    #     if loc['diffStrategy']['strategy']=='fasthash':
+    #         fComparer = fileComparer.fasthash.fasthash(loc['diffStrategy'])
+    #
+    #     dComparer = folderComparer.general.general(fComparer, {})
+    #
+    #     # run the actual worker
+    #     wrk = worker.general.general(reader1, reader2, writer, fComparer)
+    #     wrk.run()
+
     return 0
     """
     except KeyboardInterrupt:

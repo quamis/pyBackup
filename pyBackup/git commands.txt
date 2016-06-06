@@ -1,1 +1,0 @@
-git push --set-upstream git@github.com:quamis/pyBackup.git master

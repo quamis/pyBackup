@@ -1,0 +1,21 @@
+{
+    "tmp": {
+        "/run/": { "maxFileSize": 2.5 },
+        "/tmp/": { "maxFileSize": 5.0 }
+    },
+
+    "readLocations": [
+        {
+            "reader":"LocalPathReader",
+            "path":"/home/Lucian Sirbu/scripts/svnlog/",
+            "prefix":"file://"
+        }
+    ],
+
+    "writeLocations": [
+        {
+            "writer":"LocalPathWriter",
+            "path": "/tmp/pyBackup/"
+        }
+    ]
+}

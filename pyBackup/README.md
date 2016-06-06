@@ -1,29 +1,24 @@
-WIP
---------------
-- none:)
-
-
-TODO
----------------
-- add support for webdav(ownclod) backups
-- add support for skipping some files/folders(to be able to skip "-nobackup" folders)
-- incearca sa detectezi fisierele mutate/redenumite (am acelasi hash deja in cache, dar in alt path, sters, si pot fac un move local in backup direct).
-- interfata de configurare
-- message-passing, sau callbacks, ca sa pot refolosi modulul in alt proiect
-- determine an ETA.... somehow:)
-- system load protection. Daca load-ul in sistem creste peste X, fa sleep
-
-
-DONE
---------------
-- in fisierul de cache, tine minte si filemtime, filesize pt fisierul original, sa putem determina daca e nevoie o recalculare de hash, sau il putrem folosi pe cel din cache
-	- la cache, implementeaza getItem, addItem, updateItem, cu un obiect ca parametru, abstractizesi modul de storage asa
-- renunta la a tine lista de fisiere cached in acelasi fisier cu cel de cfg. Foloseste alt fisier, special pt asta. comprima-l pe disc
-- renunta la iterator, si foloseste getAll(), elimina iteratorul intern pt getAll.
-	- fa intai delete, si apoi update, apoi insert
-- reader-ul sa poata sari peste unele foldere(workspace/\.metadata, firefox/.+\/Cache\/, thumbnails)
-
-
-EXAMPLE USAGE:
----------------
-./backup.py -c ./realcfg.xml
+@2016-02-10
+ - split the backup into phases
+ - refactor the whole backup procedure
+ 	- path reader
+		- these export file lists to be backed up(full path, prefixed by protocol (file://, owncloud://)
+		- the file lists are then compared with the file lists on the target device
+		- examples:
+			- local disk reader
+			- webdav/owncloud reader
+			- ssh reader
+	- backup procedure
+		- parses the whole file list to be backed up, reads one by one, adds them to the final archive/target device
+		- examples:
+			- simulation
+			- local disk writer
+			- archive writer
+			- ssh writer
+	- removes old backups, when needed, to clear up some space
+	- we need some hashers
+		- examples:
+			- file hasher
+				- simple (sha1 from the whole file contents)
+				- fast (sha1 from partial file contents, adaptive according to file size)
+				- natural (compares filemtime, filesize, fast hash)
