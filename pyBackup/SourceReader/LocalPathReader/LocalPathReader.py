@@ -4,7 +4,7 @@ Created on Sep 7, 2013
 @author: lucian
 '''
 from os import listdir
-from os.path import isdir, join
+from os.path import isdir, join, getatime, getmtime, getctime, getsize
 
 import SourceReader.Path as Path 
 
@@ -18,13 +18,19 @@ class LocalPathReader():
 
     def initialize(self):
         self.paths = self.goRecursivelly(self.basepath, [])
+    
+    def destroy(self):
+        self.paths = None
 
 
     def goRecursivelly(self, basepath, paths):
-        for p in listdir(basepath):
-            fp = join(basepath, p)
+        for p in listdir(unicode(basepath)):
+            fp = unicode(join(basepath, p))
             isDir = isdir(fp)
             np = Path.Path(fp, isDir)
+            np.ctime = getctime(fp)
+            np.mtime = getmtime(fp)
+            np.size = getsize(fp)
             paths.append(np)
 
             if isDir:
