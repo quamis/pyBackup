@@ -1,6 +1,11 @@
 @2016-02-10
  - split the backup into phases
  - refactor the whole backup procedure
+        - pre-readers
+            - sql dump (via ssh?)
+            - pre-cleanup
+        - post-readers
+            - cleanups
  	- path reader
 		- these export file lists to be backed up(full path, prefixed by protocol (file://, owncloud://)
 		- the file lists are then compared with the file lists on the target device
