@@ -15,40 +15,40 @@ class FastHashV1Cached(FastHashV1.FastHashV1):
         self.db = 'FastHashV1Cached.sqlite'
     
     def initialize(self):
-	if os.path.isfile(self.db):
-	    self.dbExists = True
+    if os.path.isfile(self.db):
+        self.dbExists = True
 
-	self.conn = sqlite3.connect(self.db)
-	
-	self.createTableFiles()
-	
+    self.conn = sqlite3.connect(self.db)
+    
+    self.createTableFiles()
+    
     def destroy(self):
         self.conn.commit()
-	
+    
     def createTableFiles(self):
-	if not self.dbExists:
-	    c = self.conn.cursor()
-	    c.execute('CREATE TABLE files (path text, hash text)')
+        if not self.dbExists:
+            c = self.conn.cursor()
+            c.execute('CREATE TABLE files (path text, hash text)')
 
 
     def insertFileIntoFiles(self, path, h):
-	c = self.conn.cursor()
-	vals = (path.path, h)
-	c.execute('INSERT INTO files VALUES (?, ?)', vals)
-	#self.conn.commit()
-	
+        c = self.conn.cursor()
+        vals = (path.path, h)
+        c.execute('INSERT INTO files VALUES (?, ?)', vals)
+        #self.conn.commit()
+    
     def fileFileByPath(self, path):
-	c = self.conn.cursor()
-	vals = (path.path, )
-	c.execute('SELECT path, hash FROM files WHERE path=?', vals)
-	return c.fetchone()
+        c = self.conn.cursor()
+        vals = (path.path, )
+        c.execute('SELECT path, hash FROM files WHERE path=?', vals)
+        return c.fetchone()
 
     def hash(self, path):
-	h = self.fileFileByPath(path)
-	if h:
-	    print h[0]
-	    return "Q"+h[0]
-	else:
-	    h = super(FastHashV1Cached, self).hash(path)
-	    self.insertFileIntoFiles(path, h)
-	    return h
+        h = self.fileFileByPath(path)
+        if h:
+            print h[0]
+            return "Q"+h[0]
+        else:
+            h = super(FastHashV1Cached, self).hash(path)
+            self.insertFileIntoFiles(path, h)
+            return h
