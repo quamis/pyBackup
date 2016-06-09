@@ -3,52 +3,31 @@
 Created on Sep 7, 2013
 @author: lucian
 '''
-import sqlite3
-import os
-
 import Hasher.Hasher as Hasher
 from Hasher.FastHashV1 import FastHashV1
 
 class FastHashV1Cached(FastHashV1.FastHashV1):
     def __init__(self):
-        self.dbExists = False;
-        self.db = 'FastHashV1Cached.sqlite'
+        self.db = None
+        super(FastHashV1Cached, self).__init__()
     
     def initialize(self):
-    if os.path.isfile(self.db):
-        self.dbExists = True
-
-    self.conn = sqlite3.connect(self.db)
-    
-    self.createTableFiles()
+        self.db.initialize()
+        super(FastHashV1Cached, self).initialize()
     
     def destroy(self):
-        self.conn.commit()
+        self.db.destroy()
+        super(FastHashV1Cached, self).initialize()
+        
+    def setCache(self, cache):
+        self.db = cache
     
-    def createTableFiles(self):
-        if not self.dbExists:
-            c = self.conn.cursor()
-            c.execute('CREATE TABLE files (path text, hash text)')
-
-
-    def insertFileIntoFiles(self, path, h):
-        c = self.conn.cursor()
-        vals = (path.path, h)
-        c.execute('INSERT INTO files VALUES (?, ?)', vals)
-        #self.conn.commit()
-    
-    def fileFileByPath(self, path):
-        c = self.conn.cursor()
-        vals = (path.path, )
-        c.execute('SELECT path, hash FROM files WHERE path=?', vals)
-        return c.fetchone()
-
     def hash(self, path):
-        h = self.fileFileByPath(path)
+        h = self.db.findFileByPath(path.path)
         if h:
             print h[0]
-            return "Q"+h[0]
+            return "Q"+h[1]
         else:
             h = super(FastHashV1Cached, self).hash(path)
-            self.insertFileIntoFiles(path, h)
+            self.db.insertFileIntoFiles(path.path, h)
             return h

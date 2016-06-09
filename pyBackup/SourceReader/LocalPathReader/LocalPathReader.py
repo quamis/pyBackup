@@ -8,10 +8,10 @@ from os.path import isdir, join, getatime, getmtime, getctime, getsize
 
 import SourceReader.Path as Path 
 
-class LocalPathReader():
+class LocalPathReader(object):
     def __init__(self):
         self.index = 0;
-        pass
+        self.paths = []
 
     def setPath(self, basepath):
         self.basepath = basepath
@@ -20,7 +20,7 @@ class LocalPathReader():
         self.paths = self.goRecursivelly(self.basepath, [])
     
     def destroy(self):
-        self.paths = None
+        self.paths = []
 
 
     def goRecursivelly(self, basepath, paths):
