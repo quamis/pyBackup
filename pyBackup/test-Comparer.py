@@ -2,37 +2,29 @@
 '''
 @author: lucian
 '''
-
 import pprint
-from SourceReader.LocalPathReader import LocalPathReaderCached
-from SourceReader.LocalPathReader import LocalPathReader
-from Hasher.FastHashV1 import FastHashV1
-from Hasher.FastHashV1 import FastHashV1Cached
-import Cache.sqlite as sqlite
+import sqlite3
 
 pp = pprint.PrettyPrinter(indent=4)
 
-DB = 'FileSystem.sqlite'
-cache = sqlite.sqlite();
-cache.setCacheLocation(DB)
+dbn = sqlite3.connect('FileSystem.sqlite')
+#dbo = sqlite3.connect('FileSystem-old.sqlite')
 
-lp = LocalPathReaderCached.LocalPathReaderCached()
-lp.setCache(cache)
-#lp = LocalPathReader.LocalPathReader()
-lp.setPath('/tmp/x/')
-lp.initialize()
+c = dbn.cursor()
+c.execute('ATTACH DATABASE ? AS old', ('FileSystem-old.sqlite', ))
 
+#c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path')
+#pprint.pprint(c.fetchall())
 
-hh = FastHashV1Cached.FastHashV1Cached()
-hh.setCache(cache)
-hh.initialize()
+print "new files:"
+c.execute('SELECT path FROM main.files WHERE path NOT IN (SELECT path FROM old.files)')
+pprint.pprint(c.fetchall())
 
-print "-"*80
-for p in iter(lambda:lp.getNext(), None):
-    print p.path
-    if not p.isDir:
-        print "    "+hh.hash(p)
-print "-"*80
+print "deleted files:"
+c.execute('SELECT path FROM old.files WHERE path NOT IN (SELECT path FROM main.files)')
+pprint.pprint(c.fetchall())
 
-lp.destroy()
-hh.destroy()
+print "altered files:"
+c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path WHERE fo.hash!=fn.hash')
+pprint.pprint(c.fetchall())
+
