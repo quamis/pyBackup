@@ -2,29 +2,35 @@
 '''
 @author: lucian
 '''
+
 import pprint
-import sqlite3
+from Comparer.Comparer import Comparer
+import Cache.sqlite as sqlite
 
 pp = pprint.PrettyPrinter(indent=4)
 
-dbn = sqlite3.connect('FileSystem.sqlite')
-#dbo = sqlite3.connect('FileSystem-old.sqlite')
+cacheNew = sqlite.sqlite();
+cacheNew.setCacheLocation('FileSystem.sqlite')
 
-c = dbn.cursor()
-c.execute('ATTACH DATABASE ? AS old', ('FileSystem-old.sqlite', ))
+cacheOld = sqlite.sqlite();
+cacheOld.setCacheLocation('FileSystem-old.sqlite')
 
-#c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path')
-#pprint.pprint(c.fetchall())
+cmpr = Comparer()
+cmpr.setNewCache(cacheNew)
+cmpr.setOldCache(cacheOld)
+cmpr.initialize()
 
-print "new files:"
-c.execute('SELECT path FROM main.files WHERE path NOT IN (SELECT path FROM old.files)')
-pprint.pprint(c.fetchall())
 
 print "deleted files:"
-c.execute('SELECT path FROM old.files WHERE path NOT IN (SELECT path FROM main.files)')
-pprint.pprint(c.fetchall())
+pprint.pprint(cmpr.getAllNew())
 
-print "altered files:"
-c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path WHERE fo.hash!=fn.hash')
-pprint.pprint(c.fetchall())
+print "moved files:"
+pprint.pprint(cmpr.getAllMoved())
 
+print "changed files:"
+pprint.pprint(cmpr.getAllChanged())
+
+print "new files:"
+pprint.pprint(cmpr.getAllNew())
+
+cmpr.destroy()
