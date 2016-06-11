@@ -27,3 +27,8 @@
 				- simple (sha1 from the whole file contents)
 				- fast (sha1 from partial file contents, adaptive according to file size)
 				- natural (compares filemtime, filesize, fast hash)
+        - dupa backup sa existe post operations
+            - re-check X% from the backed up files, do a complete content hash check
+            - write recovery information for X% of the backed files
+            - write archives of x% of very old data (unchanged for more than X days?)
+            

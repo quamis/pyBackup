@@ -46,3 +46,4 @@ class Comparer(object):
         c = self.conn.cursor()
         c.execute('SELECT path FROM old.files WHERE NOT isDir AND path NOT IN (SELECT path FROM main.files WHERE NOT isDir)')
         return c.fetchall()
+    

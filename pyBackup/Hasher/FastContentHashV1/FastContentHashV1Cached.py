@@ -30,3 +30,4 @@ class FastContentHashV1Cached(FastContentHashV1.FastContentHashV1):
             h = super(FastContentHashV1Cached, self).hash(path)
             self.db.updateFileHashIntoFiles(path, h)
             return h
+        
