@@ -24,10 +24,9 @@ class FastHashV1Cached(FastHashV1.FastHashV1):
     
     def hash(self, path):
         h = self.db.findFileByPath(path.path)
-        if h:
-            print h[0]
-            return "Q"+h[1]
+        if h[0]:
+            return h[0]
         else:
             h = super(FastHashV1Cached, self).hash(path)
-            self.db.insertFileIntoFiles(path.path, h)
+            self.db.updateFileHashIntoFiles(path, h)
             return h

@@ -4,7 +4,7 @@ Created on Sep 7, 2013
 @author: lucian
 '''
 import sqlite3
-import os
+import os, time
 
 class sqlite(object):
     def __init__(self):
@@ -32,23 +32,29 @@ class sqlite(object):
     
     def createTableFiles(self):
         c = self.conn.cursor()
-        c.execute('CREATE TABLE files (path text, hash text)')
+        c.execute('CREATE TABLE files (hash TEXT, path TEXT, isDir INTEGER, ctime FLOAT, mtime FLOAT, size INTEGER, time FLOAT)')
 
 
-    def insertFileIntoFiles(self, path, h):
+    def insertFileIntoFiles(self, p, h):
         c = self.conn.cursor()
-        vals = (path, h)
-        print vals
-        c.execute('REPLACE INTO files VALUES (?, ?)', vals)
+        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.size, time.time())
+        c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?, ?)', vals)
+        #self.conn.commit()
+        
+    def updateFileHashIntoFiles(self, p, h):
+        c = self.conn.cursor()
+        vals = (h, p.path)
+        c.execute('UPDATE files SET hash=? WHERE path=?', vals)
         #self.conn.commit()
     
     def findFileByPath(self, path):
         c = self.conn.cursor()
         vals = (path, )
-        c.execute('SELECT path, hash FROM files WHERE path=?', vals)
+        c.execute('SELECT hash, path, isDir, ctime, mtime, size, time FROM files WHERE path=?', vals)
         return c.fetchone()
 
     def getAll(self):
         c = self.conn.cursor()
-        c.execute('SELECT path FROM files WHERE 1 ORDER BY path ASC')
+        c.execute('SELECT hash, path, isDir, ctime, mtime, size, time FROM files WHERE 1 ORDER BY time ASC')
         return c.fetchall()
+    
