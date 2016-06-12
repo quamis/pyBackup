@@ -5,6 +5,7 @@ Created on Sep 7, 2013
 '''
 import os
 import hashlib
+from bases import Bases
 
 import Hasher.Hasher as Hasher
 
@@ -18,11 +19,12 @@ class FastContentHashV1(object):
     def hash(self, path):
         fi = open(path.path, 'rb')
         md5 = hashlib.md5()
+        bases = Bases()
         while True:
             data = fi.read(4*1024*1024)
             if not data:
                 break
             md5.update(data)
             
-        return "FastContentHashV1,sz:%09d,md5:%s"%(path.size, md5.hexdigest())
-    
+        return "FastContentHashV1,sz:%06s,md5:%s" % (bases.toBase62(path.size), md5.hexdigest())
+   

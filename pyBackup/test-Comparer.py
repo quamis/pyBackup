@@ -20,17 +20,28 @@ cmpr.setNewCache(cacheNew)
 cmpr.setOldCache(cacheOld)
 cmpr.initialize()
 
-
-print "deleted files:"
-pprint.pprint(cmpr.getAllNew())
-
 print "moved files:"
-pprint.pprint(cmpr.getAllMoved())
+for paths in cmpr.getAllMoved():
+    print "    %s --> %s" % (paths[1], paths[0])
+    
+    cmpr.movePath(paths[1], paths[0])
+    print "    ...marked"
+    
+
+
+"""
+print "deleted files:"
+for paths in cmpr.getAllNew():
+    # TODO: do some sort of backups
+    print paths[0]
+
 
 print "changed files:"
+# TODO: do some sort of backups
 pprint.pprint(cmpr.getAllChanged())
 
 print "new files:"
 pprint.pprint(cmpr.getAllNew())
+"""
 
 cmpr.destroy()

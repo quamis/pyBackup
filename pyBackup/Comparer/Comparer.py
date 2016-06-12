@@ -32,6 +32,11 @@ class Comparer(object):
         c.execute('SELECT fn.path, fo.path FROM main.files AS fn LEFT JOIN old.files AS fo ON fn.hash = fo.hash WHERE NOT fo.isDir AND NOT fn.isDir AND fo.path!=fn.path')
         return c.fetchall()
     
+    def movePath(self, opath, npath):
+        c = self.conn.cursor()
+        vals=(npath, opath)
+        c.execute('UPDATE old.files SET path=? WHERE NOT isDir AND path=?', vals)
+    
     def getAllChanged(self):
         c = self.conn.cursor()
         c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path WHERE NOT fo.isDir AND NOT fn.isDir AND fo.hash!=fn.hash')
