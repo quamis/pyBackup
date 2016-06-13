@@ -27,9 +27,24 @@ class Comparer(object):
         self.conn.commit()
         self.conn.close()
         
+    def commit(self):
+        self.conn.commit()
+        
+        
     def getAllMoved(self):
         c = self.conn.cursor()
-        c.execute('SELECT fn.path, fo.path FROM main.files AS fn LEFT JOIN old.files AS fo ON fn.hash = fo.hash WHERE NOT fo.isDir AND NOT fn.isDir AND fo.path!=fn.path')
+        c.execute('''
+            SELECT 
+                fn.path, fo.path 
+            FROM main.files AS fn 
+                LEFT JOIN old.files AS fo ON fn.hash=fo.hash 
+            WHERE 
+                NOT fo.isDir 
+                AND NOT fn.isDir 
+                AND fo.path!=fn.path 
+                AND fn.path NOT IN (SELECT path FROM old.files)
+                AND fo.path NOT IN (SELECT path FROM main.files)
+            ''')
         return c.fetchall()
     
     def movePath(self, opath, npath):
@@ -42,13 +57,31 @@ class Comparer(object):
         c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path WHERE NOT fo.isDir AND NOT fn.isDir AND fo.hash!=fn.hash')
         return c.fetchall()
     
+    def updatePath(self, opath, npath):
+        c = self.conn.cursor()
+        vals=(npath, opath, )
+        c.execute('UPDATE old.files SET hash=(SELECT hash FROM main.files WHERE path=? LIMIT 1) WHERE NOT isDir AND path=?', vals)
+    
     def getAllNew(self):
         c = self.conn.cursor()
         c.execute('SELECT path FROM main.files WHERE NOT isDir AND path NOT IN (SELECT path FROM old.files WHERE NOT isDir)')
         return c.fetchall()
+    
+    def newPath(self, npath):
+        c = self.conn.cursor()
+        vals=(npath, )
+        c.execute('REPLACE INTO old.files (hash, path, isDir, ctime, mtime, size, time) SELECT hash, path, isDir, ctime, mtime, size, time FROM main.files WHERE path=? LIMIT 1', vals)
+    
     
     def getAllDeleted(self):
         c = self.conn.cursor()
         c.execute('SELECT path FROM old.files WHERE NOT isDir AND path NOT IN (SELECT path FROM main.files WHERE NOT isDir)')
         return c.fetchall()
     
+    def deletePath(self, opath):
+        c = self.conn.cursor()
+        vals=(opath, )
+        c.execute('DELETE FROM old.files WHERE NOT isDir AND path=?', vals)
+        
+        
+        

@@ -37,8 +37,8 @@ class sqlite(object):
 
     def insertFileIntoFiles(self, p, h):
         c = self.conn.cursor()
-        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.size, time.time())
-        c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?, ?)', vals)
+        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.size, time.time(), '')
+        c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?)', vals)
         #self.conn.commit()
         
     def updateFileHashIntoFiles(self, p, h):
