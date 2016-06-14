@@ -22,7 +22,7 @@ cmpr.initialize()
 
 print "moved files:"
 for paths in cmpr.getAllMoved():
-    print "    cpy %s --> %s" % (paths[1], paths[0])
+    print "    ren %s --> %s" % (paths[1], paths[0])
     
     #cmpr.movePath(paths[1], paths[0])
     #print "    ...marked"
