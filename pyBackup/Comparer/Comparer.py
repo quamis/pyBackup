@@ -44,12 +44,14 @@ class Comparer(object):
                 AND fo.path!=fn.path 
                 AND fn.path NOT IN (SELECT path FROM old.files)
                 AND fo.path NOT IN (SELECT path FROM main.files)
+            GROUP BY fo.path
             ''')
         return c.fetchall()
     
     def movePath(self, opath, npath):
         c = self.conn.cursor()
         vals=(npath, opath)
+        # TODO: load all attributes, not just paths (mtime, ctime, etc)
         c.execute('UPDATE old.files SET path=? WHERE NOT isDir AND path=?', vals)
     
     def getAllChanged(self):

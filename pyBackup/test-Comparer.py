@@ -24,11 +24,11 @@ print "moved files:"
 for paths in cmpr.getAllMoved():
     print "    ren %s --> %s" % (paths[1], paths[0])
     
-    #cmpr.movePath(paths[1], paths[0])
-    #print "    ...marked"
+    cmpr.movePath(paths[1], paths[0])
+    print "    ...marked"
 cmpr.commit()
 
-"""
+
 print "deleted files:"
 # TODO: do some sort of backups
 for paths in cmpr.getAllDeleted():
@@ -56,7 +56,7 @@ for paths in cmpr.getAllNew():
     cmpr.newPath(paths[0])
     print "    ...copied"
 cmpr.commit()
-"""
 
 
 cmpr.destroy()
+
