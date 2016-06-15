@@ -6,16 +6,16 @@
             - pre-cleanup
         - post-readers
             - cleanups
-			- re-check that X% of the final backup exists and its hash is valid (including fullHash)
-			- compute fullHash for X% of the DB
-			- print some DB stats
-				- total files
-				- total size
-				- avg file size
-				- duplicated files
-				- 0-length files
-				- % of files with fullHash
-				- % of files with recovery data
+		- re-check that X% of the final backup exists and its hash is valid (including fullHash)
+		- compute fullHash for X% of the DB
+            - print some DB stats
+                - total files
+                - total size
+                - avg file size
+                - duplicated files
+                - 0-length files
+                - % of files with fullHash
+                - % of files with recovery data
  	- path reader
 		- these export file lists to be backed up(full path, prefixed by protocol (file://, owncloud://)
 		- the file lists are then compared with the file lists on the target device
