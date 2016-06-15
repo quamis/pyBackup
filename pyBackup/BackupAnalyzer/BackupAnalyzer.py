@@ -26,19 +26,19 @@ class BackupAnalyzer(object):
         c = self.conn.cursor()
         c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir')
         r = c.fetchone()
-        return r[0]
+        return 0 if r is None else r[0]
         
     def getTotalSize(self):
         c = self.conn.cursor()
         c.execute('SELECT SUM(size) FROM main.files AS fn WHERE NOT fn.isDir')
         r = c.fetchone()
-        return r[0]
+        return 0 if r is None else r[0]
         
     def getAvgSize(self):
         c = self.conn.cursor()
         c.execute('SELECT SUM(size)/COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir')
         r = c.fetchone()
-        return r[0]
+        return 0 if r is None else r[0]
         
     def getDuplicatedFilesCount(self):
         c = self.conn.cursor()
@@ -54,7 +54,7 @@ class BackupAnalyzer(object):
         c = self.conn.cursor()
         c.execute('SELECT COUNT(*) AS cnt FROM main.files AS fn WHERE NOT fn.isDir AND size=0 GROUP BY fn.hash')
         r = c.fetchone()
-        return r[0]
+        return 0 if r is None else r[0]
     
     def getTop10LargestFiles(self):
         c = self.conn.cursor()
