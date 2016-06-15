@@ -1,179 +1,62 @@
-#!/usr/bin/python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 '''
-backup -- process the config file & perform the backup
-
-backup is a script to help me backing up my important stuff fron my local desktop to my external hdd
-
-It defines classes_and_methods
-
-@author:     quamis@gmail.com
-
-@copyright:  2013 quamis@gmail.com. All rights reserved.
-
-@license:    license
-
-@contact:    quamis@gmail.com
-@deffield    updated: 2013-09-01
+@author: lucian
 '''
 
-import sys
-import os
-import json
+import pprint
+from Comparer.Comparer import Comparer
+import Cache.sqlite as sqlite
 
-from argparse import ArgumentParser
-from argparse import RawDescriptionHelpFormatter
+pp = pprint.PrettyPrinter(indent=4)
 
-__all__ = []
-__version__ = 2
-__date__ = '2013-02-01'
-__updated__ = '2016-02-01'
+cacheNew = sqlite.sqlite();
+cacheNew.setCacheLocation('FileSystem.sqlite')
 
-DEBUG = 0
-TESTRUN = 0
-PROFILE = 0
+cacheOld = sqlite.sqlite();
+cacheOld.setCacheLocation('FileSystem-old.sqlite')
 
-class CLIError(Exception):
-    '''Generic exception to raise and log different fatal errors.'''
-    def __init__(self, msg):
-        super(CLIError).__init__(type(self))
-        self.msg = "E: %s" % msg
-    def __str__(self):
-        return self.msg
-    def __unicode__(self):
-        return self.msg
+cmpr = Comparer()
+cmpr.setNewCache(cacheNew)
+cmpr.setOldCache(cacheOld)
+cmpr.initialize()
 
-def main(argv=None): # IGNORE:C0111
-    '''Command line options.'''
+print "moved files:"
+for paths in cmpr.getAllMoved():
+    print "    ren %s --> %s" % (paths[1], paths[0])
+    
+    cmpr.movePath(paths[1], paths[0])
+    print "    ...marked"
+cmpr.commit()
 
-    if argv is None:
-        argv = sys.argv
-    else:
-        sys.argv.extend(argv)
 
-    program_name = os.path.basename(sys.argv[0])
-    program_version = "v%s" % __version__
-    program_build_date = str(__updated__)
-    program_version_message = '%%(prog)s %s (%s)' % (program_version, program_build_date)
-    program_shortdesc = __import__('__main__').__doc__.split("\n")[1]
-    program_license = '''%s
+print "deleted files:"
+# TODO: do some sort of backups
+for paths in cmpr.getAllDeleted():
+    print "    del %s" % (paths[0])
+    
+    cmpr.deletePath(paths[0])
+    print "    ...deleted"
+cmpr.commit()
 
-  Created by quamis on %s.
-  Copyright 2013 quamis @t gmail . com. All rights reserved.
 
-  Licensed under the Apache License 2.0
-  http://www.apache.org/licenses/LICENSE-2.0
+print "changed files:"
+# TODO: do some sort of backups
+for paths in cmpr.getAllChanged():
+    print "    upd %s --> %s" % (paths[1], paths[0], )
+    
+    cmpr.updatePath(paths[1], paths[0])
+    print "    ...updated"
+cmpr.commit()
 
-  Distributed on an "AS IS" basis without warranties
-  or conditions of any kind, either express or implied.
 
-USAGE
-''' % (program_shortdesc, str(__date__))
-    """
-    try:
-    """
-    # Setup argument parser
-    parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument("-c", "--config", dest="config", action="store", type=file, default=None, help="the xml config file")
-    parser.add_argument("-v", "--verbose", dest="verbose", action="count", help="set verbosity level [default: %(default)s]")
-    parser.add_argument('-V', '--version', action='version', version=program_version_message)
+print "new files:"
+for paths in cmpr.getAllNew():
+    print "    cpy %s" % (paths[0], )
+    
+    cmpr.newPath(paths[0])
+    print "    ...copied"
+cmpr.commit()
 
-    # Process arguments
-    args = parser.parse_args()
 
-    """
-    if verbose > 0:
-        print("Verbose mode on")
-        if recurse:
-            print("Recursive mode on")
-        else:
-            print("Recursive mode off")
-    """
+cmpr.destroy()
 
-    if args.config is None:
-        raise CLIError("No config specified, nothing will be processed")
-
-    try:
-        config = json.load(args.config)
-    except ValueError as e:
-        print "Error loading config file: " + str(e)
-        exit()
-
-    for source in config['sourceLocations']:
-        print "backup folder %s with %s" % (source['path'], source['reader'])
-
-        sourceReader = SourceReader.
-
-    #print reader.locations()
-    #
-    # for loc in cfgReader.locations():
-    #     print "backup %s, %s" % (loc['input']['path'], "recursive" if loc['input']['recurse'] else "non-recursive")
-    #     print "    save to %s, %s" % (loc['output']['path'], loc['output']['strategy']['strategy'])
-    #
-    #     reader1 = None
-    #     reader2 = None
-    #     if loc['input']['recurse']==True:
-    #         reader1 = pathReader.recursive.recursive(loc['input']['path'], loc['input'])
-    #         reader2 = pathReader.recursive.recursive(loc['output']['path'], {'ignore':
-    #                [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
-    #         })
-    #     if loc['input']['recurse']==False:
-    #         reader1 = pathReader.linear.linear(loc['input']['path'], loc['input'])
-    #         reader2 = pathReader.linear.linear(loc['output']['path'], {'ignore':
-    #                [{'target': 'file', 'type': 'regex', 'content': '^(_pyBackup.xml|_pyBackup.cache.xml.gz)'}]
-    #         })
-    #
-    #     writer = None
-    #     if loc['output']['strategy']['strategy']=='copy':
-    #         writer = pathWriter.copy.copy(loc['output']['path'], loc['output']['strategy'])
-    #
-    #     fComparer = None
-    #     if loc['diffStrategy']['strategy']=='filesize':
-    #         fComparer = fileComparer.filesize.filesize(loc['diffStrategy'])
-    #     if loc['diffStrategy']['strategy']=='filemtime':
-    #         fComparer = fileComparer.filemtime.filemtime(loc['diffStrategy'])
-    #     if loc['diffStrategy']['strategy']=='hash':
-    #         fComparer = fileComparer.hash.hash(loc['diffStrategy'])
-    #     if loc['diffStrategy']['strategy']=='fasthash':
-    #         fComparer = fileComparer.fasthash.fasthash(loc['diffStrategy'])
-    #
-    #     dComparer = folderComparer.general.general(fComparer, {})
-    #
-    #     # run the actual worker
-    #     wrk = worker.general.general(reader1, reader2, writer, fComparer)
-    #     wrk.run()
-
-    return 0
-    """
-    except KeyboardInterrupt:
-        ### handle keyboard interrupt ###
-        return 0
-    except Exception, e:
-        if DEBUG or TESTRUN:
-            raise(e)
-        indent = len(program_name) * " "
-        sys.stderr.write(program_name + ": " + repr(e) + " " + str(e) + "\n")
-        sys.stderr.write(indent + "  for help use --help")
-        sys.stderr.write("\n")
-        return 2
-    """
-
-if __name__ == "__main__":
-    if DEBUG:
-        pass
-    if TESTRUN:
-        import doctest
-        doctest.testmod()
-    if PROFILE:
-        import cProfile
-        import pstats
-        profile_filename = 'backup_profile.txt'
-        cProfile.run('main()', profile_filename)
-        statsfile = open("profile_stats.txt", "wb")
-        p = pstats.Stats(profile_filename, stream=statsfile)
-        stats = p.strip_dirs().sort_stats('cumulative')
-        stats.print_stats()
-        statsfile.close()
-        sys.exit(0)
-
-    sys.exit(main())
