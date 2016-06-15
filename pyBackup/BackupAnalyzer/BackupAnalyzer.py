@@ -40,6 +40,21 @@ class BackupAnalyzer(object):
         r = c.fetchone()
         return 0 if r is None else r[0]
         
+    def getMedianSize(self):
+        c = self.conn.cursor()
+        #c.execute('SELECT MEDIAN(size) FROM main.files AS fn WHERE NOT fn.isDir')
+        # @see http://stackoverflow.com/a/15766121/11301
+        c.execute('''
+            SELECT AVG(size) FROM (
+                SELECT size FROM main.files 
+                WHERE NOT isDir
+                ORDER BY size DESC
+                LIMIT 2 - ((SELECT COUNT(*) FROM main.files WHERE NOT isDir) % 2)    -- odd 1, even 2
+                OFFSET (SELECT (COUNT(*) - 1) / 2 FROM main.files WHERE NOT isDir)
+             )''')
+        r = c.fetchone()
+        return 0 if r is None else r[0]
+        
     def getDuplicatedFilesCount(self):
         c = self.conn.cursor()
         c.execute('SELECT COUNT(*) AS cnt FROM main.files AS fn WHERE NOT fn.isDir GROUP BY fn.hash HAVING cnt>1')
