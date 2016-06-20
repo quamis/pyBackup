@@ -5,7 +5,9 @@ Created on Sep 7, 2013
 '''
 import os
 import hashlib
+import time
 from bases import Bases
+
 
 import Hasher.Hasher as Hasher
 
@@ -19,23 +21,25 @@ class FastContentHashV1(object):
     def hash(self, path):
         hasherMapByExtenstion = [
             {
-                'ext':  ('.txt','.csv', '.img', '.sqlite', '.db'),
+                'ext':  ('.txt', '.csv', '.odt', '.img', '.sqlite', '.db'),
                 'slots': [
-                    { 'max':    0, 'read': 2.00, 'skip': 0.00, 'head': 2.00, 'tail': 2.00, },   #   any size
+                    { 'max':    0, 'read': 4.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, },   #   any size
                 ],
             },
             
             {   # defaults
                 'ext':  ('*', ),
                 'slots': [
-                    #{ 'max':  Mb, 'read': Mb  , 'skip': Mb  , 'head': Mb  , 'tail': Mb  , },   #   
-                    { 'max':   10, 'read': 2.00, 'skip': 0.00, 'head': 2.00, 'tail': 2.00, },   #   10Mb, reads  10Mb
-                    { 'max':   20, 'read': 2.00, 'skip': 0.10, 'head': 1.00, 'tail': 1.00, },   #   20Mb, reads  18Mb
-                    { 'max':  100, 'read': 2.00, 'skip': 0.25, 'head': 2.00, 'tail': 2.00, },   #  100Mb, reads  82Mb
-                    { 'max':  200, 'read': 2.00, 'skip': 0.50, 'head': 2.00, 'tail': 5.00, },   #  200Mb, reads 160Mb
-                    { 'max':  500, 'read': 2.00, 'skip': 1.00, 'head': 2.00, 'tail': 5.00, },   #  500Mb, reads 333Mb
-                    { 'max': 1000, 'read': 2.00, 'skip': 2.00, 'head':16.00, 'tail': 5.00, },   # 1000Mb, reads 500Mb
-                    { 'max': 4000, 'read': 2.00, 'skip': 8.00, 'head':16.00, 'tail': 5.00, },   # 4000Mb, reads 800Mb
+                    #{ 'max':  Mb, 'read': Mb  , 'skip': Mb  , 'head': Mb  , 'tail': Mb  , },   # reads = (head+tail) + max*floor((max-(head+tail))/(read+skip))
+                    { 'max':    4, 'read': 4.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, },   #   ~4
+                    { 'max':    8, 'read': 4.00, 'skip': 0.10, 'head': 1.00, 'tail': 1.00, },   #   ~6
+                    { 'max':   16, 'read': 4.00, 'skip': 0.25, 'head': 1.00, 'tail': 1.00, },   #  ~14
+                    { 'max':   32, 'read': 4.00, 'skip': 0.50, 'head': 2.00, 'tail': 2.00, },   #  ~28
+                    { 'max':  128, 'read': 4.00, 'skip': 1.00, 'head': 2.00, 'tail': 2.00, },   # ~100
+                    { 'max':  256, 'read': 4.00, 'skip': 2.00, 'head': 2.00, 'tail': 2.00, },   # ~172
+                    { 'max':  512, 'read': 4.00, 'skip': 4.00, 'head': 2.00, 'tail': 5.00, },   # ~259
+                    { 'max': 1024, 'read': 4.00, 'skip': 8.00, 'head':16.00, 'tail': 5.00, },   # ~353
+                    { 'max': 4096, 'read': 4.00, 'skip':32.00, 'head': 8.00, 'tail': 8.00, },   # ~468
                 ],
             },
         ]
@@ -56,24 +60,47 @@ class FastContentHashV1(object):
         fi = open(path.path, 'rb')
         hash = hashlib.sha1()
 
+        stats = {
+            'head_cnt':0,
+            'head_sz': 0,
+            'tail_cnt':0,
+            'tail_sz': 0,
+            'data_cnt':0,
+            'data_sz': 0,
+        }
+
+
         cpos = 0
         while True:
-            if cpos<=readCfg['head']*1024*1024:
+            if readCfg['head'] and cpos<=readCfg['head']*1024*1024:
                 data = fi.read(int(readCfg['head']*1024*1024))
-                cpos+= len(data)
-            elif cpos>=(path.size - readCfg['tail']*1024*1024):
+                dl = len(data)
+                cpos+= dl
+                stats['head_cnt']+= 1
+                stats['head_sz']+=  dl
+            elif readCfg['tail'] and cpos>=(path.size - (readCfg['skip']*1024*1024) - (readCfg['tail']*1024*1024)):
                 data = fi.read(int(readCfg['tail']*1024*1024))
-                cpos+= len(data)
+                dl = len(data)
+                cpos+= dl
+                stats['tail_cnt']+= 1
+                stats['tail_sz']+=  dl
             else:
                 data = fi.read(int(readCfg['read']*1024*1024))
-                cpos+= len(data)
+                dl = len(data)
+                cpos+= dl
+                stats['data_cnt']+= 1
+                stats['data_sz']+=  dl
                 
+
             if not data:
                 break
             
             hash.update(data)
-            fi.seek(readCfg['skip']*1024*1024, os.SEEK_CUR)
+            if readCfg['skip']:
+                fi.seek(readCfg['skip']*1024*1024, os.SEEK_CUR)
+                cpos+=readCfg['skip']*1024*1024
         
+
         bases = Bases()
         return "FastContentHashV1,sz:%06s,hash:%s" % (bases.toBase62(path.size), hash.hexdigest())
    
