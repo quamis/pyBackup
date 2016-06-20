@@ -9,10 +9,10 @@ import Cache.sqlite as sqlite
 
 pp = pprint.PrettyPrinter(indent=4)
 
-cacheNew = sqlite.sqlite();
+cacheNew = sqlite.sqlite()
 cacheNew.setCacheLocation('FileSystem.sqlite')
 
-cacheOld = sqlite.sqlite();
+cacheOld = sqlite.sqlite()
 cacheOld.setCacheLocation('FileSystem-old.sqlite')
 
 cmpr = Comparer()

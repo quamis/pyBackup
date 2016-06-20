@@ -69,7 +69,6 @@ class FastContentHashV1(object):
             'data_sz': 0,
         }
 
-
         cpos = 0
         while True:
             if readCfg['head'] and cpos<=readCfg['head']*1024*1024:
@@ -103,5 +102,3 @@ class FastContentHashV1(object):
 
         bases = Bases()
         return "FastContentHashV1,sz:%06s,hash:%s" % (bases.toBase62(path.size), hash.hexdigest())
-   
-
