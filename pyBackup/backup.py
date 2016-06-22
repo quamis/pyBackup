@@ -3,60 +3,75 @@
 @author: lucian
 '''
 
-import pprint
-from Comparer.Comparer import Comparer
+"""
+ - scan the "source" folder
+ - scan the "target" folder (this should mean to basically load & initialize the cache file
+ - compute diffs
+ - apply diffs
+ - display some stats
+ 
+run as 
+    python ./backup.py
+"""
+
+from SourceReader.LocalPathReader import LocalPathReaderCached
+from SourceReader.LocalPathReader import LocalPathReader
+from Hasher.FastContentHashV1 import FastContentHashV1
+from Hasher.FastContentHashV1 import FastContentHashV1Cached
 import Cache.sqlite as sqlite
 
-pp = pprint.PrettyPrinter(indent=4)
+class Source(object):
+    def __init__(self):
+        self.cache = None
+        self.reader = None
+        self.hasher = None
+        
+        self.path = None
+        self.cachePath = None
+        self.label = None
+        
+        
+    def setCachePath(self, cachePath):
+        self.cachePath = cachePath
+        
+    def setPath(self, path):
+        self.path = path
+        
+    def setLabel(self, label):
+        self.label = label
+        
+    def initialize(self):
+        self.cache = sqlite.sqlite();
+        self.cache.setCacheLocation(self.cachePath + ('DB-%s.sqlite' % (self.label)))
 
-cacheNew = sqlite.sqlite()
-cacheNew.setCacheLocation('FileSystem.sqlite')
+        self.reader = LocalPathReaderCached.LocalPathReaderCached()
+        self.reader.setCache(self.cache)
+        self.reader.setPath(self.path)
+        self.reader.initialize()
 
-cacheOld = sqlite.sqlite()
-cacheOld.setCacheLocation('FileSystem-old.sqlite')
-
-cmpr = Comparer()
-cmpr.setNewCache(cacheNew)
-cmpr.setOldCache(cacheOld)
-cmpr.initialize()
-
-print "moved files:"
-for paths in cmpr.getAllMoved():
-    print "    ren %s --> %s" % (paths[1], paths[0])
+        self.hasher = FastContentHashV1Cached.FastContentHashV1Cached()
+        self.hasher.setCache(self.cache)
+        self.hasher.initialize()
+        
+    def destroy(self):
+        self.reader.destroy()
+        self.hasher.destroy()
+        self.cache.destroy()
     
-    cmpr.movePath(paths[1], paths[0])
-    print "    ...marked"
-cmpr.commit()
+    def scan(self):
+        print "-"*80
+        for p in iter(lambda:self.reader.getNext(), None):
+            print p.path
+            if not p.isDir:
+                print "    "+self.hasher.hash(p)
+        print "-"*80
 
 
-print "deleted files:"
-# TODO: do some sort of backups
-for paths in cmpr.getAllDeleted():
-    print "    del %s" % (paths[0])
-    
-    cmpr.deletePath(paths[0])
-    print "    ...deleted"
-cmpr.commit()
 
-
-print "changed files:"
-# TODO: do some sort of backups
-for paths in cmpr.getAllChanged():
-    print "    upd %s --> %s" % (paths[1], paths[0], )
-    
-    cmpr.updatePath(paths[1], paths[0])
-    print "    ...updated"
-cmpr.commit()
-
-
-print "new files:"
-for paths in cmpr.getAllNew():
-    print "    cpy %s" % (paths[0], )
-    
-    cmpr.newPath(paths[0])
-    print "    ...copied"
-cmpr.commit()
-
-
-cmpr.destroy()
-
+src = Source()
+src.setPath('/tmp/x/')
+src.setCachePath('/tmp/')
+src.setLabel('source,x,001')
+src.initialize()
+src.scan()
+src.destroy()

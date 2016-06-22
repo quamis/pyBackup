@@ -3,6 +3,11 @@
 @author: lucian
 '''
 
+"""
+run as 
+    rm ./FileSystem.sqlite; python ./test-Hasher-FastContentHashV1Cached.py
+"""
+
 import pprint
 from SourceReader.LocalPathReader import LocalPathReaderCached
 from SourceReader.LocalPathReader import LocalPathReader
