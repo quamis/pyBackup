@@ -20,58 +20,59 @@ from Hasher.FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1Cached
 import Cache.sqlite as sqlite
 
-class Source(object):
+class Backup(object):
     def __init__(self):
-        self.cache = None
-        self.reader = None
-        self.hasher = None
+        self.sourceCache = None
+        self.sourceReader = None
+        self.sourceHasher = None
         
-        self.path = None
-        self.cachePath = None
+        self.sourcePath = None
+        self.sourceCachePath = None
         self.label = None
-        
-        
-    def setCachePath(self, cachePath):
-        self.cachePath = cachePath
-        
-    def setPath(self, path):
-        self.path = path
-        
+    
     def setLabel(self, label):
-        self.label = label
+        self.label = label    
+        
+    def setSourceCachePath(self, cachePath):
+        self.sourceCachePath = cachePath
+        
+    def setSourcePath(self, path):
+        self.sourcePath = path
+        
+    
         
     def initialize(self):
-        self.cache = sqlite.sqlite();
-        self.cache.setCacheLocation(self.cachePath + ('DB-%s.sqlite' % (self.label)))
+        self.sourceCache = sqlite.sqlite();
+        self.sourceCache.setCacheLocation(self.sourceCachePath + ('DB-%s.sqlite' % (self.label)))
 
-        self.reader = LocalPathReaderCached.LocalPathReaderCached()
-        self.reader.setCache(self.cache)
-        self.reader.setPath(self.path)
-        self.reader.initialize()
+        self.sourceReader = LocalPathReaderCached.LocalPathReaderCached()
+        self.sourceReader.setCache(self.sourceCache)
+        self.sourceReader.setPath(self.sourcePath)
+        self.sourceReader.initialize()
 
-        self.hasher = FastContentHashV1Cached.FastContentHashV1Cached()
-        self.hasher.setCache(self.cache)
-        self.hasher.initialize()
+        self.sourceHasher = FastContentHashV1Cached.FastContentHashV1Cached()
+        self.sourceHasher.setCache(self.sourceCache)
+        self.sourceHasher.initialize()
         
     def destroy(self):
-        self.reader.destroy()
-        self.hasher.destroy()
-        self.cache.destroy()
+        self.sourceReader.destroy()
+        self.sourceHasher.destroy()
+        self.sourceCache.destroy()
     
     def scan(self):
         print "-"*80
-        for p in iter(lambda:self.reader.getNext(), None):
+        for p in iter(lambda:self.sourceReader.getNext(), None):
             print p.path
             if not p.isDir:
-                print "    "+self.hasher.hash(p)
+                print "    "+self.sourceHasher.hash(p)
         print "-"*80
 
 
 
-src = Source()
-src.setPath('/tmp/x/')
-src.setCachePath('/tmp/')
-src.setLabel('source,x,001')
+src = Backup()
+src.setLabel('x')
+src.setSourcePath('/tmp/x/')
+src.setSourceCachePath('/tmp/')
 src.initialize()
 src.scan()
 src.destroy()
