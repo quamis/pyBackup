@@ -59,13 +59,19 @@ class Backup(object):
         self.sourceHasher.destroy()
         self.sourceCache.destroy()
     
-    def scan(self):
+    def buildSourceTree(self):
         print "-"*80
         for p in iter(lambda:self.sourceReader.getNext(), None):
             print p.path
             if not p.isDir:
                 print "    "+self.sourceHasher.hash(p)
         print "-"*80
+        
+    def getDiff(self):
+        pass
+        
+    def sync(self):
+        pass
 
 
 
@@ -74,5 +80,6 @@ src.setLabel('x')
 src.setSourcePath('/tmp/x/')
 src.setSourceCachePath('/tmp/')
 src.initialize()
-src.scan()
+print src.getDiff()
+#src.sync()
 src.destroy()
