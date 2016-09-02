@@ -76,8 +76,8 @@ class Backup(object):
 
 
 src = Backup()
-src.setLabel('x')
-src.setSourcePath('/tmp/x/')
+src.setLabel('test-data')
+src.setSourcePath('./.test-data')
 src.setSourceCachePath('/tmp/')
 src.initialize()
 print src.getDiff()
