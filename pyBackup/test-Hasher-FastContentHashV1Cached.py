@@ -7,7 +7,7 @@
 run as 
     rm ./FileSystem.sqlite; python ./test-Hasher-FastContentHashV1Cached.py
 """
-
+import argparse
 import pprint
 from SourceReader.LocalPathReader import LocalPathReaderCached
 from SourceReader.LocalPathReader import LocalPathReader
@@ -17,27 +17,41 @@ import Cache.sqlite as sqlite
 
 pp = pprint.PrettyPrinter(indent=4)
 
-DB = 'FileSystem.sqlite'
+parser = argparse.ArgumentParser(description='Create the sqlite DB')
+parser.add_argument('--cache',  dest='cache',	action='store', type=str,   default='',help='TODO')
+parser.add_argument('--data', 	dest='data',   action='store', type=str,   default='',help='TODO')
+parser.add_argument('--verbose', dest='verbose',   action='store', type=int,   default=1,help='TODO')
+args = vars(parser.parse_args())
+
+
+
 cache = sqlite.sqlite();
-cache.setCacheLocation(DB)
 
 lp = LocalPathReaderCached.LocalPathReaderCached()
 lp.setCache(cache)
 #lp = LocalPathReader.LocalPathReader()
-lp.setPath('/tmp/x/')
-lp.initialize()
 
+cache.setCacheLocation(args['cache'])
+lp.setPath(args['data'])
+
+lp.initialize()
 
 hh = FastContentHashV1Cached.FastContentHashV1Cached()
 hh.setCache(cache)
 hh.initialize()
 
-print "-"*80
-for p in iter(lambda:lp.getNext(), None):
-    print p.path
-    if not p.isDir:
-	print "    "+hh.hash(p)
-print "-"*80
-
+if args['verbose']>0:
+    print "-"*80
+    for p in iter(lambda:lp.getNext(), None):
+        print p.path
+        if not p.isDir:
+            print "    "+hh.hash(p)
+    print "-"*80
+else:
+    for p in iter(lambda:lp.getNext(), None):
+        if not p.isDir:
+            hh.hash(p)
+    
+    
 lp.destroy()
 hh.destroy()

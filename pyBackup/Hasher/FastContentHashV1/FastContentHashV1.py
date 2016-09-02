@@ -101,4 +101,4 @@ class FastContentHashV1(object):
         
 
         bases = Bases()
-        return "FastContentHashV1,sz:%06s,hash:%s" % (bases.toBase62(path.size), hash.hexdigest())
+        return "FastContentHashV1,hash:%s,sz:%s" % (hash.hexdigest(), bases.toBase62(path.size))

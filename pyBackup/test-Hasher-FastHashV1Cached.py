@@ -19,7 +19,7 @@ cache.setCacheLocation(DB)
 lp = LocalPathReaderCached.LocalPathReaderCached()
 lp.setCache(cache)
 #lp = LocalPathReader.LocalPathReader()
-lp.setPath('/tmp/x/')
+lp.setPath("test-data/data-m/")
 lp.initialize()
 
 
@@ -36,3 +36,4 @@ print "-"*80
 
 lp.destroy()
 hh.destroy()
+

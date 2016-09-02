@@ -4,7 +4,7 @@ from SourceReader.LocalPathReader import LocalPathReader
 pp = pprint.PrettyPrinter(indent=4)
 
 lp = LocalPathReader.LocalPathReader()
-lp.setPath("/tmp/x/")
+lp.setPath("test-data/data-m/")
 lp.initialize()
 
 

@@ -77,8 +77,8 @@ class Backup(object):
 
 src = Backup()
 src.setLabel('test-data')
-src.setSourcePath('./.test-data')
-src.setSourceCachePath('/tmp/')
+src.setSourcePath('test-data/data-m/')
+src.setSourceCachePath('test-data/cache-m/')
 src.initialize()
 print src.getDiff()
 #src.sync()

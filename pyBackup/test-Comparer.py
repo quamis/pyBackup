@@ -2,30 +2,44 @@
 '''
 @author: lucian
 '''
-
+import argparse
 import pprint
 from Comparer.Comparer import Comparer
 import Cache.sqlite as sqlite
 
 pp = pprint.PrettyPrinter(indent=4)
 
+parser = argparse.ArgumentParser(description='Create the sqlite DB')
+parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
+parser.add_argument('--cacheOld',  dest='cacheOld', action='store', type=str,   default='',help='TODO')
+args = vars(parser.parse_args())
+
+
 cacheNew = sqlite.sqlite();
-cacheNew.setCacheLocation('FileSystem.sqlite')
+cacheNew.setCacheLocation(args['cacheNew'])
 
 cacheOld = sqlite.sqlite();
-cacheOld.setCacheLocation('FileSystem-old.sqlite')
+cacheOld.setCacheLocation(args['cacheOld'])
 
 cmpr = Comparer()
 cmpr.setNewCache(cacheNew)
 cmpr.setOldCache(cacheOld)
 cmpr.initialize()
 
+doApply = False
+
+"""
+    TODO: 
+        - correctly handle moved file vs delete+new file
+"""
+
 print "moved files:"
 for paths in cmpr.getAllMoved():
     print "    ren %s --> %s" % (paths[1], paths[0])
-    
-    cmpr.movePath(paths[1], paths[0])
-    print "    ...marked"
+
+    if doApply:
+        cmpr.movePath(paths[1], paths[0])
+        print "    ...marked"
 cmpr.commit()
 
 
@@ -34,8 +48,9 @@ print "deleted files:"
 for paths in cmpr.getAllDeleted():
     print "    del %s" % (paths[0])
     
-    cmpr.deletePath(paths[0])
-    print "    ...deleted"
+    if doApply:
+        cmpr.deletePath(paths[0])
+        print "    ...deleted"
 cmpr.commit()
 
 
@@ -43,18 +58,20 @@ print "changed files:"
 # TODO: do some sort of backups
 for paths in cmpr.getAllChanged():
     print "    upd %s --> %s" % (paths[1], paths[0], )
-    
-    cmpr.updatePath(paths[1], paths[0])
-    print "    ...updated"
+
+    if doApply:
+        cmpr.updatePath(paths[1], paths[0])
+        print "    ...updated"
 cmpr.commit()
 
 
 print "new files:"
 for paths in cmpr.getAllNew():
     print "    cpy %s" % (paths[0], )
-    
-    cmpr.newPath(paths[0])
-    print "    ...copied"
+
+    if doApply:
+        cmpr.newPath(paths[0])
+        print "    ...copied"
 cmpr.commit()
 
 

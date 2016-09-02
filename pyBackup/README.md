@@ -43,5 +43,25 @@
             - write archives of x% of very old data (unchanged for more than X days?)
             
 			
-			
-pip install bases.py
+
+Dependencies:			
+	pip install bases.py
+	
+
+Dev-tests:
+	test-LocalPathReader-LocalPathReader.py
+		- test the local path reader
+
+	test-Hasher-FastHashV1.py
+		- test the local path reader & fast hasher
+		
+	test-Hasher-FastHashV1Cached.py
+		- test the local path reader & fast hasher & cache
+		
+	test-Hasher-FastContentHashV1Cached.py
+		- test the local path reader & fast content hasher & cache
+		
+	
+	test-Comparer.py
+		- compare 2 databases
+	
