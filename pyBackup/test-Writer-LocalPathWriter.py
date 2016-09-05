@@ -4,8 +4,8 @@
 '''
 import argparse
 import pprint
-from Comparer.SimpleComparer import SimpleComparer
 from Comparer.CompleteComparer import CompleteComparer
+from Writer.LocalPathWriter.Writer import Writer
 import Cache.sqlite as sqlite
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -22,14 +22,16 @@ cacheNew.setCacheLocation(args['cacheNew'])
 cacheOld = sqlite.sqlite();
 cacheOld.setCacheLocation(args['cacheOld'])
 
-#doApply = True
-#cmpr = SimpleComparer()
 doApply = False
 cmpr = CompleteComparer()
 
 cmpr.setNewCache(cacheNew)
 cmpr.setOldCache(cacheOld)
 cmpr.initialize()
+
+
+wrt = Writer("/tmp/")
+wrt.initialize()
 
 
 
@@ -39,7 +41,8 @@ for paths in cmpr.getAllMoved():
 
     if doApply:
         cmpr.movePath(paths[1], paths[0])
-        print "    ...marked"
+        wrt.movePath(paths[1], paths[0])
+        print "    ...marked & applied"
 cmpr.commit()
 
 
