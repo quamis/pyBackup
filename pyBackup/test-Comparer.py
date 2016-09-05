@@ -4,7 +4,8 @@
 '''
 import argparse
 import pprint
-from Comparer.Comparer import Comparer
+from Comparer.SimpleComparer import SimpleComparer
+from Comparer.CompleteComparer import CompleteComparer
 import Cache.sqlite as sqlite
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -21,12 +22,16 @@ cacheNew.setCacheLocation(args['cacheNew'])
 cacheOld = sqlite.sqlite();
 cacheOld.setCacheLocation(args['cacheOld'])
 
-cmpr = Comparer()
+#doApply = True
+#cmpr = SimpleComparer()
+doApply = False
+cmpr = CompleteComparer()
+
 cmpr.setNewCache(cacheNew)
 cmpr.setOldCache(cacheOld)
 cmpr.initialize()
 
-doApply = False
+
 
 """
     TODO: 
