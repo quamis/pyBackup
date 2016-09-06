@@ -19,6 +19,11 @@
 		- compute fullHash for X% of the DB
             - write recovery information for X% of the backed files
                 - PAR2?
+                    https://multipar.eu/
+                    https://github.com/Parchive/par2cmdline
+                    http://www.irasnyder.com/gitweb/?p=rarslave2.git;a=summary
+                    
+                    
             - write archives of x% of very old data (unchanged for more than X days?)
  	- path reader
 		- these export file lists to be backed up(full path, prefixed by protocol (file://, owncloud://)
