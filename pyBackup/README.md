@@ -1,16 +1,11 @@
 @2016-02-10
  - split the backup into phases
  - refactor the whole backup procedure
-		- handle folders, empty folders, moved folders
-		
-		
-        - pre-readers
+        - pre-ops
             - sql dump (via ssh?)
             - pre-cleanup
-        - post-readers
-            - cleanups
-		- re-check that X% of the final backup exists and its hash is valid (including fullHash)
-		- compute fullHash for X% of the DB
+                - ???
+        - post-ops
             - print some DB stats
                 - total files
                 - total size
@@ -19,6 +14,12 @@
                 - 0-length files
                 - % of files with fullHash
                 - % of files with recovery data
+            - cleanups
+		- re-check that X% of the final backup exists and its hash is valid (check fullHash)
+		- compute fullHash for X% of the DB
+            - write recovery information for X% of the backed files
+                - PAR2?
+            - write archives of x% of very old data (unchanged for more than X days?)
  	- path reader
 		- these export file lists to be backed up(full path, prefixed by protocol (file://, owncloud://)
 		- the file lists are then compared with the file lists on the target device
@@ -38,12 +39,8 @@
 		- examples:
 			- file hasher
 				- simple (sha1 from the whole file contents)
-				- fast (sha1 from partial file contents, adaptive according to file size)
-				- natural (compares filemtime, filesize, fast hash)
-        - dupa backup sa existe post operations
-            - re-check X% from the backed up files, do a complete content hash check
-            - write recovery information for X% of the backed files
-            - write archives of x% of very old data (unchanged for more than X days?)
+				x fast (sha1 from partial file contents, adaptive according to file size)
+				x natural (compares filemtime, filesize, fast hash)
             
 			
 
