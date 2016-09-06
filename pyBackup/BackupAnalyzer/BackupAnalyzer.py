@@ -22,17 +22,71 @@ class BackupAnalyzer(object):
         self.conn.commit()
         self.conn.close()
         
-    def getTotalCount(self):
+    def getFilesCount(self):
         c = self.conn.cursor()
         c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir')
         r = c.fetchone()
         return 0 if r is None else r[0]
+        
+    def getDirsCount(self):
+        c = self.conn.cursor()
+        c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE fn.isDir')
+        r = c.fetchone()
+        return 0 if r is None else r[0]
+        
+    def getEmptyDirsCount(self):
+        # TODO
+        c = self.conn.cursor()
+        c.execute('''
+            SELECT COUNT(*) FROM main.files AS f1 WHERE 
+                f1.isDir 
+                AND f1.path NOT IN (
+                    SELECT f2.path FROM main.files AS f2 WHERE 
+                        f2.isDir 
+                        AND (
+                            SELECT 1 FROM main.files AS f3 WHERE 
+                                NOT f3.isDir 
+                                AND f3.path LIKE f2.path || "%" LIMIT 1
+                            )
+                )''')
+        r = c.fetchone()
+        return 0 if r is None else r[0]
+        
         
     def getTotalSize(self):
         c = self.conn.cursor()
         c.execute('SELECT SUM(size) FROM main.files AS fn WHERE NOT fn.isDir')
         r = c.fetchone()
         return 0 if r is None else r[0]
+        
+    def getSizeByExtensionList(self, list):
+        c = self.conn.cursor()
+        query = '''SELECT SUM(size) FROM main.files AS fn WHERE 
+            NOT fn.isDir 
+            AND (
+                LOWER(SUBSTR(fn.path, -2)) IN ('%s')
+                OR LOWER(SUBSTR(fn.path, -3)) IN ('%s')
+                OR LOWER(SUBSTR(fn.path, -4)) IN ('%s')
+                OR LOWER(SUBSTR(fn.path, -5)) IN ('%s')
+                OR LOWER(SUBSTR(fn.path, -6)) IN ('%s')
+                OR LOWER(SUBSTR(fn.path, -7)) IN ('%s')
+                OR LOWER(SUBSTR(fn.path, -8)) IN ('%s')
+                OR LOWER(SUBSTR(fn.path, -9)) IN ('%s')
+            )
+            ''' % (
+            "', '".join(sorted([x for x in list if len(x)==2])),
+            "', '".join(sorted([x for x in list if len(x)==3])),
+            "', '".join(sorted([x for x in list if len(x)==4])),
+            "', '".join(sorted([x for x in list if len(x)==5])),
+            "', '".join(sorted([x for x in list if len(x)==6])),
+            "', '".join(sorted([x for x in list if len(x)==7])),
+            "', '".join(sorted([x for x in list if len(x)==8])),
+            "', '".join(sorted([x for x in list if len(x)==9])),
+           )
+        #print query
+        c.execute(query)
+        r = c.fetchone()
+        return 0 if r is None or r[0] is None else r[0]
         
     def getAvgSize(self):
         c = self.conn.cursor()
