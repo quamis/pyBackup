@@ -1,0 +1,4 @@
+os.unlink(path)
+    Remove (delete) the file path. This is the same function as remove(); the unlink() name is its traditional Unix name.
+
+    Availability: Unix, Windows.

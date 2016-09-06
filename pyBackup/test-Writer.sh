@@ -32,8 +32,12 @@ python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="test-data/tm
 
 
 echo "compare & write"
-python ./test-Writer-LocalPathWriter.py --cacheNew="test-data/tmp-cache/FileSystem2.sqlite" --cacheOld="test-data/tmp-cache/FileSystem1.sqlite"
+rm -rf "test-data/tmp-data-backup/"
+mkdir "test-data/tmp-data-backup/"
+cp -rf "test-data/data-m/." "test-data/tmp-data-backup/"
+python ./test-Writer-LocalPathWriter.py --cacheNew="test-data/tmp-cache/FileSystem2.sqlite" --cacheOld="test-data/tmp-cache/FileSystem1.sqlite" --backup="test-data/tmp-data-backup/" --source="test-data/tmp-data/"
 
 echo "cleanup"
 rm -rf "test-data/tmp-cache/"
 rm -rf "test-data/tmp-data/"
+rm -rf "test-data/tmp-data-backup/"

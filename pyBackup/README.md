@@ -1,6 +1,9 @@
 @2016-02-10
  - split the backup into phases
  - refactor the whole backup procedure
+		- handle folders, empty folders, moved folders
+		
+		
         - pre-readers
             - sql dump (via ssh?)
             - pre-cleanup

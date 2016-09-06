@@ -13,6 +13,8 @@ pp = pprint.PrettyPrinter(indent=4)
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
 parser.add_argument('--cacheOld',  dest='cacheOld', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--source',  dest='source', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--backup',  dest='backup', action='store', type=str,   default='',help='TODO')
 args = vars(parser.parse_args())
 
 
@@ -22,15 +24,14 @@ cacheNew.setCacheLocation(args['cacheNew'])
 cacheOld = sqlite.sqlite();
 cacheOld.setCacheLocation(args['cacheOld'])
 
-doApply = False
+doApply = True
 cmpr = CompleteComparer()
 
 cmpr.setNewCache(cacheNew)
 cmpr.setOldCache(cacheOld)
 cmpr.initialize()
 
-
-wrt = Writer("/tmp/")
+wrt = Writer(args['backup'], args['source'])
 wrt.initialize()
 
 
@@ -44,6 +45,7 @@ for paths in cmpr.getAllMoved():
         wrt.movePath(paths[1], paths[0])
         print "    ...marked & applied"
 cmpr.commit()
+wrt.commit()
 
 
 print "deleted files:"
@@ -53,9 +55,10 @@ for paths in cmpr.getAllDeleted():
     
     if doApply:
         cmpr.deletePath(paths[0])
-        print "    ...deleted"
+        wrt.deletePath(paths[0])
+        print "    ...deleted & applied"
 cmpr.commit()
-
+wrt.commit()
 
 print "changed files:"
 # TODO: do some sort of backups
@@ -64,7 +67,8 @@ for paths in cmpr.getAllChanged():
 
     if doApply:
         cmpr.updatePath(paths[1], paths[0])
-        print "    ...updated"
+        wrt.updatePath(paths[1], paths[0])
+        print "    ...updated & applied"
 cmpr.commit()
 
 
@@ -74,9 +78,11 @@ for paths in cmpr.getAllNew():
 
     if doApply:
         cmpr.newPath(paths[0])
-        print "    ...copied"
+        wrt.newPath(paths[0])
+        print "    ...copied & applied"
 cmpr.commit()
-
+wrt.commit()
 
 cmpr.destroy()
+wrt.destroy()
 
