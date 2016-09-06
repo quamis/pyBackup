@@ -36,6 +36,9 @@ python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="test-data/tm
 echo "compare"
 python ./test-Comparer.py --cacheNew="test-data/tmp-cache/FileSystem2.sqlite" --cacheOld="test-data/tmp-cache/FileSystem1.sqlite"
 
+echo "re-compare"
+python ./test-Comparer.py --cacheNew="test-data/tmp-cache/FileSystem2.sqlite" --cacheOld="test-data/tmp-cache/FileSystem1.sqlite"
+
 echo "cleanup"
 rm -rf "test-data/tmp-cache/"
 rm -rf "test-data/tmp-data/"

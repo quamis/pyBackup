@@ -24,7 +24,7 @@ cacheOld.setCacheLocation(args['cacheOld'])
 
 #doApply = True
 #cmpr = SimpleComparer()
-doApply = False
+doApply = True
 cmpr = CompleteComparer()
 
 cmpr.setNewCache(cacheNew)
@@ -34,44 +34,64 @@ cmpr.initialize()
 
 
 print "moved files:"
-for paths in cmpr.getAllMoved():
+for paths in cmpr.getMovedFiles():
     print "    ren %s --> %s" % (paths[1], paths[0])
 
     if doApply:
-        cmpr.movePath(paths[1], paths[0])
+        cmpr.moveFile(paths[1], paths[0])
         print "    ...marked"
 cmpr.commit()
 
 
 print "deleted files:"
 # TODO: do some sort of backups
-for paths in cmpr.getAllDeleted():
+for paths in cmpr.getDeletedFiles():
     print "    del %s" % (paths[0])
     
     if doApply:
-        cmpr.deletePath(paths[0])
+        cmpr.deleteFile(paths[0])
+        print "    ...deleted"
+cmpr.commit()
+
+print "deleted dirs:"
+# TODO: do some sort of backups
+for paths in cmpr.getDeletedDirs():
+    print "    rmd %s" % (paths[0])
+    
+    if doApply:
+        cmpr.deleteDir(paths[0])
         print "    ...deleted"
 cmpr.commit()
 
 
 print "changed files:"
 # TODO: do some sort of backups
-for paths in cmpr.getAllChanged():
+for paths in cmpr.getChangedFiles():
     print "    upd %s --> %s" % (paths[1], paths[0], )
 
     if doApply:
-        cmpr.updatePath(paths[1], paths[0])
+        cmpr.updateFile(paths[1], paths[0])
         print "    ...updated"
 cmpr.commit()
 
 
 print "new files:"
-for paths in cmpr.getAllNew():
+for paths in cmpr.getNewFiles():
     print "    cpy %s" % (paths[0], )
 
     if doApply:
-        cmpr.newPath(paths[0])
+        cmpr.newFile(paths[0])
         print "    ...copied"
+cmpr.commit()
+
+
+print "new dirs:"
+for paths in cmpr.getNewDirs():
+    print "    mkd %s" % (paths[0], )
+
+    if doApply:
+        cmpr.newDir(paths[0])
+        print "    ...mkdir"
 cmpr.commit()
 
 

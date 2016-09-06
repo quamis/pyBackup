@@ -13,24 +13,24 @@ class CompleteComparer(SimpleComparer):
     
     def initialize(self):
         super(CompleteComparer, self).initialize()
-        self.moved = self.getAllMoved()
+        self.moved = self.getMovedFiles()
         
-    def getAllMoved(self):
+    def getMovedFiles(self):
         if self.moved is None:
-            self.moved = super(CompleteComparer, self).getAllMoved()
+            self.moved = super(CompleteComparer, self).getMovedFiles()
             
         return self.moved
     
-    def getAllChanged(self):
-        ret = super(CompleteComparer, self).getAllChanged()
+    def getChangedFiles(self):
+        ret = super(CompleteComparer, self).getChangedFiles()
         return self._filter(ret, [x[1] for x in self.moved])
     
-    def getAllNew(self):
-        ret = super(CompleteComparer, self).getAllNew()
+    def getNewFiles(self):
+        ret = super(CompleteComparer, self).getNewFiles()
         return self._filter(ret, [x[0] for x in self.moved])
     
-    def getAllDeleted(self):
-        ret = super(CompleteComparer, self).getAllDeleted()
+    def getDeletedFiles(self):
+        ret = super(CompleteComparer, self).getDeletedFiles()
         return self._filter(ret, [x[1] for x in self.moved])
     
     def _filter(self, list1, simplifiedList):

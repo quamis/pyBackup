@@ -31,7 +31,7 @@ class SimpleComparer(object):
         self.conn.commit()
         
         
-    def getAllMoved(self):
+    def getMovedFiles(self):
         c = self.conn.cursor()
         c.execute('''
             SELECT 
@@ -48,42 +48,63 @@ class SimpleComparer(object):
             ''')
         return c.fetchall()
     
-    def movePath(self, opath, npath):
+    def moveFile(self, opath, npath):
         c = self.conn.cursor()
         vals=(npath, opath)
         # TODO: load all attributes, not just paths (mtime, ctime, etc)
         c.execute('UPDATE old.files SET path=? WHERE NOT isDir AND path=?', vals)
     
-    def getAllChanged(self):
+    def getChangedFiles(self):
         c = self.conn.cursor()
         c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path WHERE NOT fo.isDir AND NOT fn.isDir AND fo.hash!=fn.hash')
         return c.fetchall()
     
-    def updatePath(self, opath, npath):
+    def updateFile(self, opath, npath):
         c = self.conn.cursor()
         vals=(npath, opath, )
         c.execute('UPDATE old.files SET hash=(SELECT hash FROM main.files WHERE path=? LIMIT 1) WHERE NOT isDir AND path=?', vals)
     
-    def getAllNew(self):
+    def getNewFiles(self):
         c = self.conn.cursor()
         c.execute('SELECT path FROM main.files WHERE NOT isDir AND path NOT IN (SELECT path FROM old.files WHERE NOT isDir)')
         return c.fetchall()
     
-    def newPath(self, npath):
+    def getNewDirs(self):
+        c = self.conn.cursor()
+        c.execute('SELECT path FROM main.files WHERE isDir AND path NOT IN (SELECT path FROM old.files WHERE isDir) ORDER BY LENGTH(path) ASC, path ASC')
+        return c.fetchall()
+    
+    def _newPath(self, npath):
         c = self.conn.cursor()
         vals=(npath, )
         c.execute('REPLACE INTO old.files (hash, path, isDir, ctime, mtime, size, time) SELECT hash, path, isDir, ctime, mtime, size, time FROM main.files WHERE path=? LIMIT 1', vals)
+        
+    def newFile(self, npath):
+        return self._newPath(npath)
+    
+    def newDir(self, npath):
+        return self._newPath(npath)
     
     
-    def getAllDeleted(self):
+    def getDeletedFiles(self):
         c = self.conn.cursor()
         c.execute('SELECT path FROM old.files WHERE NOT isDir AND path NOT IN (SELECT path FROM main.files WHERE NOT isDir)')
         return c.fetchall()
     
-    def deletePath(self, opath):
+    def getDeletedDirs(self):
+        c = self.conn.cursor()
+        c.execute('SELECT path FROM old.files WHERE isDir AND path NOT IN (SELECT path FROM main.files WHERE isDir) ORDER BY LENGTH(path) DESC, path ASC')
+        return c.fetchall()
+    
+    def deleteFile(self, opath):
         c = self.conn.cursor()
         vals=(opath, )
         c.execute('DELETE FROM old.files WHERE NOT isDir AND path=?', vals)
+        
+    def deleteDir(self, opath):
+        c = self.conn.cursor()
+        vals=(opath, )
+        c.execute('DELETE FROM old.files WHERE isDir AND path=?', vals)
         
         
         

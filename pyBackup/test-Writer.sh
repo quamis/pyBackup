@@ -37,9 +37,17 @@ echo "compare & write"
 rm -rf "test-data/tmp-data-backup/"
 mkdir "test-data/tmp-data-backup/"
 cp -rf "test-data/data-m/." "test-data/tmp-data-backup/"
+find "test-data/tmp-data-backup/" -name ".gitignore" -type f -delete
 python ./test-Writer-LocalPathWriter.py --cacheNew="test-data/tmp-cache/FileSystem2.sqlite" --cacheOld="test-data/tmp-cache/FileSystem1.sqlite" --backup="test-data/tmp-data-backup/" --source="test-data/tmp-data/"
+
+
+echo "re-compare & re-write"
+python ./test-Writer-LocalPathWriter.py --cacheNew="test-data/tmp-cache/FileSystem2.sqlite" --cacheOld="test-data/tmp-cache/FileSystem1.sqlite" --backup="test-data/tmp-data-backup/" --source="test-data/tmp-data/"
+
 
 echo "cleanup"
 rm -rf "test-data/tmp-cache/"
 rm -rf "test-data/tmp-data/"
 rm -rf "test-data/tmp-data-backup/"
+
+

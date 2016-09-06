@@ -37,51 +37,79 @@ wrt.initialize()
 
 
 print "moved files:"
-for paths in cmpr.getAllMoved():
+for paths in cmpr.getMovedFiles():
     print "    ren %s --> %s" % (paths[1], paths[0])
 
     if doApply:
-        cmpr.movePath(paths[1], paths[0])
-        wrt.movePath(paths[1], paths[0])
-        print "    ...marked & applied"
+        cmpr.moveFile(paths[1], paths[0])
+        wrt.moveFile(paths[1], paths[0])
+        print "    ...marked & written"
 cmpr.commit()
 wrt.commit()
 
 
 print "deleted files:"
 # TODO: do some sort of backups
-for paths in cmpr.getAllDeleted():
+for paths in cmpr.getDeletedFiles():
     print "    del %s" % (paths[0])
     
     if doApply:
-        cmpr.deletePath(paths[0])
-        wrt.deletePath(paths[0])
-        print "    ...deleted & applied"
+        cmpr.deleteFile(paths[0])
+        wrt.deleteFile(paths[0])
+        print "    ...deleted & written"
 cmpr.commit()
 wrt.commit()
+
+print "deleted dirs:"
+# TODO: do some sort of backups
+for paths in cmpr.getDeletedDirs():
+    print "    rmd %s" % (paths[0])
+    
+    if doApply:
+        cmpr.deleteDir(paths[0])
+        wrt.deleteDir(paths[0])
+        print "    ...deleted & written"
+cmpr.commit()
+wrt.commit()
+
 
 print "changed files:"
 # TODO: do some sort of backups
-for paths in cmpr.getAllChanged():
+for paths in cmpr.getChangedFiles():
     print "    upd %s --> %s" % (paths[1], paths[0], )
 
     if doApply:
-        cmpr.updatePath(paths[1], paths[0])
-        wrt.updatePath(paths[1], paths[0])
-        print "    ...updated & applied"
+        cmpr.updateFile(paths[1], paths[0])
+        wrt.updateFile(paths[1], paths[0])
+        print "    ...updated & written"
 cmpr.commit()
+wrt.commit()
 
 
 print "new files:"
-for paths in cmpr.getAllNew():
+for paths in cmpr.getNewFiles():
     print "    cpy %s" % (paths[0], )
 
     if doApply:
-        cmpr.newPath(paths[0])
-        wrt.newPath(paths[0])
-        print "    ...copied & applied"
+        cmpr.newFile(paths[0])
+        wrt.newFile(paths[0])
+        print "    ...copied & written"
 cmpr.commit()
 wrt.commit()
+
+
+print "new dirs:"
+for paths in cmpr.getNewDirs():
+    print "    mkd %s" % (paths[0], )
+
+    if doApply:
+        cmpr.newDir(paths[0])
+        wrt.newDir(paths[0])
+        print "    ...created & written"
+cmpr.commit()
+wrt.commit()
+
+
 
 cmpr.destroy()
 wrt.destroy()
