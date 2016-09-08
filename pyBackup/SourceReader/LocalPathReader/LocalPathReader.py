@@ -12,6 +12,7 @@ class LocalPathReader(object):
     def __init__(self):
         self.index = 0;
         self.paths = []
+        self.progressCallback = None
 
     def setPath(self, basepath):
         self.basepath = basepath
@@ -21,8 +22,10 @@ class LocalPathReader(object):
     
     def destroy(self):
         self.paths = []
-
-
+        
+    def registerProgressCallback(self, callback):
+        self.progressCallback = callback
+        
     def goRecursivelly(self, basepath, paths):
         for p in listdir(unicode(basepath)):
             fp = unicode(join(basepath, p))
@@ -31,6 +34,10 @@ class LocalPathReader(object):
             np.ctime = getctime(fp)
             np.mtime = getmtime(fp)
             np.size = getsize(fp)
+            
+            if not self.progressCallback is None:
+                self.progressCallback(self, 'newPath', {'p':np, 'isDir':isDir})
+            
             paths.append(np)
 
             if isDir:

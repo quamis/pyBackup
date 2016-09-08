@@ -15,6 +15,28 @@ from Hasher.FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1Cached
 import Cache.sqlite as sqlite
 
+import sys
+
+def callbackLocalPathReader(lp, event, data):
+    if event=='newPath':
+        if data['isDir']:
+            p = data['p'].path
+            o = ""
+            if len(p)>120:
+                o = "%s...%s" % (p[0:50], p[-67:])
+            else:
+                o = "%s" % (p)
+            sys.stdout.write("\r scan fs: %50s" % (o.ljust(120)))
+            
+    if event=='getNext':
+        if data['p'].isDir:
+            p = data['p'].path
+            o = ""
+            if len(p)>120:
+                o = "%s...%s" % (p[0:50], p[-67:])
+            else:
+                o = "%s" % (p)
+            sys.stdout.write("\r cache %50s" % (o.ljust(120)))
 pp = pprint.PrettyPrinter(indent=4)
 
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
@@ -34,6 +56,7 @@ lp.setCache(cache)
 cache.setCacheLocation(args['cache'])
 lp.setPath(args['data'])
 
+lp.registerProgressCallback(callbackLocalPathReader)
 lp.initialize()
 
 hh = FastContentHashV1Cached.FastContentHashV1Cached()

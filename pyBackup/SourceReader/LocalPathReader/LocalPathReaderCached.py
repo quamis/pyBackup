@@ -34,6 +34,8 @@ class LocalPathReaderCached(LocalPathReader.LocalPathReader):
         #print "LocalPathReaderCached.getNext %s" % (self.db.dbExists)
         
         if self.db.dbExists:
+            print "asdasd"
+            exit();
             ret = None
             if self.index<len(self.paths):
                 p = self.paths[self.index]
@@ -44,10 +46,17 @@ class LocalPathReaderCached(LocalPathReader.LocalPathReader):
                 ret.mtime = float(p[4])
                 ret.size = int(p[5])
                 self.index+=1
+                
+            if not self.progressCallback is None:
+                self.progressCallback(self, 'getNext', {'p':ret})
+                
             return ret
         else:
             ret = super(LocalPathReaderCached, self).getNext()
             if ret:
                 self.db.insertFileIntoFiles(ret, '')
+                if not self.progressCallback is None:
+                    self.progressCallback(self, 'getNext', {'p':ret})
+                
             return ret
             
