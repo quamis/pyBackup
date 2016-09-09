@@ -46,6 +46,12 @@ class sqlite(object):
         vals = (h, p.path)
         c.execute('UPDATE files SET hash=? WHERE path=?', vals)
         #self.conn.commit()
+        
+    def updateFileFullHashIntoFiles(self, p, h):
+        c = self.conn.cursor()
+        vals = (h, p.path)
+        c.execute('UPDATE files SET fullHash=? WHERE path=?', vals)
+        #self.conn.commit()
     
     def findFileByPath(self, path):
         c = self.conn.cursor()

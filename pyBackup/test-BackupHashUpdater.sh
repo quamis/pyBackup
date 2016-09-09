@@ -25,7 +25,7 @@ echo "caculate hashes"
 python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="/cygdrive/d/exports/2016-01-13 - BSP/TINA2 - trunk/_3parties/" --cache="test-data/tmp-cache/FileSystem1.sqlite"
 
 echo "analize"
-python ./test-BackupAnalyzer.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="/cygdrive/d/exports/2016-01-13 - BSP/"
+python ./test-BackupHashUpdater.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="/cygdrive/d/exports/2016-01-13 - BSP/" --percent=1
 
 echo "cleanup"
 #rm -rf "test-data/tmp-cache/"

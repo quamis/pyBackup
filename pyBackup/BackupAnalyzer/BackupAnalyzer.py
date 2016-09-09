@@ -28,6 +28,29 @@ class BackupAnalyzer(object):
         r = c.fetchone()
         return 0 if r is None else r[0]
         
+    def getFilesWithFullHashesCount(self):
+        c = self.conn.cursor()
+        c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir AND fn.fullHash')
+        r = c.fetchone()
+        return 0 if r is None else r[0]
+        
+    def getFilesWithoutFullHashesCount(self):
+        c = self.conn.cursor()
+        c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir AND NOT fn.fullHash')
+        r = c.fetchone()
+        return 0 if r is None else r[0]
+        
+    def getFilesWithoutFullHashes(self, order, limit):
+        c = self.conn.cursor()
+        if order=='random':
+            val = (limit, )
+            c.execute('SELECT fn.path, fn.hash FROM main.files AS fn WHERE NOT fn.isDir AND NOT fn.fullHash ORDER BY RANDOM() LIMIT ?', val)
+        else:
+            raise RuntimeError("Invalid order param")
+            
+        r = c.fetchall()
+        return r
+        
     def getDirsCount(self):
         c = self.conn.cursor()
         c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE fn.isDir')
