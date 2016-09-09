@@ -6,11 +6,16 @@ import argparse
 import pprint
 import humanize
 from BackupAnalyzer.BackupAnalyzer import BackupAnalyzer
+from Hasher.FullContentHashV1 import FullContentHashV1
+from SourceReader.Path import Path
 import Cache.sqlite as sqlite
-import os
+#import os
 import math
 
-pp = pprint.PrettyPrinter(indent=4)
+"""
+FIX: the backup analizer should use some coordinated sql's through the cache class (bases on sqlite3), not double-connecting to the sale DB
+same for SimpleComparer
+"""
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -28,15 +33,28 @@ analyzer = BackupAnalyzer()
 analyzer.setCache(cache)
 analyzer.initialize()
 
-#TODO: number of files per type (music/jpg/others)
-#TODO: size of files per type (music/jpg/others)
-
 print "files with full hashes: %s files" % (analyzer.getFilesWithFullHashesCount())
 print "files without full hashes: %s files" % (analyzer.getFilesWithoutFullHashesCount())
 
-for (path, hash) in analyzer.getFilesWithoutFullHashes('random', math.ceil(analyzer.getFilesWithoutFullHashesCount()*(args['percent']/100))):
-    print "check file %s" % (path)
+hh = FullContentHashV1.FullContentHashV1()
+hh.initialize()
 
+#for (p, hash, sz) in analyzer.getFilesWithoutFullHashes('random', math.ceil(analyzer.getFilesWithoutFullHashesCount()*(args['percent']/100))):
+files = analyzer.getFilesWithoutFullHashes('random', 1)
+for (p, hash, sz) in files:
+    print "check file %s" % (p)
+    path = Path(p, False)
+    path.size = sz
+    
+    hash = hh.hash(path)
+    print "    hash: %s" % (hash)
+    cache.updateFileFullHashIntoFiles(path, hash)
+cache.commit()
+
+hh.destroy()
 analyzer.destroy()
+
+
+
 
 

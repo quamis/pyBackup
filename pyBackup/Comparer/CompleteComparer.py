@@ -3,7 +3,6 @@
 Created on Sep 7, 2013
 @author: lucian
 '''
-import sqlite3
 import os, time
 from SimpleComparer import SimpleComparer
 

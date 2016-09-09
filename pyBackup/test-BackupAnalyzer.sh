@@ -27,6 +27,6 @@ python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="/cygdrive/d/
 echo "analize"
 python ./test-BackupAnalyzer.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="/cygdrive/d/exports/2016-01-13 - BSP/"
 
-echo "cleanup"
+#echo "cleanup"
 #rm -rf "test-data/tmp-cache/"
 #rm -rf "test-data/tmp-data/"
