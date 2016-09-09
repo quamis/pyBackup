@@ -8,26 +8,25 @@ from Hasher.FastContentHashV1 import FastContentHashV1
 
 class FastContentHashV1Cached(FastContentHashV1.FastContentHashV1):
     def __init__(self):
-        self.db = None
+        self.cache = None
         super(FastContentHashV1Cached, self).__init__()
     
     def initialize(self):
-        self.db.initialize()
+        self.cache.initialize()
         super(FastContentHashV1Cached, self).initialize()
     
     def destroy(self):
-        self.db.destroy()
         super(FastContentHashV1Cached, self).initialize()
         
     def setCache(self, cache):
-        self.db = cache
+        self.cache = cache
     
     def hash(self, path):
-        h = self.db.findFileByPath(path.path)
+        h = self.cache.findFileByPath(path.path)
         if h[0]:
             return h[0]
         else:
             h = super(FastContentHashV1Cached, self).hash(path)
-            self.db.updateFileHashIntoFiles(path, h)
+            self.cache.updateFileHashIntoFiles(path, h)
             return h
         

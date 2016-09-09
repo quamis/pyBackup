@@ -28,6 +28,7 @@ args = vars(parser.parse_args())
 
 cache = sqlite.sqlite();
 cache.setCacheLocation(args['cache'])
+cache.initialize()
 
 analyzer = BackupAnalyzer()
 analyzer.setCache(cache)
@@ -39,8 +40,10 @@ print "files without full hashes: %s files" % (analyzer.getFilesWithoutFullHashe
 hh = FullContentHashV1.FullContentHashV1()
 hh.initialize()
 
-#for (p, hash, sz) in analyzer.getFilesWithoutFullHashes('random', math.ceil(analyzer.getFilesWithoutFullHashesCount()*(args['percent']/100))):
-files = analyzer.getFilesWithoutFullHashes('random', 1)
+files = analyzer.getFilesWithoutFullHashes('random', 
+        min(100, math.ceil(analyzer.getFilesWithoutFullHashesCount()*(args['percent']/100)))
+    )
+#files = analyzer.getFilesWithoutFullHashes('random', 1)
 for (p, hash, sz) in files:
     print "check file %s" % (p)
     path = Path(p, False)
@@ -53,6 +56,7 @@ cache.commit()
 
 hh.destroy()
 analyzer.destroy()
+cache.destroy()
 
 
 

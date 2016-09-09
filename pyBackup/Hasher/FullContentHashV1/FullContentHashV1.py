@@ -37,4 +37,4 @@ class FullContentHashV1(object):
             sha512.update(data)
 
         bases = Bases()
-        return "FullContentHashV1,md5:%s,sha1:%s,sha512:%s,sz:%s" % (md5.hexdigest(), sha1.hexdigest(), sha512.hexdigest(), bases.toBase62(path.size))
+        return "FullContentHashV1,md5:%s,sha1:%s,sha512:%s,sz:%s" % (md5.hexdigest(), sha1.hexdigest(), sha512.hexdigest(), bases.toBase16(path.size))

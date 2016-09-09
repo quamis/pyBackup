@@ -28,5 +28,5 @@ echo "analize"
 python ./test-BackupHashUpdater.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="/cygdrive/d/exports/2016-01-13 - BSP/" --percent=1
 
 echo "cleanup"
-#rm -rf "test-data/tmp-cache/"
-#rm -rf "test-data/tmp-data/"
+rm -rf "test-data/tmp-cache/"
+rm -rf "test-data/tmp-data/"

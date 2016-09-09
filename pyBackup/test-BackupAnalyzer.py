@@ -21,6 +21,7 @@ args = vars(parser.parse_args())
 
 cache = sqlite.sqlite();
 cache.setCacheLocation(args['cache'])
+cache.initialize()
 
 analyzer = BackupAnalyzer()
 analyzer.setCache(cache)

@@ -18,9 +18,11 @@ args = vars(parser.parse_args())
 
 cacheNew = sqlite.sqlite();
 cacheNew.setCacheLocation(args['cacheNew'])
+cacheNew.initialize()
 
 cacheOld = sqlite.sqlite();
 cacheOld.setCacheLocation(args['cacheOld'])
+cacheOld.initialize()
 
 #doApply = True
 #cmpr = SimpleComparer()
@@ -97,3 +99,5 @@ cmpr.commit()
 
 cmpr.destroy()
 
+cacheNew.destroy()
+cacheOld.destroy()

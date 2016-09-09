@@ -10,6 +10,7 @@ class sqlite(object):
     def __init__(self):
         self.dbExists = False;
         self.db = None
+        self.conn = None
         self.initialized = False
     
     def initialize(self):
@@ -25,7 +26,14 @@ class sqlite(object):
             self.initialized = True
     
     def destroy(self):
+        self.commit()
+        self.conn.close()
+        
+    def commit(self):
         self.conn.commit()
+    
+    def cursor(self):
+        return self.conn.cursor()    
         
     def setCacheLocation(self, db):
         self.db = db
