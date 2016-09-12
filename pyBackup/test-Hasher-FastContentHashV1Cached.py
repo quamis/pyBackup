@@ -18,6 +18,7 @@ import Cache.sqlite as sqlite
 import sys
 
 def callbackLocalPathReader(lp, event, data):
+    return
     if event=='newPath':
         if data['isDir']:
             p = data['p'].path
@@ -57,13 +58,25 @@ cache.setCacheLocation(args['cache'])
 cache.initialize()
 lp.setPath(args['data'])
 
+
 """
 c = cache.cursor()
-c.execute("PRAGMA synchronous=OFF")
+c.execute("PRAGMA journal_mode=MEMORY")
 cache.commit()
+
+c = cache.cursor()
+c.execute("PRAGMA FileSystem1.synchronous=OFF")
+cache.commit()
+
 c = cache.cursor()
 c.execute("PRAGMA temp_store=MEMORY")
 cache.commit()
+"""
+
+"""
+c = cache.cursor()
+c.execute("BEGIN TRANSACTION")
+print c
 """
 
 lp.registerProgressCallback(callbackLocalPathReader)
@@ -89,6 +102,13 @@ else:
 lp.destroy()
 hh.destroy()
 
+"""
+c = cache.cursor()
+print c
+c.execute("COMMIT TRANSACTION")
+"""
+
+cache.commit()
 cache.destroy()
 
 print ""

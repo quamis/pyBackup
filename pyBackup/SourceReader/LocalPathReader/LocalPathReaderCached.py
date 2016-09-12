@@ -18,7 +18,7 @@ class LocalPathReaderCached(LocalPathReader.LocalPathReader):
         self.db = cache
 
     def initialize(self):
-        print "LocalPathReaderCached.initialize %s" % (self.db.dbExists)
+        print "LocalPathReaderCached.initialize(). dbExists:%s" % (self.db.dbExists)
         if self.db.dbExists:
             self.paths = self.db.getAll()
         else:
