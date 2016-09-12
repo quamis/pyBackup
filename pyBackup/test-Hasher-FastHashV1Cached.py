@@ -15,6 +15,7 @@ pp = pprint.PrettyPrinter(indent=4)
 DB = 'FileSystem.sqlite'
 cache = sqlite.sqlite();
 cache.setCacheLocation(DB)
+cache.initialize()
 
 lp = LocalPathReaderCached.LocalPathReaderCached()
 lp.setCache(cache)

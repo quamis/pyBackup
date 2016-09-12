@@ -56,19 +56,20 @@ Dependencies:
 Dev-tests:
         editor: kdevelop/notepad++
 
-	test-LocalPathReader-LocalPathReader.py
+	python ./test-LocalPathReader-LocalPathReader.py
 		- test the local path reader
 
-	test-Hasher-FastHashV1.py
+	python ./test-Hasher-FastHashV1.py
 		- test the local path reader & fast hasher
 		
-	test-Hasher-FastHashV1Cached.py
+	python ./test-Hasher-FastHashV1Cached.py
 		- test the local path reader & fast hasher & cache
 		
-	test-Hasher-FastContentHashV1Cached.py
+	python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="test-data/data-m/" --cache="test-data/tmp-cache/FileSystem1.sqlite"
 		- test the local path reader & fast content hasher & cache
 		
 	
-	test-Comparer.py
+	python ./test-Comparer.py
+	./test-Comparer.sh
 		- compare 2 databases
 	

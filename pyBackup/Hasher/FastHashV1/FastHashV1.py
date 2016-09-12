@@ -17,12 +17,12 @@ class FastHashV1(object):
         
     def hash(self, path):
 	fi = open(path.path, 'rb')
-        md5 = hashlib.md5()
+        sha1 = hashlib.sha1()
         while True:
             data = fi.read(1*1024*1024)
             if not data:
                 break
-            md5.update(data)
+            sha1.update(data)
             
-        return "FastHashV1,ct:%d,mt:%d,sz:%s,md5:%s"%(path.ctime, path.mtime, path.size, md5.hexdigest())
+        return "FastHashV1,ct:%d,mt:%d,sz:%s,sha1:%s"%(path.ctime, path.mtime, path.size, sha1.hexdigest())
     

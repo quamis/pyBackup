@@ -58,7 +58,7 @@ class FastContentHashV1(object):
                 break
         
         fi = open(path.path, 'rb')
-        hash = hashlib.sha1()
+        sha1 = hashlib.sha1()
 
         stats = {
             'head_cnt':0,
@@ -94,11 +94,12 @@ class FastContentHashV1(object):
             if not data:
                 break
             
-            hash.update(data)
+            sha1.update(data)
             if readCfg['skip']:
                 fi.seek(readCfg['skip']*1024*1024, os.SEEK_CUR)
                 cpos+=readCfg['skip']*1024*1024
         
 
         bases = Bases()
-        return "FastContentHashV1,hash:%s,sz:%s" % (hash.hexdigest(), bases.toBase62(path.size))
+        return "FastContentHashV1,sha1:%s,sz:%s" % (sha1.hexdigest(), bases.toBase62(path.size))
+    
