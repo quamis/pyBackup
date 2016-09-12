@@ -19,23 +19,18 @@ class LocalPathReaderCached(LocalPathReader.LocalPathReader):
 
     def initialize(self):
         print "LocalPathReaderCached.initialize %s" % (self.db.dbExists)
-        self.db.initialize()
-        print "LocalPathReaderCached.initialize %s" % (self.db.dbExists)
         if self.db.dbExists:
             self.paths = self.db.getAll()
         else:
             self.paths = self.goRecursivelly(self.basepath, [])
     
     def destroy(self):
-        self.db.destroy()
         super(LocalPathReaderCached, self).destroy()
     
     def getNext(self):
         #print "LocalPathReaderCached.getNext %s" % (self.db.dbExists)
         
         if self.db.dbExists:
-            print "asdasd"
-            exit();
             ret = None
             if self.index<len(self.paths):
                 p = self.paths[self.index]

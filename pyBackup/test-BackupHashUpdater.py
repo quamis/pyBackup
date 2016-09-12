@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cache',  dest='cache',	action='store', type=str,   default='',help='TODO')
 parser.add_argument('--data',  dest='data', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--percent',  dest='percent', action='store', type=float,   default='',help='TODO')
+parser.add_argument('--min',  dest='min', action='store', type=int,   default='',help='TODO')
 args = vars(parser.parse_args())
 
 
@@ -41,24 +42,19 @@ hh = FullContentHashV1.FullContentHashV1()
 hh.initialize()
 
 files = analyzer.getFilesWithoutFullHashes('random', 
-        min(100, math.ceil(analyzer.getFilesWithoutFullHashesCount()*(args['percent']/100)))
+        max(args['min'], math.ceil(analyzer.getFilesCount()*(args['percent']/100)))
     )
 #files = analyzer.getFilesWithoutFullHashes('random', 1)
 for (p, hash, sz) in files:
-    print "check file %s" % (p)
+    print "hash file %s" % (p)
     path = Path(p, False)
     path.size = sz
     
     hash = hh.hash(path)
-    print "    hash: %s" % (hash)
+    #print "    hash: %s" % (hash)
     cache.updateFileFullHashIntoFiles(path, hash)
 cache.commit()
 
 hh.destroy()
 analyzer.destroy()
 cache.destroy()
-
-
-
-
-

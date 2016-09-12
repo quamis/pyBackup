@@ -54,7 +54,17 @@ lp.setCache(cache)
 #lp = LocalPathReader.LocalPathReader()
 
 cache.setCacheLocation(args['cache'])
+cache.initialize()
 lp.setPath(args['data'])
+
+"""
+c = cache.cursor()
+c.execute("PRAGMA synchronous=OFF")
+cache.commit()
+c = cache.cursor()
+c.execute("PRAGMA temp_store=MEMORY")
+cache.commit()
+"""
 
 lp.registerProgressCallback(callbackLocalPathReader)
 lp.initialize()
@@ -78,3 +88,7 @@ else:
     
 lp.destroy()
 hh.destroy()
+
+cache.destroy()
+
+print ""

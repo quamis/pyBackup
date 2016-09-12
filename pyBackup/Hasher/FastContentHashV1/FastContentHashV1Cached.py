@@ -12,11 +12,10 @@ class FastContentHashV1Cached(FastContentHashV1.FastContentHashV1):
         super(FastContentHashV1Cached, self).__init__()
     
     def initialize(self):
-        self.cache.initialize()
         super(FastContentHashV1Cached, self).initialize()
     
     def destroy(self):
-        super(FastContentHashV1Cached, self).initialize()
+        super(FastContentHashV1Cached, self).destroy()
         
     def setCache(self, cache):
         self.cache = cache

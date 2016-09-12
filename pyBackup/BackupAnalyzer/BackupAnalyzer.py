@@ -26,13 +26,13 @@ class BackupAnalyzer(object):
         
     def getFilesWithFullHashesCount(self):
         c = self.cache.cursor()
-        c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir AND fn.fullHash')
+        c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir AND fn.fullHash!=""')
         r = c.fetchone()
         return 0 if r is None else r[0]
         
     def getFilesWithoutFullHashesCount(self):
         c = self.cache.cursor()
-        c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir AND NOT fn.fullHash')
+        c.execute('SELECT COUNT(*) FROM main.files AS fn WHERE NOT fn.isDir AND NOT fn.fullHash=""')
         r = c.fetchone()
         return 0 if r is None else r[0]
         
@@ -40,7 +40,7 @@ class BackupAnalyzer(object):
         c = self.cache.cursor()
         if order=='random':
             val = (limit, )
-            c.execute('SELECT fn.path, fn.hash, fn.size FROM main.files AS fn WHERE NOT fn.isDir AND NOT fn.fullHash ORDER BY RANDOM() LIMIT ?', val)
+            c.execute('SELECT fn.path, fn.hash, fn.size FROM main.files AS fn WHERE NOT fn.isDir AND fn.fullHash="" ORDER BY RANDOM() LIMIT ?', val)
         else:
             raise RuntimeError("Invalid order param")
             

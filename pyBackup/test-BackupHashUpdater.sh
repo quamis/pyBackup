@@ -14,18 +14,17 @@ echo "fill data"
 cp -rf "test-data/data-m/." "test-data/tmp-data/"
 find "test-data/tmp-data/" -name ".gitignore" -type f -delete
 
-#echo "caculate hashes"
-#python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="test-data/tmp-data/" --cache="test-data/tmp-cache/FileSystem1.sqlite"
-
-#echo "analize"
-#python ./test-BackupAnalyzer.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="test-data/tmp-data/"
-
+SRC="test-data/tmp-data/"
 
 echo "caculate hashes"
-python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="/cygdrive/d/exports/2016-01-13 - BSP/TINA2 - trunk/_3parties/" --cache="test-data/tmp-cache/FileSystem1.sqlite"
+python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --data="$SRC" --cache="test-data/tmp-cache/FileSystem1.sqlite"
 
 echo "analize"
-python ./test-BackupHashUpdater.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="/cygdrive/d/exports/2016-01-13 - BSP/" --percent=1
+python ./test-BackupHashUpdater.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="$SRC" --percent=1
+
+
+
+
 
 echo "cleanup"
 rm -rf "test-data/tmp-cache/"

@@ -15,12 +15,14 @@ class sqlite(object):
     
     def initialize(self):
         if not self.initialized:
-            print "sqlite.initialize"
+            print "sqlite.initialize()"
             if os.path.isfile(self.db):
+                print "sqlite.dbExists"
                 self.dbExists = True
 
             self.conn = sqlite3.connect(self.db)
             if not self.dbExists:
+                print "sqlite.createTableFiles()"
                 self.createTableFiles()
             
             self.initialized = True
@@ -41,6 +43,7 @@ class sqlite(object):
     def createTableFiles(self):
         c = self.conn.cursor()
         c.execute('CREATE TABLE files (hash TEXT, path TEXT, isDir INTEGER, ctime FLOAT, mtime FLOAT, size INTEGER, time FLOAT, fullHash TEXT)')
+        self.conn.commit()
 
 
     def insertFileIntoFiles(self, p, h):

@@ -12,12 +12,10 @@ class FastHashV1Cached(FastHashV1.FastHashV1):
         super(FastHashV1Cached, self).__init__()
     
     def initialize(self):
-        self.db.initialize()
         super(FastHashV1Cached, self).initialize()
     
     def destroy(self):
-        self.db.destroy()
-        super(FastHashV1Cached, self).initialize()
+        super(FastHashV1Cached, self).destroy()
         
     def setCache(self, cache):
         self.db = cache
