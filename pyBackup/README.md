@@ -72,4 +72,19 @@ Dev-tests:
 	python ./test-Comparer.py
 	./test-Comparer.sh
 		- compare 2 databases
+		
+	python ./test-Writer-LocalPathWriter.py --cacheNew="test-data/tmp-cache/FileSystem2.sqlite" --cacheOld="test-data/tmp-cache/FileSystem1.sqlite" --backup="test-data/tmp-data-backup/" --source="test-data/tmp-data/"
+	./test-Writer.sh
+		- compare 2 databases, write differences
+		
+	python ./test-BackupAnalyzer.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="/cygdrive/d/exports/2016-01-13 - BSP/"
+	./test-BackupAnalyzer.sh
+		- analyze the sqlite DB, display some stats
 	
+	python ./test-BackupHashUpdater.py --cache="test-data/tmp-cache/FileSystem1.sqlite" --data="$SRC" --percent=1 --min=20
+	./test-BackupHashUpdater.sh
+	./test-BackupHashUpdater-big.sh
+		- post-update the full hashes. slow
+	
+		
+		
