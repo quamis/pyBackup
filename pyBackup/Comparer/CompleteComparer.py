@@ -30,6 +30,7 @@ class CompleteComparer(SimpleComparer):
     
     def getDeletedFiles(self):
         ret = super(CompleteComparer, self).getDeletedFiles()
+        print ret
         return self._filter(ret, [x[1] for x in self.moved])
     
     def _filter(self, list1, simplifiedList):

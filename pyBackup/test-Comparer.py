@@ -13,6 +13,7 @@ pp = pprint.PrettyPrinter(indent=4)
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
 parser.add_argument('--cacheOld',  dest='cacheOld', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--doApply',  dest='doApply', action='store', type=int,   default=0,help='TODO')
 args = vars(parser.parse_args())
 
 
@@ -24,9 +25,9 @@ cacheOld = sqlite.sqlite();
 cacheOld.setCacheLocation(args['cacheOld'])
 cacheOld.initialize()
 
-#doApply = True
+doApply = bool(args['doApply'])
+
 #cmpr = SimpleComparer()
-doApply = True
 cmpr = CompleteComparer()
 
 cmpr.setNewCache(cacheNew)
