@@ -6,8 +6,12 @@ echo "initialize"
 SRC="/cygdrive/d/exports/2014-11-21 - adodb logging/"
 DST="test-data/DST/"
 
-rm "$SRC/backup.sqlite"
-rm "$DST/backup.sqlite"
+# simulate a fist-backup
+#rm -f "$SRC/backup.sqlite"
+#rm -f "$DST/backup.sqlite"
+
+# test whole-copies, for empty backup DST's
+#rm -rf "$DST/"; mkdir "$DST";
 
 echo "calculate local hashes"
 python ./test-Hasher-FastContentHashV1Cached.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRC/backup.sqlite" 

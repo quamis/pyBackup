@@ -48,7 +48,17 @@ class sqlite(object):
     
     def createTableFiles(self):
         c = self.cursor()
-        c.execute('CREATE TABLE files (hash TEXT, path TEXT, isDir INTEGER, ctime FLOAT, mtime FLOAT, size INTEGER, time FLOAT, fullHash TEXT)')
+        c.execute('''CREATE TABLE files (
+            hash TEXT, 
+            path TEXT, 
+            isDir INTEGER, 
+            ctime FLOAT, 
+            mtime FLOAT, 
+            size INTEGER, 
+            time FLOAT, 
+            fullHash TEXT,
+            PRIMARY KEY (path)
+        )''')
         self.commit()
 
 

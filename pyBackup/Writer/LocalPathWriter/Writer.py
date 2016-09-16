@@ -24,11 +24,13 @@ class Writer(object):
         
     def updateFile(self, opath, npath):
         npath2 = npath.replace(self.sourceBasePath, '', 1)
-        shutil.copy(npath, self.backupBasePath+npath2)
+        shutil.copyfile(npath, self.backupBasePath+npath2)
         
     def newFile(self, npath):
         npath2 = npath.replace(self.sourceBasePath, '', 1)
-        shutil.copy(npath, self.backupBasePath+npath2)
+        
+        self.mkdir(self.backupBasePath+npath2)
+        shutil.copyfile(npath, self.backupBasePath+npath2)
         
     def newDir(self, npath):
         npath2 = npath.replace(self.sourceBasePath, '', 1)
@@ -46,5 +48,6 @@ class Writer(object):
         
         
     def mkdir(self, fpath):
-        if not os.path.isdir(os.path.dirname(fpath)+'/'):
-            os.makedirs(os.path.dirname(fpath+'/'))
+        dname = os.path.dirname(fpath)+'/'
+        if not os.path.isdir(dname):
+            os.makedirs(dname)

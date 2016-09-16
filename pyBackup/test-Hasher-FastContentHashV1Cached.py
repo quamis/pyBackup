@@ -44,6 +44,7 @@ parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cache',  dest='cache',	action='store', type=str,   default='',help='TODO')
 parser.add_argument('--data', 	dest='data',   action='store', type=str,   default='',help='TODO')
 parser.add_argument('--verbose', dest='verbose',   action='store', type=int,   default=1,help='TODO')
+parser.add_argument('--useCache', dest='useCache',   action='store', type=int,   default=1, help='TODO')
 args = vars(parser.parse_args())
 
 
@@ -56,8 +57,10 @@ lp.setCache(cache)
 
 cache.setCacheLocation(args['cache'])
 cache.initialize()
-lp.setPath(args['data'])
 
+print args['useCache']
+lp.doUseCache(args['useCache'])
+lp.setPath(args['data'])
 
 """
 c = cache.cursor()
@@ -81,6 +84,8 @@ print c
 
 lp.registerProgressCallback(callbackLocalPathReader)
 lp.initialize()
+
+lp.addIgnoredFile(args['cache'])
 
 hh = FastContentHashV1Cached.FastContentHashV1Cached()
 hh.setCache(cache)

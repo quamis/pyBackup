@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
 parser.add_argument('--cacheOld',  dest='cacheOld', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--source',  dest='source', action='store', type=str,   default='',help='TODO')
-parser.add_argument('--backup',  dest='backup', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--destination',  dest='destination', action='store', type=str,   default='',help='TODO')
 args = vars(parser.parse_args())
 
 
@@ -33,7 +33,7 @@ cmpr.setNewCache(cacheNew)
 cmpr.setOldCache(cacheOld)
 cmpr.initialize()
 
-wrt = Writer(args['backup'], args['source'])
+wrt = Writer(args['destination'], args['source'])
 wrt.initialize()
 
 
