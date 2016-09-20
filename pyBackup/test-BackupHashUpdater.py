@@ -44,7 +44,6 @@ hh.initialize()
 files = analyzer.getFilesWithoutFullHashes('random', 
         max(args['min'], math.ceil(analyzer.getFilesCount()*(args['percent']/100)))
     )
-#files = analyzer.getFilesWithoutFullHashes('random', 1)
 for (p, hash, sz) in files:
     print "hash file %s" % (p)
     path = Path(p, False)

@@ -73,7 +73,7 @@ class SimpleComparer(object):
     def _newPath(self, npath):
         c = self.cacheNew.cursor()
         vals=(npath, )
-        c.execute('REPLACE INTO old.files (hash, path, isDir, ctime, mtime, size, time) SELECT hash, path, isDir, ctime, mtime, size, time FROM main.files WHERE path=? LIMIT 1', vals)
+        c.execute('REPLACE INTO old.files (hash, path, isDir, ctime, mtime, size) SELECT hash, path, isDir, ctime, mtime, size FROM main.files WHERE path=? LIMIT 1', vals)
         
     def newFile(self, npath):
         return self._newPath(npath)

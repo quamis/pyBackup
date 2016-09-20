@@ -58,9 +58,13 @@ lp.setCache(cache)
 cache.setCacheLocation(args['cache'])
 cache.initialize()
 
+cache.resetFilesData()
+
 print args['useCache']
 lp.doUseCache(args['useCache'])
 lp.setPath(args['data'])
+
+
 
 """
 c = cache.cursor()
@@ -86,6 +90,7 @@ lp.registerProgressCallback(callbackLocalPathReader)
 lp.initialize()
 
 lp.addIgnoredFile(args['cache'])
+lp.addIgnoredFile(args['cache']+"-journal")
 
 hh = FastContentHashV1Cached.FastContentHashV1Cached()
 hh.setCache(cache)

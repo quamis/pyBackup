@@ -55,8 +55,21 @@ class sqlite(object):
             ctime FLOAT, 
             mtime FLOAT, 
             size INTEGER, 
-            time FLOAT, 
+            PRIMARY KEY (path)
+        )''')
+        self.commit()
+        
+        c.execute('''CREATE TABLE fullHashes (
+            path TEXT, 
             fullHash TEXT,
+            PRIMARY KEY (path)
+        )''')
+        self.commit()
+        
+        c.execute('''CREATE TABLE tags (
+            path TEXT, 
+            key TEXT,
+            value TEXT,
             PRIMARY KEY (path)
         )''')
         self.commit()
@@ -64,8 +77,11 @@ class sqlite(object):
 
     def insertFileIntoFiles(self, p, h):
         c = self.cursor()
-        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.size, time.time(), '')
-        c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?)', vals)
+        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.size)
+        c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?)', vals)
+        
+        vals = (p.path, "%.3f" % (time.time()))
+        c.execute('INSERT OR IGNORE INTO tags VALUES (?, "time", ?)', vals)
         
     def updateFileHashIntoFiles(self, p, h):
         c = self.cursor()
@@ -74,17 +90,21 @@ class sqlite(object):
         
     def updateFileFullHashIntoFiles(self, p, h):
         c = self.cursor()
-        vals = (h, p.path)
-        c.execute('UPDATE files SET fullHash=? WHERE path=?', vals)
+        vals = (p.path, h, )
+        c.execute('REPLACE INTO fullHashes VALUES (?, ?)', vals)
     
     def findFileByPath(self, path):
         c = self.cursor()
         vals = (path, )
-        c.execute('SELECT hash, path, isDir, ctime, mtime, size, time FROM files WHERE path=?', vals)
+        c.execute('SELECT hash, path, isDir, ctime, mtime, size FROM files WHERE path=?', vals)
         return c.fetchone()
-
+        
     def getAll(self):
         c = self.cursor()
-        c.execute('SELECT hash, path, isDir, ctime, mtime, size, time FROM files WHERE 1 ORDER BY time ASC')
+        c.execute('SELECT hash, path, isDir, ctime, mtime, size FROM files WHERE 1 ORDER BY time ASC')
         return c.fetchall()
-    
+        
+    def resetFilesData(self):
+        c = self.cursor()
+        c.execute('DELETE FROM files')
+        c.execute('DELETE FROM tags')
