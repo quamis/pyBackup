@@ -18,27 +18,22 @@ import Cache.sqlite as sqlite
 import sys
 import os, time
 
+def formatPath(p, l):
+    o = ""
+    if len(p)>l:
+        o = "%s...%s" % (p[0:50], p[-(l-50-3):])
+    else:
+        o = "%s" % (p)
+    return o
+
 def callbackLocalPathReader(lp, event, data):
-    return
     if event=='newPath':
-        if data['isDir']:
-            p = data['p'].path
-            o = ""
-            if len(p)>120:
-                o = "%s...%s" % (p[0:50], p[-67:])
-            else:
-                o = "%s" % (p)
-            sys.stdout.write("\r scan fs: %50s" % (o.ljust(120)))
+        if not data['isDir']:
+            sys.stdout.write("\r new : %50s" % (formatPath(data['p'].path, 120).ljust(120)))
             
     if event=='getNext':
-        if data['p'].isDir:
-            p = data['p'].path
-            o = ""
-            if len(p)>120:
-                o = "%s...%s" % (p[0:50], p[-67:])
-            else:
-                o = "%s" % (p)
-            sys.stdout.write("\r cache %50s" % (o.ljust(120)))
+        if not data['p'].isDir:
+            sys.stdout.write("\r next: %50s" % (formatPath(data['p'].path, 120).ljust(120)))
 pp = pprint.PrettyPrinter(indent=4)
 
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
@@ -74,29 +69,9 @@ if cache.getFlag('app.run.first') is None:
 cache.setFlag('app.run.last', time.time())
 cache.setFlag('app.run.count', int(cache.getFlag('app.run.count'))+1)
 
-cache.log("[%s] start hashing" % (os.path.basename(__file__)))
+cache.log("[%s] start" % (os.path.basename(__file__)))
 
 
-
-"""
-c = cache.cursor()
-c.execute("PRAGMA journal_mode=MEMORY")
-cache.commit()
-
-c = cache.cursor()
-c.execute("PRAGMA FileSystem1.synchronous=OFF")
-cache.commit()
-
-c = cache.cursor()
-c.execute("PRAGMA temp_store=MEMORY")
-cache.commit()
-"""
-
-"""
-c = cache.cursor()
-c.execute("BEGIN TRANSACTION")
-print c
-"""
 
 lp.registerProgressCallback(callbackLocalPathReader)
 lp.initialize()
@@ -124,13 +99,7 @@ else:
 lp.destroy()
 hh.destroy()
 
-"""
-c = cache.cursor()
-print c
-c.execute("COMMIT TRANSACTION")
-"""
-
-cache.log("[%s] done hashing" % (os.path.basename(__file__)))
+cache.log("[%s] done" % (os.path.basename(__file__)))
 
 cache.commit()
 cache.destroy()

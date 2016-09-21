@@ -7,19 +7,19 @@
                 - ???
         - post-ops
             - print some DB stats
-                - total files
-                - total size
-                - avg file size
-                - duplicated files
-                - 0-length files
-                - % of files with fullHash
-                - % of files with recovery data
-            - cleanups
-				- DB VACUUM
-				- remove unreferenced data from tags & fullHashes
+                x total files
+                x total size
+                x avg file size
+                x duplicated files
+                x 0-length files
+                x % of files with fullHash
+                x % of files with recovery data
+            x cleanups
+                x DB VACUUM
+                x remove unreferenced data from tags & fullHashes
 				
 		- re-check that X% of the final backup exists and its hash is valid (check fullHash)
-		- compute fullHash for X% of the DB
+		x compute fullHash for X% of the DB
             - write recovery information for X% of the backed files
                 - PAR2?
                     https://multipar.eu/
@@ -32,7 +32,7 @@
 		- these export file lists to be backed up(full path, prefixed by protocol (file://, owncloud://)
 		- the file lists are then compared with the file lists on the target device
 		- examples:
-			- local disk reader
+			x local disk reader
 			- webdav/owncloud reader
 			- ssh reader
 				@see http://docs.pyfilesystem.org/en/latest/
