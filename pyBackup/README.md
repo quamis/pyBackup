@@ -15,6 +15,9 @@
                 - % of files with fullHash
                 - % of files with recovery data
             - cleanups
+				- DB VACUUM
+				- remove unreferenced data from tags & fullHashes
+				
 		- re-check that X% of the final backup exists and its hash is valid (check fullHash)
 		- compute fullHash for X% of the DB
             - write recovery information for X% of the backed files
@@ -32,6 +35,7 @@
 			- local disk reader
 			- webdav/owncloud reader
 			- ssh reader
+				@see http://docs.pyfilesystem.org/en/latest/
 	- backup procedure
 		- parses the whole file list to be backed up, reads one by one, adds them to the final archive/target device
 		- examples:

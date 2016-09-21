@@ -7,6 +7,7 @@ import pprint
 from Comparer.CompleteComparer import CompleteComparer
 from Writer.LocalPathWriter.Writer import Writer
 import Cache.sqlite as sqlite
+import os
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -22,6 +23,8 @@ cacheNew = sqlite.sqlite();
 cacheNew.setCacheLocation(args['cacheNew'])
 cacheNew.initialize()
 
+cacheNew.log("[%s] start writer" % (os.path.basename(__file__)))
+
 cacheOld = sqlite.sqlite();
 cacheOld.setCacheLocation(args['cacheOld'])
 cacheOld.initialize()
@@ -36,6 +39,7 @@ cmpr.initialize()
 wrt = Writer(args['destination'], args['source'])
 wrt.initialize()
 
+cacheNew.log("[%s] initialized" % (os.path.basename(__file__)))
 
 
 print "moved files:"
@@ -112,6 +116,7 @@ cmpr.commit()
 wrt.commit()
 
 
+cacheNew.log("[%s] done" % (os.path.basename(__file__)))
 
 cmpr.destroy()
 wrt.destroy()

@@ -74,7 +74,37 @@ class sqlite(object):
         )''')
         self.commit()
 
+        c.execute('''CREATE TABLE log (
+            id      INTEGER PRIMARY KEY AUTOINCREMENT,
+            message STRING  NOT NULL,
+            time    FLOAT
+        )''')
+        self.commit()
+        
+        c.execute('''CREATE TABLE flags (
+            id    STRING PRIMARY KEY,
+            value STRING
+        )''')
+        self.commit()
 
+        
+    def setFlag(self, k, v):
+        c = self.cursor()
+        vals = (k, v)
+        c.execute('REPLACE INTO flags VALUES (?, ?)', vals)
+        
+    def getFlag(self, k):
+        c = self.cursor()
+        vals = (k, )
+        c.execute('SELECT value FROM flags WHERE id=?', vals)
+        r = c.fetchone()
+        return None if r is None else r[0]
+        
+    def log(self, msg):
+        c = self.cursor()
+        vals = (msg, time.time())
+        c.execute('INSERT INTO log (message, time) VALUES (?, ?)', vals)
+        
     def insertFileIntoFiles(self, p, h):
         c = self.cursor()
         vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.size)
@@ -82,6 +112,9 @@ class sqlite(object):
         
         vals = (p.path, "%.3f" % (time.time()))
         c.execute('INSERT OR IGNORE INTO tags VALUES (?, "time", ?)', vals)
+        
+    
+        
         
     def updateFileHashIntoFiles(self, p, h):
         c = self.cursor()
@@ -107,4 +140,16 @@ class sqlite(object):
     def resetFilesData(self):
         c = self.cursor()
         c.execute('DELETE FROM files')
-        c.execute('DELETE FROM tags')
+        # c.execute('DELETE FROM tags')
+        
+    def optimize(self):
+        c = self.cursor()
+        c.execute('VACUUM')
+        
+    def removeOldLeafs(self):
+        c = self.cursor()
+        c.execute('DELETE FROM fullHashes WHERE path NOT IN (SELECT f.path FROM files AS f)')
+        self.commit()
+        c.execute('DELETE FROM tags WHERE path NOT IN (SELECT f.path FROM files AS f)')
+        self.commit()
+        

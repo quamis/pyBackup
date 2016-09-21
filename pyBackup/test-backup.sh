@@ -17,14 +17,18 @@ function do_sync {
 	python ./test-Writer-LocalPathWriter.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --source="$SRC"
 
 	
-	echo "update full hashes"
-	python ./test-BackupHashUpdater.py --cache="$SRC/backup.sqlite" --data="$SRC" --percent=0.1 --min=10
+	#echo "update full hashes"
+	#python ./test-BackupHashUpdater.py --cache="$SRC/backup.sqlite" --data="$SRC" --percent=0.1 --min=10
 
-	echo "analize cache"
-	python ./test-BackupAnalyzer.py --cache="$SRC/backup.sqlite" --data="$SRC"
-
-
+	#echo "analize cache"
+	#python ./test-BackupAnalyzer.py --cache="$SRC/backup.sqlite" --data="$SRC"
+	
+	
+	echo "cleanup cache"
+	python ./test-Cache-cleanup.py --cache="$SRC/backup.sqlite" --optimize=1 --removeOldLeafs=1
+	
 	cp -f "$SRC/backup.sqlite" "$DST/backup.sqlite"
+	sleep 1
 }
 
 echo "----------------- initialize ----------------"

@@ -16,6 +16,7 @@ from Hasher.FastContentHashV1 import FastContentHashV1Cached
 import Cache.sqlite as sqlite
 
 import sys
+import os, time
 
 def callbackLocalPathReader(lp, event, data):
     return
@@ -63,6 +64,17 @@ cache.resetFilesData()
 print args['useCache']
 lp.doUseCache(args['useCache'])
 lp.setPath(args['data'])
+
+if cache.getFlag('app.run.first') is None:
+    cache.setFlag('app.run.count', 0)
+    cache.setFlag('app.run.first', time.time())
+    cache.setFlag('cache.path', args['cache'])
+    cache.setFlag('data.path', args['data'])
+
+cache.setFlag('app.run.last', time.time())
+cache.setFlag('app.run.count', int(cache.getFlag('app.run.count'))+1)
+
+cache.log("[%s] start hashing" % (os.path.basename(__file__)))
 
 
 
@@ -117,6 +129,8 @@ c = cache.cursor()
 print c
 c.execute("COMMIT TRANSACTION")
 """
+
+cache.log("[%s] done hashing" % (os.path.basename(__file__)))
 
 cache.commit()
 cache.destroy()
