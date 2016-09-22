@@ -8,11 +8,13 @@ run as
     rm ./FileSystem.sqlite; python ./test-Hasher-FastContentHashV1Cached.py
 """
 import argparse
-import pprint
 from SourceReader.LocalPathReader import LocalPathReaderCached
 from SourceReader.LocalPathReader import LocalPathReader
 from Hasher.FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1Cached
+
+from Hasher.FastContentHashV2 import FastContentHashV2Cached
+
 import Cache.sqlite as sqlite
 
 import sys
@@ -34,8 +36,9 @@ def callbackLocalPathReader(lp, event, data):
     if event=='getNext':
         if not data['p'].isDir:
             sys.stdout.write("\r next: %50s" % (formatPath(data['p'].path, 120).ljust(120)))
-pp = pprint.PrettyPrinter(indent=4)
-
+            
+    sys.stdout.flush()
+    
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cache',  dest='cache',	action='store', type=str,   default='',help='TODO')
 parser.add_argument('--data', 	dest='data',   action='store', type=str,   default='',help='TODO')
@@ -56,7 +59,6 @@ cache.initialize()
 
 cache.resetFilesData()
 
-print args['useCache']
 lp.doUseCache(args['useCache'])
 lp.setPath(args['data'])
 
@@ -79,7 +81,8 @@ lp.initialize()
 lp.addIgnoredFile(args['cache'])
 lp.addIgnoredFile(args['cache']+"-journal")
 
-hh = FastContentHashV1Cached.FastContentHashV1Cached()
+#hh = FastContentHashV1Cached.FastContentHashV1Cached()
+hh = FastContentHashV2Cached.FastContentHashV2Cached()
 hh.setCache(cache)
 hh.initialize()
 

@@ -7,17 +7,16 @@ echo "initialize"
 
 #DST="test-data/DST/"
 
-SRC="/media/BIG/music/= testing =/= Andra =/"; DST="/media/lucian/Backup/backups from 2016-09-21/music/= testing =/= Andra =/"
+#SRC="/media/BIG/music/= testing =/= Andra =/"; DST="/media/lucian/Backup/backups from 2016-09-21/music/= testing =/= Andra =/"
+SRC="/cygdrive/d/musiq/dnb - bse podcasts/"; DST="test-data/DST/"
 
 # simulate a fist-backup
 #rm -f "$SRC/backup.sqlite"; rm -f "$DST/backup.sqlite";
-
 # test whole-copies, for empty backup DST's
 #rm -rf "$DST/"; mkdir "$DST";
 
 echo "calculate local hashes"
 python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --useCache=0 --data="$SRC" --cache="$SRC/backup.sqlite" 
-
 
 #echo "compare"
 #python ./test-Comparer.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --doApply=0

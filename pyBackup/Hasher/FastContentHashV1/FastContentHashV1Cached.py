@@ -3,7 +3,8 @@
 Created on Sep 7, 2013
 @author: lucian
 '''
-import Hasher.Hasher as Hasher
+#import Hasher.Hasher as Hasher
+#from FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1
 
 class FastContentHashV1Cached(FastContentHashV1.FastContentHashV1):

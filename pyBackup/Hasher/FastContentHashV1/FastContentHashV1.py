@@ -17,9 +17,9 @@ class FastContentHashV1(object):
     
     def destroy(self):
         pass
-        
-    def hash(self, path):
-        hasherMapByExtenstion = [
+    
+    def _getHasherMapByExtension(self):
+        return [
             {
                 'ext':  ('.txt', '.csv', '.odt', '.img', '.sqlite', '.db'),
                 'slots': [
@@ -43,6 +43,18 @@ class FastContentHashV1(object):
                 ],
             },
         ]
+                
+            
+            
+    def _getHashObj(self):
+        return hashlib.sha1()
+        
+    def _getFinalHash(self, hashObj, path, readCfg, stats):
+        bases = Bases()
+        return "FastContentHashV1,sha1:%s,sz:%s" % (hashObj.hexdigest(), bases.toBase62(path.size))
+    
+    def hash(self, path):
+        hasherMapByExtenstion = self._getHasherMapByExtension()
         
         # match the file into one slot of the hasherMapByExtenstion
         readCfg = { 'max': 0, 'read': 0.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, },   
@@ -58,7 +70,7 @@ class FastContentHashV1(object):
                 break
         
         fi = open(path.path, 'rb')
-        sha1 = hashlib.sha1()
+        hashObj = self._getHashObj()
 
         stats = {
             'head_cnt':0,
@@ -94,12 +106,11 @@ class FastContentHashV1(object):
             if not data:
                 break
             
-            sha1.update(data)
+            hashObj.update(data)
             if readCfg['skip']:
                 fi.seek(readCfg['skip']*1024*1024, os.SEEK_CUR)
                 cpos+=readCfg['skip']*1024*1024
         
 
-        bases = Bases()
-        return "FastContentHashV1,sha1:%s,sz:%s" % (sha1.hexdigest(), bases.toBase62(path.size))
+        return self._getFinalHash(hashObj, path, readCfg, stats)
     

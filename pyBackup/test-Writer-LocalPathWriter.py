@@ -3,14 +3,11 @@
 @author: lucian
 '''
 import argparse
-import pprint
 from Comparer.CompleteComparer import CompleteComparer
 from Writer.LocalPathWriter.Writer import Writer
 import Cache.sqlite as sqlite
 import os
 import sys
-
-pp = pprint.PrettyPrinter(indent=4)
 
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
@@ -43,7 +40,8 @@ def callbackWriter(lp, event, data):
     if event=='updateFile':
         if not data['isDir']:
             sys.stdout.write("\r update: %50s" % (formatPath(data['path'], 120).ljust(120)))
-
+    
+    sys.stdout.flush()
 
 cacheNew = sqlite.sqlite();
 cacheNew.setCacheLocation(args['cacheNew'])
