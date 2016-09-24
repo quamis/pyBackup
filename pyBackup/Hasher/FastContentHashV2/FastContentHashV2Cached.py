@@ -24,12 +24,15 @@ class FastContentHashV2Cached(FastContentHashV1Cached.FastContentHashV1Cached):
             },
             
             {   # music
-                'ext':  ('.mp3', '.mp4', '.avi', '.mpg', '.mpeg', '.ogg', ),
+                'ext':  ('.mp3', '.mp4', '.avi', '.mpg', '.mpeg', '.ogg', '.wav'),
                 'slots': [
                     #{ 'max':  Mb, 'read': Mb  , 'skip': Mb  , 'head': Mb  , 'tail': Mb  , },   # reads = (head+tail) + max*floor((max-(head+tail))/(read+skip))
+                    { 'max':    2, 'read': 1.00, 'skip': 0.50, 'head': 0.50, 'tail': 0.25, },   # ~ TODO
                     { 'max':    4, 'read': 1.00, 'skip': 1.00, 'head': 1.00, 'tail': 0.50, },   # ~ TODO
                     { 'max':   16, 'read': 1.00, 'skip': 3.00, 'head': 1.00, 'tail': 0.50, },   # ~ TODO
-                    { 'max':  128, 'read': 1.00, 'skip': 7.00, 'head': 1.00, 'tail': 0.50, },   # ~ TODO
+                    { 'max':   64, 'read': 1.00, 'skip': 7.00, 'head': 1.00, 'tail': 0.50, },   # ~ TODO
+                    { 'max':  128, 'read': 1.00, 'skip':15.00, 'head': 1.50, 'tail': 1.00, },   # ~ TODO
+                    { 'max':  256, 'read': 1.00, 'skip':31.00, 'head': 2.00, 'tail': 1.50, },   # ~ TODO
                 ],
             },
             
