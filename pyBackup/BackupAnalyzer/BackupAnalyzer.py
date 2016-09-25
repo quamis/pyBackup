@@ -47,6 +47,19 @@ class BackupAnalyzer(object):
         r = c.fetchall()
         r = sorted(r, key=lambda t: t[0] )
         return r
+    
+    def getFilesWithFullHashes(self, order, limit):
+        c = self.cache.cursor()
+        if order=='random':
+            val = (limit, )
+            c.execute('SELECT fn.path, fn.hash, fn.size, fnh.fullHash FROM main.files AS fn LEFT JOIN main.fullHashes AS fnh ON fn.path=fnh.path WHERE NOT fn.isDir AND NOT fnh.fullHash IS NULL ORDER BY RANDOM() LIMIT ?', val)
+        else:
+            raise RuntimeError("Invalid order param")
+            
+        r = c.fetchall()
+        r = sorted(r, key=lambda t: t[0] )
+        return r
+    
         
     def getDirsCount(self):
         c = self.cache.cursor()

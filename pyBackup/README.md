@@ -47,7 +47,7 @@
 	- we need some hashers
 		- examples:
 			- file hasher
-				- simple (sha1 from the whole file contents)
+				x simple (sha1 from the whole file contents)
 				x fast (sha1 from partial file contents, adaptive according to file size)
 				x natural (compares filemtime, filesize, fast hash)
             
