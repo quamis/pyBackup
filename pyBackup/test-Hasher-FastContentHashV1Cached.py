@@ -17,27 +17,44 @@ from Hasher.FastContentHashV2 import FastContentHashV2Cached
 
 import Cache.sqlite as sqlite
 
+from View.PathFormatter import PathFormatter
+
 import sys
 import os, time
 
-def formatPath(p, l):
-    o = ""
-    if len(p)>l:
-        o = "%s...%s" % (p[0:50], p[-(l-50-3):])
-    else:
-        o = "%s" % (p)
-    return o
 
 def callbackLocalPathReader(lp, event, data):
+    global stats
+    tm = time.time()
+    
+    evtps = "[ ....e/s]"
+    if not stats['isWarmingUp']:
+        evtps = "[%5.1fe/s]" % (stats['evtps'])
+    
     if event=='newPath':
+        stats[event] = stats[event]+1
         if not data['isDir']:
-            sys.stdout.write("\r new : %50s" % (formatPath(data['p'].path, 120).ljust(120)))
+            sys.stdout.write("\r %s new : %50s" % (evtps, pfmt.format(data['p'].path).ljust(120)))
             
     if event=='getNext':
+        stats[event] = stats[event]+1
         if not data['p'].isDir:
-            sys.stdout.write("\r next: %50s" % (formatPath(data['p'].path, 120).ljust(120)))
-            
-    sys.stdout.flush()
+            sys.stdout.write("\r %s next: %50s" % (evtps, pfmt.format(data['p'].path).ljust(120)))
+    
+        if stats['getNext']>20 and tm - stats['resetTime'] > 2.5:
+            stats['evtps'] = (stats['getNext']) / (tm - stats['startTime'])
+            stats['isWarmingUp'] = False
+        
+    if tm - stats['resetTime'] > 30:
+        stats = {
+            'startTime':tm,
+            'resetTime':tm, 
+            'newPath':0, 
+            'getNext':0, 
+            'evtps':stats['evtps']/10,
+            'isWarmingUp':True, 
+        }
+    #sys.stdout.flush()
     
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cache',  dest='cache',	action='store', type=str,   default='',help='TODO')
@@ -46,6 +63,16 @@ parser.add_argument('--verbose', dest='verbose',   action='store', type=int,   d
 parser.add_argument('--useCache', dest='useCache',   action='store', type=int,   default=1, help='TODO')
 args = vars(parser.parse_args())
 
+pfmt = PathFormatter(120)
+stime = time.time()
+stats = {
+    'startTime':time.time(), 
+    'resetTime':time.time(), 
+    'newPath':0, 
+    'getNext':0, 
+    'evtps':0.0, 
+    'isWarmingUp':True, 
+}
 
 
 cache = sqlite.sqlite();

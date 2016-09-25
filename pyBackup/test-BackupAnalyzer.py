@@ -45,9 +45,9 @@ print "getSizeByExtensionList(images): %s" % (humanize.naturalsize(analyzer.getS
 print "getSizeByExtensionList(music):  %s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.mp3', ])))
 print "getSizeByExtensionList(video):  %s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.avi', '.mpg', '.mpeg', '.3gp', '.mp4', '.wma', ])))
 print "getSizeByExtensionList(iso):    %s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.iso', '.cue', '.bin', ])))
-print "getSizeByExtensionList(archive):%s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.zip', '.rar', '.tgz', '.gz', '.7z', ])))
 print "getSizeByExtensionList(docs):   %s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.txt', '.doc', '.rtf', '.pdf', '.ps', ])))
 print "getSizeByExtensionList(ebook):  %s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.epub', '.mobi', '.cbz', ])))
+print "getSizeByExtensionList(archive):%s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.gz', '.tgz', '.tar', '.rar', '.zip', '.7z', '.bz2', ])))
 
 print "getFilesWithFullHashesCount:    %d files (%.2f%%)" % (analyzer.getFilesWithFullHashesCount(), 100*(float(analyzer.getFilesWithFullHashesCount())/analyzer.getFilesCount()))
 

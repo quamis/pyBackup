@@ -7,6 +7,7 @@ import pprint
 import humanize
 from BackupAnalyzer.BackupAnalyzer import BackupAnalyzer
 from Hasher.FullContentHashV1 import FullContentHashV1
+from Writer.LocalPathWriter.Writer import Writer
 from SourceReader.Path import Path
 import Cache.sqlite as sqlite
 #import os
@@ -20,11 +21,11 @@ same for SimpleComparer
 pp = pprint.PrettyPrinter(indent=4)
 
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
-parser.add_argument('--cacheOld',       dest='cacheOld',action='store', type=str,   default='',help='TODO')
-parser.add_argument('--dataNew',        dest='dataNew', action='store', type=str,   default='',help='TODO')
-parser.add_argument('--dataOld',        dest='dataOld', action='store', type=str,   default='',help='TODO')
-parser.add_argument('--percent',        dest='percent', action='store', type=float,   default='',help='TODO')
-parser.add_argument('--min',            dest='min',     action='store', type=int,   default='',help='TODO')
+parser.add_argument('--cacheOld',       dest='cacheOld',        action='store', type=str,   default='',help='TODO')
+parser.add_argument('--source',         dest='source',          action='store', type=str,   default='',help='TODO')
+parser.add_argument('--destination',    dest='destination',     action='store', type=str,   default='',help='TODO')
+parser.add_argument('--percent',        dest='percent',         action='store', type=float, default='',help='TODO')
+parser.add_argument('--min',            dest='min',             action='store', type=int,   default='',help='TODO')
 args = vars(parser.parse_args())
 
 
@@ -41,15 +42,18 @@ print "files with full hashes: %s files" % (analyzer.getFilesWithFullHashesCount
 hh = FullContentHashV1.FullContentHashV1()
 hh.initialize()
 
+wrt = Writer(args['destination'], args['source'])
+wrt.initialize()
+
 files = analyzer.getFilesWithFullHashes('random', 
         max(args['min'], math.ceil(analyzer.getFilesWithFullHashesCount()*(args['percent']/100)))
     )
 
 for (np, fhash, sz, fullHash) in files:
-    op = args['dataOld'] + np.replace(args['dataNew'], '', 1)
+    op = wrt.getDestinationFilePath(np)
         
     print "check file %s" % (op)
-    path = Path(op, False)
+    path = Path(wrt.getDestinationFilePathToContent(op), False)
     path.size = sz
     
     hash = hh.hash(path)
@@ -61,3 +65,4 @@ cache.commit()
 hh.destroy()
 analyzer.destroy()
 cache.destroy()
+wrt.destroy()

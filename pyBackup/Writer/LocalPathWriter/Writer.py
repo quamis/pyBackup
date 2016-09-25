@@ -15,6 +15,12 @@ class Writer(object):
     def commit(self):
         pass
     
+    def getDestinationFilePath(self, npath):
+        return self.backupBasePath + npath.replace(self.sourceBasePath, '', 1)
+
+    def getDestinationFilePathToContent(self, p):
+        return p
+    
     def registerProgressCallback(self, callback):
         self.progressCallback = callback
         
