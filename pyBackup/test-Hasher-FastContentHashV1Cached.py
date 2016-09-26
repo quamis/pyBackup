@@ -31,8 +31,10 @@ class LogTracker(object):
             'resetTime':    t,
             'flushTime':    t,
             'evtps':        0.0, 
-            'totalEvents': 0,
-            'isWarmingUp':True, 
+            'evtpg':        0.0, 
+            'totalEvents':  0,
+            'expectedEvents':None,
+            'isWarmingUp': True, 
         }
         
         self.events = {}
@@ -51,12 +53,12 @@ class LogTracker(object):
         self.stats['totalEvents']+= 1
         
     def resetStats(self, tm):
-        if tm - self.stats['resetTime'] > 30:
-            self.stats['resetTime'] =    tm
-            #stats['evtps'] =        0
-            self.stats['isWarmingUp'] =  True
-            
-            self.events =           {}
+    
+        self.stats['resetTime'] =    tm
+        #stats['evtps'] =        0
+        self.stats['isWarmingUp'] =  True
+        
+        self.events =           {}
             
         
     def calcStats(self, tm):
@@ -65,25 +67,37 @@ class LogTracker(object):
             
             self.stats['evtps'] = avg
             self.stats['isWarmingUp'] = False
-    
-    def logEvent(self, tm, event, data):
-        evtps = "[ ....e/s]"
-        if not self.stats['isWarmingUp']:
-            evtps = "[%5.1fe/s]" % (self.stats['evtps'])
+        elif 'newPath' in self.events and self.events['newPath']>10 and tm - self.stats['resetTime'] > 1.0:
+            avg = (self.events['newPath']) / (tm - self.stats['resetTime'])
+            self.stats['evtps'] = avg
+            self.stats['isWarmingUp'] = False
             
-        pgpc = "[....%]"
-        if 'newPath' in self.totalEvents and 'getNext' in self.totalEvents:
-            pgpc = "[%4.1f%%]" % (99.9*self.totalEvents['getNext']/self.totalEvents['newPath'])
+        if 'newPath' in self.totalEvents and 'getNext' in self.totalEvents and self.stats['expectedEvents'] is None:
+            self.stats['expectedEvents'] = self.totalEvents['newPath']
+            self.resetStats(tm)
+            
+        if not self.stats['expectedEvents'] is None:
+            self.stats['evtpg'] = self.totalEvents['getNext']/float(self.stats['expectedEvents'])
 
-        if event=='newPath':
-            sys.stdout.write("\r %s%s new : %50s" % (pgpc, evtps, self.pfmt.format(data['p'].path).ljust(120)))
             
-        if event=='getNext':
-            if not data['p'].isDir:
-                sys.stdout.write("\r %s%s next: %50s" % (pgpc, evtps, self.pfmt.format(data['p'].path).ljust(120)))
-                
+    def composeOutputStr(self, statusStr, event, data, ):
+        return "%s %8s: %s" % (statusStr, event, self.pfmt.format(data['p'].path).ljust(120))
+        
+    def logEvent(self, tm, event, data):
+        evtps = " ....e/s,"
+        if not self.stats['isWarmingUp']:
+            evtps = "%5.1fe/s," % (self.stats['evtps'])
+            
+        pgpc = "--.-%,"
+        if not self.stats['expectedEvents'] is None:
+            pgpc = "%4.1f%%," % (99.9*self.stats['evtpg'])
+
+        sys.stdout.write("\r%s" % (self.composeOutputStr("%s%s" % (pgpc, evtps), event, data)))
+        
         self.calcStats(tm)
-        self.resetStats(tm)
+        
+        if tm - self.stats['resetTime'] > 30:
+            self.resetStats(tm)
             
         if tm - self.stats['flushTime'] > 1:
             self.stats['flushTime'] = tm
