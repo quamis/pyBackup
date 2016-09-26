@@ -22,39 +22,78 @@ from View.PathFormatter import PathFormatter
 import sys
 import os, time
 
-
-def callbackLocalPathReader(lp, event, data):
-    global stats
-    tm = time.time()
-    
-    evtps = "[ ....e/s]"
-    if not stats['isWarmingUp']:
-        evtps = "[%5.1fe/s]" % (stats['evtps'])
-    
-    if event=='newPath':
-        stats[event] = stats[event]+1
-        if not data['isDir']:
-            sys.stdout.write("\r %s new : %50s" % (evtps, pfmt.format(data['p'].path).ljust(120)))
-            
-    if event=='getNext':
-        stats[event] = stats[event]+1
-        if not data['p'].isDir:
-            sys.stdout.write("\r %s next: %50s" % (evtps, pfmt.format(data['p'].path).ljust(120)))
-    
-        if stats['getNext']>20 and tm - stats['resetTime'] > 2.5:
-            stats['evtps'] = (stats['getNext']) / (tm - stats['startTime'])
-            stats['isWarmingUp'] = False
-        
-    if tm - stats['resetTime'] > 30:
-        stats = {
-            'startTime':tm,
-            'resetTime':tm, 
-            'newPath':0, 
-            'getNext':0, 
-            'evtps':stats['evtps']/10,
+class LogTracker(object):
+    def __init__(self):
+        self.pfmt = PathFormatter(120)
+        t = time.time()
+        self.stats = {
+            'startTime':    t,
+            'resetTime':    t,
+            'flushTime':    t,
+            'evtps':        0.0, 
+            'totalEvents': 0,
             'isWarmingUp':True, 
         }
-    #sys.stdout.flush()
+        
+        self.events = {}
+        self.totalEvents = {}
+
+    
+    def storeEvent(self, tm, event, data):
+        if not event in self.events:
+            self.events[event] = 0
+        self.events[event]+= 1
+        
+        if not event in self.totalEvents:
+            self.totalEvents[event] = 0
+        self.totalEvents[event]+= 1
+        
+        self.stats['totalEvents']+= 1
+        
+    def resetStats(self, tm):
+        if tm - self.stats['resetTime'] > 30:
+            self.stats['resetTime'] =    tm
+            #stats['evtps'] =        0
+            self.stats['isWarmingUp'] =  True
+            
+            self.events =           {}
+            
+        
+    def calcStats(self, tm):
+        if 'getNext' in self.events and self.events['getNext']>10 and tm - self.stats['resetTime'] > 1.0:
+            avg = (self.events['getNext']) / (tm - self.stats['resetTime'])
+            
+            self.stats['evtps'] = avg
+            self.stats['isWarmingUp'] = False
+    
+    def logEvent(self, tm, event, data):
+        evtps = "[ ....e/s]"
+        if not self.stats['isWarmingUp']:
+            evtps = "[%5.1fe/s]" % (self.stats['evtps'])
+            
+        pgpc = "[....%]"
+        if 'newPath' in self.totalEvents and 'getNext' in self.totalEvents:
+            pgpc = "[%4.1f%%]" % (99.9*self.totalEvents['getNext']/self.totalEvents['newPath'])
+
+        if event=='newPath':
+            sys.stdout.write("\r %s%s new : %50s" % (pgpc, evtps, self.pfmt.format(data['p'].path).ljust(120)))
+            
+        if event=='getNext':
+            if not data['p'].isDir:
+                sys.stdout.write("\r %s%s next: %50s" % (pgpc, evtps, self.pfmt.format(data['p'].path).ljust(120)))
+                
+        self.calcStats(tm)
+        self.resetStats(tm)
+            
+        if tm - self.stats['flushTime'] > 1:
+            self.stats['flushTime'] = tm
+            sys.stdout.flush()
+
+def callbackLocalPathReader(lp, event, data):
+    tm = time.time()
+    tracker.storeEvent(tm, event, data)
+    tracker.logEvent(tm, event, data)
+    
     
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cache',  dest='cache',	action='store', type=str,   default='',help='TODO')
@@ -63,16 +102,8 @@ parser.add_argument('--verbose', dest='verbose',   action='store', type=int,   d
 parser.add_argument('--useCache', dest='useCache',   action='store', type=int,   default=1, help='TODO')
 args = vars(parser.parse_args())
 
-pfmt = PathFormatter(120)
-stime = time.time()
-stats = {
-    'startTime':time.time(), 
-    'resetTime':time.time(), 
-    'newPath':0, 
-    'getNext':0, 
-    'evtps':0.0, 
-    'isWarmingUp':True, 
-}
+tracker = LogTracker()
+
 
 
 cache = sqlite.sqlite();
