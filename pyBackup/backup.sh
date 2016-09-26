@@ -19,7 +19,7 @@ rm -f "$SRC/backup.sqlite"; rm -f "$DST/backup.sqlite";
 rm -rf "$DST/"; mkdir -p "$DST";
 
 echo "calculate local hashes"
-python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --useCache=0 --data="$SRC" --cache="$SRC/backup.sqlite" 
+python ./test-Hasher-FastContentHashV1Cached.py --verbose=4 --useCache=0 --data="$SRC" --cache="$SRC/backup.sqlite" 
 
 exit;
 
