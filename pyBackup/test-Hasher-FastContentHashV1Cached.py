@@ -17,7 +17,6 @@ from Hasher.FastContentHashV2 import FastContentHashV2Cached
 
 import Cache.sqlite as sqlite
 
-from View.PathFormatter import PathFormatter
 from View.ScriptStatusTracker import ScriptStatusTracker
 
 import sys
@@ -25,19 +24,18 @@ import os, time
 
 class LogTracker(ScriptStatusTracker):
     def storeEvent(self, tm, event, data):
-        if event=='newPath':
-            k = "size:"+event
-            if not k in self.totalEvents:
-                self.totalEvents[k] = 0
-            
-            self.totalEvents[k]+= data['p'].size
+        k = "size:"+event
+        if not k in self.totalEvents:
+            self.totalEvents[k] = 0
+        
+        self.totalEvents[k]+= data['p'].size
         return super(LogTracker, self).storeEvent(tm, event, data)
         
-    def composeOutputStr(self, statusStr, event, data):
+    def composeOutputStr(self, statusStr, tm, event, data):
         mbps = "---.-Mb/s"
-        if event=='getNext':
-            v = self.totalEvents["size:getNext"]/(self.stats['startTime'])
-            mbps = "%4.1fMb/s" % ()
+        if event=='getNext' and self.totalEvents["getNext"]>10:
+            v = float(self.totalEvents["size:getNext"])/(tm - self.stats['startTime'])/(1024*1024)
+            mbps = "%5.1fMb/s" % (min(v, 999.9))
             
         return "%s%s %8s: %s" % (statusStr, mbps, event, self.pfmt.format(data['p'].path).ljust(120))
         

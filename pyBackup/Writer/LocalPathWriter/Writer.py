@@ -26,8 +26,8 @@ class Writer(object):
         
         
     def moveFile(self, opath, npath):
-        opath2 = opath.replace(self.sourceBasePath, '', 1)
-        npath2 = npath.replace(self.sourceBasePath, '', 1)
+        opath2 = opath.path.replace(self.sourceBasePath, '', 1)
+        npath2 = npath.path.replace(self.sourceBasePath, '', 1)
         
         self.mkdir(self.backupBasePath+npath2)
         shutil.move(self.backupBasePath+opath2, self.backupBasePath+npath2)
@@ -36,24 +36,24 @@ class Writer(object):
             self.progressCallback(self, 'moveFile', {'path':opath, 'isDir':False})
         
     def updateFile(self, opath, npath):
-        npath2 = npath.replace(self.sourceBasePath, '', 1)
-        shutil.copyfile(npath, self.backupBasePath+npath2)
+        npath2 = npath.path.replace(self.sourceBasePath, '', 1)
+        shutil.copyfile(npath.path, self.backupBasePath+npath2)
         
         if not self.progressCallback is None:
             self.progressCallback(self, 'updateFile', {'path':opath, 'isDir':False})
         
     def newFile(self, npath):
-        npath2 = npath.replace(self.sourceBasePath, '', 1)
+        npath2 = npath.path.replace(self.sourceBasePath, '', 1)
         
         self.mkdir(self.backupBasePath+npath2)
-        shutil.copyfile(npath, self.backupBasePath+npath2)
+        shutil.copyfile(npath.path, self.backupBasePath+npath2)
         
         if not self.progressCallback is None:
             self.progressCallback(self, 'newFile', {'path':npath, 'isDir':False})
 
         
     def newDir(self, npath):
-        npath2 = npath.replace(self.sourceBasePath, '', 1)
+        npath2 = npath.path.replace(self.sourceBasePath, '', 1)
         if not os.path.isdir(self.backupBasePath+npath2):
             os.mkdir(self.backupBasePath+npath2)
             
@@ -62,7 +62,7 @@ class Writer(object):
         
     
     def deleteFile(self, opath):
-        opath2 = opath.replace(self.sourceBasePath, '', 1)
+        opath2 = opath.path.replace(self.sourceBasePath, '', 1)
         os.unlink(self.backupBasePath+opath2)
         
         if not self.progressCallback is None:
@@ -70,7 +70,7 @@ class Writer(object):
             
         
     def deleteDir(self, opath):
-        opath2 = opath.replace(self.sourceBasePath, '', 1)
+        opath2 = opath.path.replace(self.sourceBasePath, '', 1)
         os.rmdir(self.backupBasePath+opath2)
         
         if not self.progressCallback is None:
@@ -80,3 +80,4 @@ class Writer(object):
         dname = os.path.dirname(fpath)+'/'
         if not os.path.isdir(dname):
             os.makedirs(dname)
+            

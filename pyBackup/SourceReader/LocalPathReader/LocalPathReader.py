@@ -4,7 +4,7 @@ Created on Sep 7, 2013
 @author: lucian
 '''
 from os import listdir
-from os.path import isdir, join, getatime, getmtime, getctime, getsize
+from os.path import isdir, join, getatime, getmtime, getctime, getsize, getatime
 
 import SourceReader.Path as Path 
 
@@ -33,6 +33,7 @@ class LocalPathReader(object):
             np = Path.Path(fp, isDir)
             np.ctime = getctime(fp)
             np.mtime = getmtime(fp)
+            np.atime = getatime(fp)
             np.size = getsize(fp)
             
             if not self.progressCallback is None:

@@ -14,7 +14,7 @@ function do_sync {
 	#python ./test-Comparer.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --doApply=0
 
 	echo "compare & update changes"
-	python ./test-Writer-LocalPathWriter.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --source="$SRC"
+	python ./test-Writer-LocalPathWriter.py --verbose=3 --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --source="$SRC"
 
 	
 	#echo "update full hashes"
@@ -24,8 +24,8 @@ function do_sync {
 	#python ./test-BackupAnalyzer.py --cache="$SRC/backup.sqlite" --data="$SRC"
 	
 	
-	echo "cleanup cache"
-	python ./test-Cache-cleanup.py --cache="$SRC/backup.sqlite" --optimize=1 --removeOldLeafs=1
+	#echo "cleanup cache"
+	#python ./test-Cache-cleanup.py --cache="$SRC/backup.sqlite" --optimize=1 --removeOldLeafs=1
 	
 	cp -f "$SRC/backup.sqlite" "$DST/backup.sqlite"
 	sleep 1
@@ -44,6 +44,7 @@ do_sync;
 echo "copy"
 echo "new file" > "$SRC/new_file_001.txt";
 do_sync;
+
 
 echo "duplicate"
 cp -f "$SRC/new_file_001.txt" "$SRC/new_file_002.txt";

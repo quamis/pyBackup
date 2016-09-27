@@ -5,6 +5,7 @@ class Path():
         
         self.ctime = None
         self.mtime = None
+        self.atime = None
         self.size = None
 
     def __repr__(self):

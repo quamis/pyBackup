@@ -54,6 +54,7 @@ class sqlite(object):
             isDir INTEGER, 
             ctime FLOAT, 
             mtime FLOAT, 
+            atime FLOAT, 
             size INTEGER, 
             PRIMARY KEY (path)
         )''')
@@ -107,8 +108,8 @@ class sqlite(object):
         
     def insertFileIntoFiles(self, p, h):
         c = self.cursor()
-        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.size)
-        c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?)', vals)
+        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.atime, p.size)
+        c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?, ?)', vals)
         
         vals = (p.path, "%.3f" % (time.time()))
         c.execute('INSERT OR IGNORE INTO tags VALUES (?, "time", ?)', vals)
@@ -129,12 +130,12 @@ class sqlite(object):
     def findFileByPath(self, path):
         c = self.cursor()
         vals = (path, )
-        c.execute('SELECT hash, path, isDir, ctime, mtime, size FROM files WHERE path=?', vals)
+        c.execute('SELECT hash, path, isDir, ctime, mtime, atime, size FROM files WHERE path=?', vals)
         return c.fetchone()
         
     def getAll(self):
         c = self.cursor()
-        c.execute('SELECT hash, path, isDir, ctime, mtime, size FROM files WHERE 1 ORDER BY time ASC')
+        c.execute('SELECT hash, path, isDir, ctime, mtime, atime, size FROM files WHERE 1 ORDER BY time ASC')
         return c.fetchall()
         
     def resetFilesData(self):

@@ -14,7 +14,7 @@ function do_sync {
 	#python ./test-Comparer.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --doApply=0
 
 	echo "compare & update changes"
-	python ./test-Writer-LocalPathWriter.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --source="$SRC"
+	python ./test-Writer-LocalPathWriter.py --verbose=0 --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --source="$SRC"
 }
 
 echo "----------------- initialize ----------------"

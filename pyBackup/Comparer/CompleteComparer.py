@@ -22,15 +22,15 @@ class CompleteComparer(SimpleComparer):
     
     def getChangedFiles(self):
         ret = super(CompleteComparer, self).getChangedFiles()
-        return self._filter(ret, [x[1] for x in self.moved])
+        return self._filter(ret, [x[1] for x in self.getMovedFiles()])
     
     def getNewFiles(self):
         ret = super(CompleteComparer, self).getNewFiles()
-        return self._filter(ret, [x[0] for x in self.moved])
+        return self._filter(ret, [x[0] for x in self.getMovedFiles()])
     
     def getDeletedFiles(self):
         ret = super(CompleteComparer, self).getDeletedFiles()
-        return self._filter(ret, [x[1] for x in self.moved])
+        return self._filter(ret, [x[1] for x in self.getMovedFiles()])
     
     def _filter(self, list1, simplifiedList):
         temp3 = [x for x in list1 if x[0] not in simplifiedList]

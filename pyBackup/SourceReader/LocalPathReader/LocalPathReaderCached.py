@@ -4,7 +4,7 @@ Created on Sep 7, 2013
 @author: lucian
 '''
 from os import listdir
-from os.path import isdir, join, getatime, getmtime, getctime, getsize, samefile
+from os.path import isdir, join, getatime, getmtime, getatime, getctime, getsize, samefile
 
 import SourceReader.Path as Path
 from SourceReader.LocalPathReader import LocalPathReader
@@ -51,7 +51,8 @@ class LocalPathReaderCached(LocalPathReader.LocalPathReader):
                 ret.isDir = bool(p[2])
                 ret.ctime = int(p[3])
                 ret.mtime = float(p[4])
-                ret.size = int(p[5])
+                ret.atime = float(p[5])
+                ret.size = int(p[6])
                 self.index+=1
                 
             if not self.progressCallback is None:

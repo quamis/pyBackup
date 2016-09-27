@@ -10,8 +10,10 @@ from Hasher.FullContentHashV1 import FullContentHashV1
 from Writer.LocalPathWriter.Writer import Writer
 from SourceReader.Path import Path
 import Cache.sqlite as sqlite
+from View.PathFormatter import PathFormatter
 #import os
 import math
+import sys
 
 """
 FIX: the backup analizer should use some coordinated sql's through the cache class (bases on sqlite3), not double-connecting to the sale DB
@@ -46,20 +48,25 @@ wrt = Writer(args['destination'], args['source'])
 wrt.initialize()
 
 files = analyzer.getFilesWithFullHashes('random', 
-        max(args['min'], math.ceil(analyzer.getFilesWithFullHashesCount()*(args['percent']/100)))
-    )
+    max(args['min'], math.ceil(analyzer.getFilesWithFullHashesCount()*(args['percent']/100)))
+)
 
+sys.stdout.write("\n")
 for (np, fhash, sz, fullHash) in files:
     op = wrt.getDestinationFilePath(np)
         
-    print "check file %s" % (op)
+    sys.stdout.write("\r    check: %s" % (pfmt.format(p).ljust(120)))
     path = Path(wrt.getDestinationFilePathToContent(op), False)
     path.size = sz
     
     hash = hh.hash(path)
     if hash!=fullHash:
-        print "    fullHash check failed!"
-        print "    fullHash: %s, expected: %s" % (hash, fullHash)
+        print "!"*80
+        print "!   fullHash check failed!"
+        print "!   fullHash: %s, expected: %s" % (hash, fullHash)
+        print "!"*80
+sys.stdout.write("\n")
+
 cache.commit()
 
 hh.destroy()

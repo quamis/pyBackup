@@ -31,7 +31,7 @@ class SimpleComparer(object):
         c = self.cacheNew.cursor()
         c.execute('''
             SELECT 
-                fn.path, fo.path 
+                fn.path, fo.path, fn.size, fo.size
             FROM main.files AS fn 
                 LEFT JOIN old.files AS fo ON fn.hash=fo.hash 
             WHERE 
@@ -46,23 +46,23 @@ class SimpleComparer(object):
     
     def moveFile(self, opath, npath):
         c = self.cacheNew.cursor()
-        vals=(npath, opath)
+        vals=(npath.path, opath.path)
         # TODO: load all attributes, not just paths (mtime, ctime, etc)
         c.execute('UPDATE old.files SET path=? WHERE NOT isDir AND path=?', vals)
     
     def getChangedFiles(self):
         c = self.cacheNew.cursor()
-        c.execute('SELECT fn.path, fo.path FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path WHERE NOT fo.isDir AND NOT fn.isDir AND fo.hash!=fn.hash')
+        c.execute('SELECT fn.path, fo.path, fn.size, fo.size FROM main.files AS fn INNER JOIN old.files AS fo ON fn.path = fo.path WHERE NOT fo.isDir AND NOT fn.isDir AND fo.hash!=fn.hash')
         return c.fetchall()
     
     def updateFile(self, opath, npath):
         c = self.cacheNew.cursor()
-        vals=(npath, opath, )
+        vals=(npath.path, opath.path)
         c.execute('UPDATE old.files SET hash=(SELECT hash FROM main.files WHERE path=? LIMIT 1) WHERE NOT isDir AND path=?', vals)
     
     def getNewFiles(self):
         c = self.cacheNew.cursor()
-        c.execute('SELECT path FROM main.files WHERE NOT isDir AND path NOT IN (SELECT path FROM old.files WHERE NOT isDir)')
+        c.execute('SELECT path, size FROM main.files WHERE NOT isDir AND path NOT IN (SELECT path FROM old.files WHERE NOT isDir)')
         return c.fetchall()
     
     def getNewDirs(self):
@@ -73,18 +73,18 @@ class SimpleComparer(object):
     def _newPath(self, npath):
         c = self.cacheNew.cursor()
         vals=(npath, )
-        c.execute('REPLACE INTO old.files (hash, path, isDir, ctime, mtime, size) SELECT hash, path, isDir, ctime, mtime, size FROM main.files WHERE path=? LIMIT 1', vals)
+        c.execute('REPLACE INTO old.files (hash, path, isDir, ctime, mtime, atime, size) SELECT hash, path, isDir, ctime, mtime, atime, size FROM main.files WHERE path=? LIMIT 1', vals)
         
     def newFile(self, npath):
-        return self._newPath(npath)
+        return self._newPath(npath.path)
     
     def newDir(self, npath):
-        return self._newPath(npath)
+        return self._newPath(npath.path)
     
     
     def getDeletedFiles(self):
         c = self.cacheNew.cursor()
-        c.execute('SELECT path FROM old.files WHERE NOT isDir AND path NOT IN (SELECT path FROM main.files WHERE NOT isDir)')
+        c.execute('SELECT path, size FROM old.files WHERE NOT isDir AND path NOT IN (SELECT path FROM main.files WHERE NOT isDir)')
         return c.fetchall()
     
     def getDeletedDirs(self):
@@ -94,12 +94,12 @@ class SimpleComparer(object):
     
     def deleteFile(self, opath):
         c = self.cacheNew.cursor()
-        vals=(opath, )
+        vals=(opath.path, )
         c.execute('DELETE FROM old.files WHERE NOT isDir AND path=?', vals)
         
     def deleteDir(self, opath):
         c = self.cacheNew.cursor()
-        vals=(opath, )
+        vals=(opath.path, )
         c.execute('DELETE FROM old.files WHERE isDir AND path=?', vals)
         
         

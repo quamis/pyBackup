@@ -20,6 +20,12 @@ class ScriptStatusTracker(object):
         
         self.events = {}
         self.totalEvents = {}
+        
+        
+        self.settings = {
+            'resetTime':    30,
+            'flushTime':    1,
+        }
 
     
     def storeEvent(self, tm, event, data):
@@ -37,7 +43,7 @@ class ScriptStatusTracker(object):
         self.stats['totalEvents']+= 1
         
     def resetStats(self, tm):
-    
+        
         self.stats['resetTime'] =    tm
         #stats['evtps'] =        0
         self.stats['isWarmingUp'] =  True
@@ -78,9 +84,9 @@ class ScriptStatusTracker(object):
             
             self.calcStats(tm)
             
-            self.printEvent(tm, self.composeOutputStr("%s%s" % (pgpc, evtps), event, data))
+            self.printEvent(tm, self.composeOutputStr("%s%s" % (pgpc, evtps), tm, event, data))
         
-            if tm - self.stats['resetTime'] > 30:
+            if tm - self.stats['resetTime'] > self.settings['resetTime']:
                 self.resetStats(tm)
         
     def printEvent(self, tm, str):
@@ -89,9 +95,10 @@ class ScriptStatusTracker(object):
             sys.stdout.flush()
         else:
             sys.stdout.write("\r%s" % (str))
-            if tm - self.stats['flushTime'] > 1:
+            if tm - self.stats['flushTime'] > self.settings['flushTime']:
                 self.stats['flushTime'] = tm
                 sys.stdout.flush()
     
     def printStr(self, str):
         sys.stdout.write("\n%s" % (str))
+        
