@@ -30,6 +30,7 @@ parser.add_argument('--percent',        dest='percent',         action='store', 
 parser.add_argument('--min',            dest='min',             action='store', type=int,   default='',help='TODO')
 args = vars(parser.parse_args())
 
+pfmt = PathFormatter(120)
 
 cache = sqlite.sqlite();
 cache.setCacheLocation(args['cacheOld'])
@@ -55,7 +56,7 @@ sys.stdout.write("\n")
 for (np, fhash, sz, fullHash) in files:
     op = wrt.getDestinationFilePath(np)
         
-    sys.stdout.write("\r    check: %s" % (pfmt.format(p).ljust(120)))
+    sys.stdout.write("\r    check: %s" % (pfmt.format(op).ljust(120)))
     path = Path(wrt.getDestinationFilePathToContent(op), False)
     path.size = sz
     
