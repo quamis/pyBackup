@@ -49,7 +49,7 @@ class ScriptStatusTracker(object):
         pass
 
             
-    def composeOutputStr(self, statusStr, event, data, ):
+    def composeOutputStr(self, statusStr, event, data):
         return "%s %8s: %s" % (statusStr, event, self.pfmt.format(data['p'].path).ljust(120))
         
     def logEvent(self, tm, event, data):
@@ -82,9 +82,7 @@ class ScriptStatusTracker(object):
         
             if tm - self.stats['resetTime'] > 30:
                 self.resetStats(tm)
-                
-            
-                
+        
     def printEvent(self, tm, str):
         if self.verbosity>=3:
             sys.stdout.write("\n%s" % (str))

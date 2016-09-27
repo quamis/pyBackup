@@ -24,6 +24,23 @@ import sys
 import os, time
 
 class LogTracker(ScriptStatusTracker):
+    def storeEvent(self, tm, event, data):
+        if event=='newPath':
+            k = "size:"+event
+            if not k in self.totalEvents:
+                self.totalEvents[k] = 0
+            
+            self.totalEvents[k]+= data['p'].size
+        return super(LogTracker, self).storeEvent(tm, event, data)
+        
+    def composeOutputStr(self, statusStr, event, data):
+        mbps = "---.-Mb/s"
+        if event=='getNext':
+            v = self.totalEvents["size:getNext"]/(self.stats['startTime'])
+            mbps = "%4.1fMb/s" % ()
+            
+        return "%s%s %8s: %s" % (statusStr, mbps, event, self.pfmt.format(data['p'].path).ljust(120))
+        
     def calcStats(self, tm):
         if 'getNext' in self.events and self.events['getNext']>10 and tm - self.stats['resetTime'] > 1.0:
             avg = (self.events['getNext']) / (tm - self.stats['resetTime'])
