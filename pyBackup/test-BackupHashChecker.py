@@ -3,7 +3,6 @@
 @author: lucian
 '''
 import argparse
-import pprint
 import humanize
 from BackupAnalyzer.BackupAnalyzer import BackupAnalyzer
 from Hasher.FullContentHashV1 import FullContentHashV1
@@ -14,14 +13,12 @@ from View.PathFormatter import PathFormatter
 #import os
 import math
 import sys
+import logging
 
 """
 FIX: the backup analizer should use some coordinated sql's through the cache class (bases on sqlite3), not double-connecting to the sale DB
 same for SimpleComparer
 """
-
-pp = pprint.PrettyPrinter(indent=4)
-
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheOld',       dest='cacheOld',        action='store', type=str,   default='',help='TODO')
 parser.add_argument('--source',         dest='source',          action='store', type=str,   default='',help='TODO')
@@ -40,7 +37,7 @@ analyzer = BackupAnalyzer()
 analyzer.setCache(cache)
 analyzer.initialize()
 
-print "files with full hashes: %s files" % (analyzer.getFilesWithFullHashesCount())
+logging.info("files with full hashes: %s files" % (analyzer.getFilesWithFullHashesCount()))
 
 hh = FullContentHashV1.FullContentHashV1()
 hh.initialize()
@@ -62,11 +59,11 @@ for (np, fhash, sz, fullHash) in files:
     
     hash = hh.hash(path)
     if hash!=fullHash:
-        print "!"*80
-        print "!   fullHash check failed!"
-        print "!   fullHash: %s, expected: %s" % (hash, fullHash)
-        print "!"*80
-sys.stdout.write("\n")
+        logging.error("!"*80)
+        logging.error("!   fullHash check failed!")
+        logging.error("!   fullHash: %s, expected: %s" % (hash, fullHash))
+        logging.error("!"*80)
+
 
 cache.commit()
 

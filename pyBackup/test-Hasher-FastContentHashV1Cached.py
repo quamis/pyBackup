@@ -12,15 +12,12 @@ from SourceReader.LocalPathReader import LocalPathReaderCached
 from SourceReader.LocalPathReader import LocalPathReader
 from Hasher.FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1Cached
-
 from Hasher.FastContentHashV2 import FastContentHashV2Cached
-
 import Cache.sqlite as sqlite
-
 from View.ScriptStatusTracker import ScriptStatusTracker
-
 import sys
 import os, time
+import logging
 
 class LogTracker(ScriptStatusTracker):
     def storeEvent(self, tm, event, data):
@@ -70,6 +67,11 @@ parser.add_argument('--verbose', dest='verbose',   action='store', type=int,   d
 parser.add_argument('--useCache', dest='useCache',   action='store', type=int,   default=1, help='TODO')
 args = vars(parser.parse_args())
 
+if args['verbose']>=4:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG, datefmt='%Y%m%d %I:%M:%S')
+else:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.WARNING, datefmt='%Y%m%d %I:%M:%S')
+
 tracker = LogTracker(args['verbose'])
 
 
@@ -112,15 +114,9 @@ hh = FastContentHashV2Cached.FastContentHashV2Cached()
 hh.setCache(cache)
 hh.initialize()
 
-if args['verbose']>=4:
-    for p in iter(lambda:lp.getNext(), None):
-        if not p.isDir:
-            tracker.printStr("    hash: %s" % (hh.hash(p)))
-else:
-    for p in iter(lambda:lp.getNext(), None):
-        if not p.isDir:
-            hh.hash(p)
-    
+for p in iter(lambda:lp.getNext(), None):
+    if not p.isDir:
+        logging.info("    hash: %s" % (hh.hash(p)))
     
 lp.destroy()
 hh.destroy()
@@ -129,5 +125,3 @@ cache.log("[%s] done" % (os.path.basename(__file__)))
 
 cache.commit()
 cache.destroy()
-
-print ""

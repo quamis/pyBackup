@@ -75,7 +75,7 @@ class ScriptStatusTracker(object):
             self.stats['statsTime'] = tm
             evtps = " ....e/s,"
             if not self.stats['isWarmingUp']:
-                evtps = "%6.1fe/s," % (min(self.stats['evtps'], 9999.9))
+                evtps = "%5.1fe/s," % (min(self.stats['evtps'], 9999.9))
                 
             pgpc = "--.-%,"
             if not self.stats['expectedEvents'] is None:

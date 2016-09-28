@@ -7,13 +7,13 @@ DST="test-data/DST/"
 
 function do_sync {
 	echo "----------------- SYNC ----------------"
-	echo "calculate local hashes"
+	#echo "calculate local hashes"
 	python ./test-Hasher-FastContentHashV1Cached.py --verbose=0 --useCache=0 --data="$SRC" --cache="$SRC/backup.sqlite" 
 
 	#echo "compare"
 	#python ./test-Comparer.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --doApply=0
 
-	echo "compare & update changes"
+	#echo "compare & update changes"
 	python ./test-Writer-LocalPathWriter.py --verbose=3 --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --source="$SRC"
 
 	

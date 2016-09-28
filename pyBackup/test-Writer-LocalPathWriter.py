@@ -9,6 +9,7 @@ import Cache.sqlite as sqlite
 import os, sys, time
 from View.ScriptStatusTracker import ScriptStatusTracker
 import SourceReader.Path as Path
+import logging
 
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
@@ -65,7 +66,14 @@ def callbackWriter(lp, event, data):
     tm = time.time()
     tracker.storeEvent(tm, event, data)
     tracker.logEvent(tm, event, data)
+    
 
+if args['verbose']>=4:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG, datefmt='%Y%m%d %I:%M:%S')
+else:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.WARNING, datefmt='%Y%m%d %I:%M:%S')
+    
+    
 tracker = LogTracker(args['verbose'])
 #tracker = LogTracker(0)
     
@@ -95,11 +103,9 @@ wrt.registerProgressCallback(callbackWriter)
 cacheNew.log("[%s] initialized" % (os.path.basename(__file__)))
 
 
-if args['verbose']>=4:
-    print "moved files:"
+logging.info("moved files:")
 for paths in cmpr.getMovedFiles():
-    if args['verbose']>=4:
-        print "    ren %s --> %s" % (paths[1], paths[0])
+    logging.info("    ren %s --> %s" % (paths[1], paths[0]))
 
     if doApply:
         np = Path.Path(paths[0], False)
@@ -115,12 +121,11 @@ cmpr.commit()
 wrt.commit()
 
 
-if args['verbose']>=4:
-    print "deleted files:"
+logging.info("deleted files:")
 # TODO: do some sort of backups
 for paths in cmpr.getDeletedFiles():
     if args['verbose']>=4:
-        print "    del %s" % (paths[0])
+        logging.info("    del %s" % (paths[0]))
     
     if doApply:
         op = Path.Path(paths[0], False)
@@ -133,12 +138,11 @@ cmpr.commit()
 wrt.commit()
 
 
-if args['verbose']>=4:
-    print "deleted dirs:"
+logging.info("deleted dirs:")
 # TODO: do some sort of backups
 for paths in cmpr.getDeletedDirs():
     if args['verbose']>=4:
-        print "    rmd %s" % (paths[0])
+        logging.info("    rmd %s" % (paths[0]))
     
     if doApply:
         op = Path.Path(paths[0], True)
@@ -150,12 +154,10 @@ cmpr.commit()
 wrt.commit()
 
 
-if args['verbose']>=4:
-    print "changed files:"
+logging.info("changed files:")
 # TODO: do some sort of backups
 for paths in cmpr.getChangedFiles():
-    if args['verbose']>=4:
-        print "    upd %s --> %s" % (paths[1], paths[0], )
+    logging.info("    upd %s --> %s" % (paths[1], paths[0], ))
 
     if doApply:
         np = Path.Path(paths[0], False)
@@ -170,11 +172,9 @@ for paths in cmpr.getChangedFiles():
 cmpr.commit()
 wrt.commit()
 
-if args['verbose']>=4:
-    print "new files:"
+logging.info("new files:")
 for paths in cmpr.getNewFiles():
-    if args['verbose']>=4:
-        print "    cpy %s" % (paths[0], )
+    logging.info("    cpy %s" % (paths[0], ))
 
     if doApply:
         np = Path.Path(paths[0], False)
@@ -187,11 +187,9 @@ cmpr.commit()
 wrt.commit()
 
 
-if args['verbose']>=4:
-    print "new dirs:"
+logging.info("new dirs:")
 for paths in cmpr.getNewDirs():
-    if args['verbose']>=4:        
-        print "    mkd %s" % (paths[0], )
+    logging.info("    mkd %s" % (paths[0], ))
 
     if doApply:
         np = Path.Path(paths[0], True)
@@ -203,10 +201,7 @@ cmpr.commit()
 wrt.commit()
 
 
-if args['verbose']>=4:
-    cacheNew.log("[%s] done" % (os.path.basename(__file__)))
+cacheNew.log("[%s] done" % (os.path.basename(__file__)))
 
 cmpr.destroy()
 wrt.destroy()
-
-print ""

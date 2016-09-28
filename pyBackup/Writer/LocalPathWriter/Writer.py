@@ -1,4 +1,5 @@
 import os, shutil
+import logging
 
 class Writer(object):
     def __init__(self, backupBasePath, sourceBasePath):
@@ -7,7 +8,7 @@ class Writer(object):
         self.progressCallback = None
     
     def initialize(self):
-        print "writer initialize"
+        logging.info("writer initialize")
     
     def destroy(self):
         self.commit()

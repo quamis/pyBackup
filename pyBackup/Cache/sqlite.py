@@ -5,6 +5,7 @@ Created on Sep 7, 2013
 '''
 import sqlite3
 import os, time
+import logging
 
 class sqlite(object):
     def __init__(self):
@@ -16,14 +17,15 @@ class sqlite(object):
     
     def initialize(self):
         if not self.initialized:
-            print "sqlite.initialize()"
+            logging.debug("sqlite.initialize")
             if os.path.isfile(self.db):
-                print "sqlite.dbExists"
+                logging.debug("sqlite: db exists")
                 self.dbExists = True
 
             self.conn = sqlite3.connect(self.db, isolation_level="EXCLUSIVE")
             if not self.dbExists:
-                print "sqlite.createTableFiles()"
+                logging.debug("sqlite: db dooesn't exist")
+                logging.debug("sqlite: createTableFiles")
                 self.createTableFiles()
             
             self.initialized = True

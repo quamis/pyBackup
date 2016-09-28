@@ -6,6 +6,8 @@ Created on Sep 7, 2013
 from os import listdir
 from os.path import isdir, join, getatime, getmtime, getatime, getctime, getsize, samefile
 
+import logging
+
 import SourceReader.Path as Path
 from SourceReader.LocalPathReader import LocalPathReader
 
@@ -23,10 +25,12 @@ class LocalPathReaderCached(LocalPathReader.LocalPathReader):
         self.useCache = useCache>0
 
     def initialize(self):
-        print "LocalPathReaderCached.initialize(). dbExists:%s, useCache:%s" % (self.cache.dbExists, self.useCache)
+        logging.info("LocalPathReaderCached.initialize(). dbExists:%s, useCache:%s" % (self.cache.dbExists, self.useCache))
         if self.cache.dbExists and self.useCache:
+            logging.info("load all data from cache")
             self.paths = self.cache.getAll()
         else:
+            logging.info("scan filesystem")
             self.paths = self.goRecursivelly(self.basepath, [])
     
     def destroy(self):
