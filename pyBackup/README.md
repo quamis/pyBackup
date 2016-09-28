@@ -21,7 +21,8 @@
 		x re-check that X% of the final backup exists and its hash is valid (check fullHash)
 		x compute fullHash for X% of the DB
             - recheck code, arg names, vars, script names
-            - generalizat formatPath, facut modular, facut optimizal daca face flush() sau nu
+            x generalizat formatPath, facut modular, facut optimizal daca face flush() sau nu
+            - when writing, on fileUpdate & delete make backups first
             - write recovery information for X% of the backed files
                 - PAR2?
                     https://multipar.eu/

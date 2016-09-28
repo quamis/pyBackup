@@ -9,13 +9,13 @@
 
 #SRC="/media/BIG/music/"; DST="/media/lucian/Backup/backups from 2016-09-21/music/";
 #SRC="/media/BIG/spideroak/"; DST="/media/lucian/Backup/backups from 2016-09-21/spideroak/";
-#SRC="/media/BIG/spideroak/"; DST="test-data/DST/";
+SRC="/media/BIG/spideroak/"; DST="test-data/DST/";
 
 
 
 
 #SRC="/cygdrive/d/spideroak/"; DST="test-data/DST/";
-SRC="/cygdrive/d/exports/2015-08-27 -uTests/"; DST="test-data/DST/";
+#SRC="/cygdrive/d/exports/2015-08-27 -uTests/"; DST="test-data/DST/";
 #SRC="/cygdrive/d/TFD tests/AIR uploader/"; DST="test-data/DST/";
 
 # -- simulate a fist-backup --
