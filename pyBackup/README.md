@@ -23,6 +23,9 @@
             - recheck code, arg names, vars, script names
             x generalizat formatPath, facut modular, facut optimizal daca face flush() sau nu
             - when writing, on fileUpdate & delete make backups first
+            - the hasher should be able to use different strategies:
+                - use only fsize & create time
+                - use first X% of hash + fsize
             - write recovery information for X% of the backed files
                 - PAR2?
                     https://multipar.eu/
