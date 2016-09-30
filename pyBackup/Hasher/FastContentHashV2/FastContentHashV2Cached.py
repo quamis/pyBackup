@@ -14,6 +14,46 @@ class FastContentHashV2Cached(FastContentHashV1Cached.FastContentHashV1Cached):
     #def __init__(self):
     #    super(FastContentHashV1Cached, self).__init__()
         
+    def _hash(self, path):
+         # match the file into one slot of the hasherMapByExtenstion
+        readCfg = self._getHasherMapCfg(path)
+        
+        strategy = 'default'
+        if 'strategy' in readCfg:
+            strategy = readCfg['strategy']
+        
+        ret = None
+        if strategy=='default':
+            hashObj = self._getHashObj()
+            stats = self._hashFileContent(path, hashObj, readCfg)
+            ret = self._getFinalHash_default(hashObj, path, readCfg, stats)
+        elif strategy=='ignore:mtime':
+            hashObj = self._getHashObj()
+            stats = self._hashFileContent(path, hashObj, readCfg)
+            ret = self._getFinalHash_ignore_mtime(hashObj, path, readCfg, stats)
+        elif strategy=='ignore:hash':
+            ret = self._getFinalHash_ignore_hash(None, path, readCfg, None)
+        else:
+            raise Exception('Invalid hashing strategy requested') 
+        
+        #print ret
+        return ret
+        
+    def _getHashObj(self):
+        return hashlib.sha1()
+        
+    def _getFinalHash_default(self, hashObj, path, readCfg, stats):
+        bases = Bases()
+        return "FCHV2,sha1:%s,mt:%s,sz:%s" % (hashObj.hexdigest(), bases.toBase62(path.mtime*1000), bases.toBase62(path.size))
+        
+    def _getFinalHash_ignore_mtime(self, hashObj, path, readCfg, stats):
+        bases = Bases()
+        return "FCHV2,sha1:%s,sz:%s" % (hashObj.hexdigest(), bases.toBase62(path.size))
+        
+    def _getFinalHash_ignore_hash(self, hashObj, path, readCfg, stats):
+        bases = Bases()
+        return "FCHV2,mt:%s,ct:%s,sz:%s" % (bases.toBase62(path.mtime*1000), bases.toBase62(path.ctime*1000), bases.toBase62(path.size))
+        
     def _getHasherMapByExtension(self):
         return [
             {
@@ -23,7 +63,7 @@ class FastContentHashV2Cached(FastContentHashV1Cached.FastContentHashV1Cached):
                     '.py', '.php', '.js', '.html', '.htm', '.css', '.xml', 
                  ),
                 'slots': [
-                    { 'max':    0, 'read': 4.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, 'ignore:mtime':True, },   #   any size
+                    { 'max':    0, 'read': 4.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, 'strategy':'ignore:mtime', },   #   any size
                 ],
             },
             
@@ -41,14 +81,14 @@ class FastContentHashV2Cached(FastContentHashV1Cached.FastContentHashV1Cached):
                     #{ 'max':  Mb, 'read': Mb  , 'skip': Mb  , 'head': Mb  , 'tail': Mb  , },   # reads = (head+tail) + max*floor((max-(head+tail))/(read+skip))
                     #{ 'max':    1, 'read': 0.00, 'skip': 64.00, 'head': 0.00, 'tail': 0.00, },   #   any size
                     
-                    { 'max':    1, 'read': 0.25, 'skip':  0.25, 'head': 0.10, 'tail': 0.10, 'ignore:mtime':True, },   # ~ TODO
-                    { 'max':    2, 'read': 0.50, 'skip':  0.50, 'head': 0.20, 'tail': 0.25, 'ignore:mtime':True, },   # ~ TODO
-                    { 'max':    4, 'read': 0.50, 'skip':  1.50, 'head': 0.25, 'tail': 0.20, 'ignore:mtime':True, },   # ~ TODO
-                    { 'max':   16, 'read': 1.00, 'skip':  3.00, 'head': 0.50, 'tail': 0.25, 'ignore:mtime':True, },   # ~ TODO
-                    { 'max':   64, 'read': 1.00, 'skip': 15.00, 'head': 0.50, 'tail': 0.50, 'ignore:mtime':True, },   # ~ TODO
-                    { 'max':  128, 'read': 1.00, 'skip': 31.00, 'head': 1.50, 'tail': 1.00, 'ignore:mtime':True, },   # ~ TODO
-                    { 'max':  256, 'read': 1.00, 'skip': 63.00, 'head': 2.00, 'tail': 1.50, 'ignore:mtime':True, },   # ~ TODO
-                    { 'max': 1024, 'read': 1.00, 'skip':127.00, 'head': 4.00, 'tail': 4.00, 'ignore:mtime':True, },   # ~ TODO
+                    { 'max':    1, 'read': 0.25, 'skip':  0.25, 'head': 0.10, 'tail': 0.10, 'strategy':'ignore:hash', },   # ~ TODO
+                    { 'max':    2, 'read': 0.50, 'skip':  0.50, 'head': 0.20, 'tail': 0.25, 'strategy':'ignore:hash', },   # ~ TODO
+                    { 'max':    4, 'read': 0.50, 'skip':  1.50, 'head': 0.25, 'tail': 0.20, 'strategy':'ignore:hash', },   # ~ TODO
+                    { 'max':   16, 'read': 1.00, 'skip':  3.00, 'head': 0.50, 'tail': 0.25, 'strategy':'ignore:hash', },   # ~ TODO
+                    { 'max':   64, 'read': 1.00, 'skip': 15.00, 'head': 0.50, 'tail': 0.50, 'strategy':'ignore:hash', },   # ~ TODO
+                    { 'max':  128, 'read': 1.00, 'skip': 31.00, 'head': 1.50, 'tail': 1.00, 'strategy':'ignore:hash', },   # ~ TODO
+                    { 'max':  256, 'read': 1.00, 'skip': 63.00, 'head': 2.00, 'tail': 1.50, 'strategy':'ignore:hash', },   # ~ TODO
+                    { 'max': 1024, 'read': 1.00, 'skip':127.00, 'head': 4.00, 'tail': 4.00, 'strategy':'ignore:hash', },   # ~ TODO
 
                 ],
             },
@@ -65,18 +105,3 @@ class FastContentHashV2Cached(FastContentHashV1Cached.FastContentHashV1Cached):
                 ],
             },
         ]
-                
-            
-            
-    def _getHashObj(self):
-        return hashlib.sha1()
-        
-    def _getFinalHash(self, hashObj, path, readCfg, stats):
-        bases = Bases()
-
-        if 'ignore:mtime' in readCfg and readCfg['ignore:mtime']:
-            r = "FastContentHashV2,sha1:%s,sz:%s" % (hashObj.hexdigest(), bases.toBase62(path.size))
-        else:
-            r = "FastContentHashV2,sha1:%s,mt:%s,sz:%s" % (hashObj.hexdigest(), bases.toBase62(path.mtime*1000), bases.toBase62(path.size))
-        return r
-        

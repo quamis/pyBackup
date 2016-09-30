@@ -53,11 +53,9 @@ class FastContentHashV1(object):
         bases = Bases()
         return "FastContentHashV1,sha1:%s,sz:%s" % (hashObj.hexdigest(), bases.toBase62(path.size))
     
-    def hash(self, path):
+    def _getHasherMapCfg(self, path):
+        readCfg = { 'max': 0, 'read': 0.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, }
         hasherMapByExtenstion = self._getHasherMapByExtension()
-        
-        # match the file into one slot of the hasherMapByExtenstion
-        readCfg = { 'max': 0, 'read': 0.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, },   
         for slot in hasherMapByExtenstion:
             if (os.path.splitext(path.path)[1].lower() in slot['ext']) or (slot['ext']==('*', )):
                 #print slot['ext']
@@ -68,10 +66,20 @@ class FastContentHashV1(object):
                     if path.size/(1*1024*1024)<cfg['max']:
                         break
                 break
+        return readCfg
+    
+    def hash(self, path):
+       return self._hash(path)
         
-        fi = open(path.path, 'rb')
+    def _hash(self, path):
+         # match the file into one slot of the hasherMapByExtenstion
+        readCfg = self._getHasherMapCfg(path)
         hashObj = self._getHashObj()
-
+        stats = self._hashFileContent(path, hashObj, readCfg)
+        return self._getFinalHash(hashObj, path, readCfg, stats)
+        
+        
+    def _hashFileContent(self, path, hashObj, readCfg):
         stats = {
             'head_cnt':0,
             'head_sz': 0,
@@ -81,6 +89,8 @@ class FastContentHashV1(object):
             'data_sz': 0,
         }
 
+        fi = open(path.path, 'rb')
+        
         cpos = 0
         while True:
             if readCfg['head'] and cpos<=readCfg['head']*1024*1024:
@@ -111,6 +121,7 @@ class FastContentHashV1(object):
                 fi.seek(readCfg['skip']*1024*1024, os.SEEK_CUR)
                 cpos+=readCfg['skip']*1024*1024
         
+        fi.close()
 
-        return self._getFinalHash(hashObj, path, readCfg, stats)
+        return stats
     
