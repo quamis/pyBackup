@@ -54,7 +54,7 @@ class FastContentHashV1(object):
         return "FastContentHashV1,sha1:%s,sz:%s" % (hashObj.hexdigest(), bases.toBase62(path.size))
     
     def _getHasherMapCfg(self, path):
-        readCfg = { 'max': 0, 'read': 0.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, }
+        readCfg = { 'max': 0, 'read': 0.00, 'skip': 0.00, 'head': 0.00, 'tail': 0.00, 'slot:cfg': {}}
         hasherMapByExtenstion = self._getHasherMapByExtension()
         for slot in hasherMapByExtenstion:
             if (os.path.splitext(path.path)[1].lower() in slot['ext']) or (slot['ext']==('*', )):
@@ -63,6 +63,11 @@ class FastContentHashV1(object):
                 readCfg = slot['slots'][0]
                 for cfg in slot['slots']:
                     readCfg = cfg
+                    
+                    readCfg['slot:cfg'] = {}
+                    if 'cfg' in slot:
+                        readCfg['slot:cfg'] = slot['cfg']
+                        
                     if path.size/(1*1024*1024)<cfg['max']:
                         break
                 break
@@ -91,6 +96,13 @@ class FastContentHashV1(object):
 
         fi = open(path.path, 'rb')
         
+        size = path.size
+        limit = size
+        if 'limit:head' in readCfg['slot:cfg']:
+            limit = min(readCfg['slot:cfg']['limit:head']*1024*1024, path.size)
+        
+        #print "rsize,limit %.2fMb, %.2fMb" % (path.size/float(1024*1024), limit/float(1024*1024))
+        
         cpos = 0
         while True:
             if readCfg['head'] and cpos<=readCfg['head']*1024*1024:
@@ -99,7 +111,7 @@ class FastContentHashV1(object):
                 cpos+= dl
                 stats['head_cnt']+= 1
                 stats['head_sz']+=  dl
-            elif readCfg['tail'] and cpos>=(path.size - (readCfg['skip']*1024*1024) - (readCfg['tail']*1024*1024)):
+            elif readCfg['tail'] and cpos>=(size - (readCfg['skip']*1024*1024) - (readCfg['tail']*1024*1024)):
                 data = fi.read(int(readCfg['tail']*1024*1024))
                 dl = len(data)
                 cpos+= dl
@@ -112,11 +124,14 @@ class FastContentHashV1(object):
                 stats['data_cnt']+= 1
                 stats['data_sz']+=  dl
                 
-
             if not data:
                 break
             
             hashObj.update(data)
+            
+            if cpos>limit:
+                break
+            
             if readCfg['skip']:
                 fi.seek(readCfg['skip']*1024*1024, os.SEEK_CUR)
                 cpos+=readCfg['skip']*1024*1024
