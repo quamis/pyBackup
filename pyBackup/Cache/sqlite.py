@@ -37,6 +37,9 @@ class sqlite(object):
     def commit(self):
         self.conn.commit()
         self.curr = None
+        
+    def _pathCleanup(self, p):
+        return p
     
     def cursor(self):
         #return self.conn.cursor()
@@ -110,10 +113,10 @@ class sqlite(object):
         
     def insertFileIntoFiles(self, p, h):
         c = self.cursor()
-        vals = (h, p.path, p.isDir, p.ctime, p.mtime, p.atime, p.size)
+        vals = (h, self._pathCleanup(p.path), p.isDir, p.ctime, p.mtime, p.atime, p.size)
         c.execute('REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?, ?)', vals)
         
-        vals = (p.path, "%.3f" % (time.time()))
+        vals = (self._pathCleanup(p.path), "%.3f" % (time.time()))
         c.execute('INSERT OR IGNORE INTO tags VALUES (?, "time", ?)', vals)
         
     
@@ -121,23 +124,23 @@ class sqlite(object):
         
     def updateFileHashIntoFiles(self, p, h):
         c = self.cursor()
-        vals = (h, p.path)
+        vals = (h, self._pathCleanup(p.path))
         c.execute('UPDATE files SET hash=? WHERE path=?', vals)
         
     def updateFileFullHashIntoFiles(self, p, h):
         c = self.cursor()
-        vals = (p.path, h, )
+        vals = (self._pathCleanup(p.path), h, )
         c.execute('REPLACE INTO fullHashes VALUES (?, ?)', vals)
     
     def findFileByPath(self, path):
         c = self.cursor()
-        vals = (path, )
+        vals = (self._pathCleanup(path), )
         c.execute('SELECT hash, path, isDir, ctime, mtime, atime, size FROM files WHERE path=?', vals)
         return c.fetchone()
         
     def getAll(self):
         c = self.cursor()
-        c.execute('SELECT hash, path, isDir, ctime, mtime, atime, size FROM files WHERE 1 ORDER BY time ASC')
+        c.execute('SELECT hash, path, isDir, ctime, mtime, atime, size FROM files WHERE 1 ORDER BY path ASC')
         return c.fetchall()
         
     def resetFilesData(self):
