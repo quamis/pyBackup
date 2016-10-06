@@ -11,17 +11,16 @@
 #SRC="/media/BIG/music/"; DST="/media/lucian/Backup/backups from 2016-09-21/music/";
 #SRC="/media/BIG/books/"; DST="/media/lucian/Backup/backups from 2016-09-21/books/";
 #SRC="/media/BIG/spideroak/"; DST="/media/lucian/Backup/backups from 2016-09-21/spideroak/";
-SRC="/media/BIG/pictures/"; DST="/media/lucian/Backup/backups from 2016-09-21/pictures/";
+#SRC="/media/BIG/pictures/"; DST="/media/lucian/Backup/backups from 2016-09-21/pictures/";
 
 
 
 
 #SRC="/cygdrive/d/spideroak/myHouse/"; DST="test-data/DST/";
-#SRC="/cygdrive/d/exports/2015-08-27 -uTests/"; DST="test-data/DST/";
+SRC="/cygdrive/d/exports/2015-08-27 -uTests/"; DST="test-data/DST/";
 #SRC="/cygdrive/d/TFD tests/AIR uploader/"; DST="test-data/DST/";
 
 # -- simulate a fist-backup --
-
 #rm -f "$SRC/backup.sqlite"; rm -f "$DST/backup.sqlite";
 # -- test whole-copies, for empty backup DST's --
 #rm -rf "$DST/"; mkdir -p "$DST";
@@ -35,9 +34,9 @@ python ./test-Hasher-FastContentHashV1Cached.py --verbose=1 --useCache=0 --data=
 
 
 ##echo "compare & update changes"
-python ./test-Writer-LocalPathWriter.py --verbose=1 --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --source="$SRC"
+python ./test-Writer-LocalPathWriter.py --verbose=1 --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --destination="$DST" --destinationBackup="/tmp/backups/" --source="$SRC"
 
-
+exit;
 ##echo "clean cache"
 python ./test-Cache-cleanup.py --cache="$SRC/backup.sqlite" --optimize=1 --removeOldLeafs=1 --verbose=1
 

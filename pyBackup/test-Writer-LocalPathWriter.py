@@ -5,8 +5,9 @@
 import argparse
 from Comparer.CompleteComparer import CompleteComparer
 from Writer.LocalPathWriter.Writer import Writer
+from Writer.Backup.Writer import Writer as BackupWriter
 import Cache.sqlite as sqlite
-import os, sys, time
+import os, sys, time, datetime
 from View.ScriptStatusTracker import ScriptStatusTracker
 import SourceReader.Path as Path
 import logging
@@ -16,6 +17,7 @@ parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   
 parser.add_argument('--cacheOld',  dest='cacheOld', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--source',  dest='source', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--destination',  dest='destination', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--destinationBackup',  dest='destinationBackup', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--verbose',  dest='verbose', action='store', type=int,   default='',help='TODO')
 args = vars(parser.parse_args())
 
@@ -100,6 +102,9 @@ wrt.initialize()
 
 wrt.registerProgressCallback(callbackWriter)
 
+wrtbackup = BackupWriter(args['destinationBackup'], args['destination'], time.strftime("%Y%m%d%H%M%S"))
+wrtbackup.initialize()
+
 cacheNew.log("[%s] initialized" % (os.path.basename(__file__)))
 
 
@@ -131,6 +136,7 @@ for paths in cmpr.getDeletedFiles():
         op = Path.Path(paths[0], False)
         op.size = paths[1]
         
+        wrtbackup.deleteFile(op)
         cmpr.deleteFile(op)
         wrt.deleteFile(op)
         #print "    ...deleted & written"
@@ -166,6 +172,7 @@ for paths in cmpr.getChangedFiles():
         op = Path.Path(paths[1], False)
         op.size = paths[3]
         
+        wrtbackup.updateFile(op, np)
         cmpr.updateFile(op, np)
         wrt.updateFile(op, np)
         #print "    ...updated & written"

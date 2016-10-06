@@ -34,6 +34,7 @@
                     
                     
             - write archives of x% of very old data (unchanged for more than X days?)
+			- SSH backup
  	- path reader
 		- these export file lists to be backed up(full path, prefixed by protocol (file://, owncloud://)
 		- the file lists are then compared with the file lists on the target device
