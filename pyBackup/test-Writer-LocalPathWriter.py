@@ -102,7 +102,7 @@ wrt.initialize()
 
 wrt.registerProgressCallback(callbackWriter)
 
-wrtbackup = BackupWriter(args['destinationBackup'], args['destination'], time.strftime("%Y%m%d%H%M%S"))
+wrtbackup = BackupWriter(args['destinationBackup'], args['destination'], args['source'], time.strftime("%Y%m%d%H%M%S"))
 wrtbackup.initialize()
 
 cacheNew.log("[%s] initialized" % (os.path.basename(__file__)))
