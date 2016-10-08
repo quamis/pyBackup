@@ -62,6 +62,10 @@
 
 Dependencies:			
 	pip install bases.py
+	pip install pyfilesystem
+	pip install dexml
+	sudo apt-get install -y python3-cffi
+	
 	
 
 Dev-tests:
