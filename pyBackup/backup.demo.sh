@@ -10,6 +10,23 @@ if [ ! -d "$DST_DIR" ]; then
     error_exit "external hdd not mounted"
 fi;
 
+sync
+########################################################################################################
+## local backups #######################################################################################
+
+do_backup "projects" "$HOME/projects/"
+
+sync
+########################################################################################################
+## GEO's backups #######################################################################################
+
+mkdir "$HOME/sshfs/" || error_exit "cannot mkdir"
+sshfs user@host:/ "$HOME/sshfs/" -p 22 || error_exit "cannot mount sshfs"
+
+do_backup "oc-v01" "$HOME/sshfs/media/mnt/a/1/2/3/4/"
+
+fusermount -u "$HOME/sshfs/" || error_exit "cannot disconnect from ssh"
+rmdir "$HOME/sshfs/"
 
 
-do_backup "projects" "/home/lucian/projects/"
+sync
