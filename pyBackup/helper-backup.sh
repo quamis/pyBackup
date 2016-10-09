@@ -52,7 +52,7 @@ function do_backup {
 
     
     ##echo "check full hashes"
-    python ./HashChecker.py --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=10 --min=15 || error_exit "cannot write data"
+    python ./HashChecker.py --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=2.5 --min=5 || error_exit "cannot write data"
 
     
     ##echo "analize cache"
@@ -62,22 +62,3 @@ function do_backup {
     ##echo "copy cache"
     cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
 }
-
-SQLITE_DIR="/media/BIG/tmp/pyBackup.sqlite/";
-
-DST_DIR="/media/lucian/Backup/backups from 2016-09-21/";
-#DST_DIR="/media/BIG/tmp/pyBackup/";
-
-
-
-do_backup "projects" "/home/lucian/projects/"
-do_backup "spideroak" "/media/BIG/spideroak/"
-do_backup "pictures" "/media/BIG/pictures/"
-do_backup "books" "/media/BIG/books/"
-do_backup "music" "/media/BIG/music/"
-
-
-# -- simulate a fist-backup --
-#rm -f "$SRC/backup.sqlite"; rm -f "$DST/backup.sqlite";
-# -- test whole-copies, for empty backup DST's --
-#rm -rf "$DST/"; mkdir -p "$DST";
