@@ -63,7 +63,6 @@ for paths in cmpr.getMovedFiles():
     stats['count']['getMovedFiles']+= 1
 
 
-
 for paths in cmpr.getDeletedFiles():
     logging.debug("    del %s" % (paths[0]))
     stats['sizes']['getDeletedFiles']+= paths[1]
@@ -78,8 +77,8 @@ for paths in cmpr.getChangedFiles():
 
 for paths in cmpr.getNewFiles():
     logging.debug("    cpy %s" % (paths[0], ))
-    stats['sizes']['getChangedFiles']+= paths[2]
-    stats['count']['getChangedFiles']+= 1
+    stats['sizes']['getNewFiles']+= paths[1]
+    stats['count']['getNewFiles']+= 1
 
 
 print("getChangedFiles : %d files, %s" % (stats['count']['getChangedFiles'], humanize.naturalsize(stats['sizes']['getChangedFiles'])))
@@ -87,10 +86,16 @@ print("getNewFiles :     %d files, %s" % (stats['count']['getNewFiles'], humaniz
 print("getMovedFiles :   %d files, %s" % (stats['count']['getMovedFiles'], humanize.naturalsize(stats['sizes']['getMovedFiles'])))
 print("getDeletedFiles : %d files, %s" % (stats['count']['getDeletedFiles'], humanize.naturalsize(stats['sizes']['getDeletedFiles'])))
 
-avgTrasnferSpeed=20 #20.0 Mb/s
-print("ETA : %d minutes to transfer" % ((stats['sizes']['getChangedFiles']+stats['sizes']['getNewFiles'])/(avgTrasnferSpeed*1024*1024)/(1*60)))
+avgTransferSpeed = 17.5 #  20.0 Mb/s can be written on the target drive
+avgTransferFiles = 2000 #  2000 files/s can be altered on the target drive
+print("ETA : %.2f minutes to transfer" % ( \
+    ( \
+        0
+        + float(stats['sizes']['getChangedFiles']+stats['sizes']['getNewFiles'])/(avgTransferSpeed*1024*1024)    # Mb/s \
+        + float(stats['count']['getChangedFiles']+stats['count']['getNewFiles']+stats['count']['getMovedFiles']+stats['count']['getDeletedFiles'])/(avgTransferFiles)    # files/s \
+    ) \
+    /(1*60)))
     
 cmpr.destroy()
-
 cacheNew.destroy()
 cacheOld.destroy()

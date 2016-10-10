@@ -48,27 +48,40 @@ function do_action {
 
 
 		##echo "update full hashes"
-		python ./HashUpdater.py --cache="$SRCDB" --data="$SRC" --percent=2.5 --min=15 || error_exit "cannot write data"
+		python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=2.5 --min=15 || error_exit "cannot write data"
 
 		
 		##echo "check full hashes"
-		python ./HashChecker.py --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=2.5 --min=5 || error_exit "cannot write data"
+		python ./HashChecker.py --verbose=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=2.5 --min=5 || error_exit "cannot write data"
 
 		##echo "copy cache"
 		cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
 	elif [ "$ACTION" == "compare" ] ; then
 		#echo "calculate local hashes"
-		python ./Hasher.py --verbose=0 --useCache=0 --data="$SRC" --cache="$SRCDB" || error_exit "cannot hash data"
+		echo ""
+		echo "Create hashes for ${NAME}"
+		python ./Hasher.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRCDB" || error_exit "cannot hash data"
 
 		###echo "compare"
 		python ./Comparer.py --verbose=1 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" || error_exit "cannot compare data"
+
 	elif [ "$ACTION" == "check" ] ; then
 		##echo "check full hashes"
-		python ./HashChecker.py --verbose=4 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=75.0 --min=5 || error_exit "cannot write data"
+		python ./HashChecker.py --verbose=4 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=25.0 --min=5 || error_exit "cannot write data"
+
+	elif [ "$ACTION" == "checkAll" ] ; then
+		##echo "check full hashes"
+		python ./HashChecker.py --verbose=4 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 || error_exit "cannot write data"
+
 	elif [ "$ACTION" == "hash" ] ; then
-	
 		#echo "update full hashes"
-		python ./HashUpdater.py --verbose=4 --cache="$SRCDB" --data="$SRC" --percent=75.0 --min=15 || error_exit "cannot write data"
+		python ./HashUpdater.py --verbose=4 --cache="$SRCDB" --data="$SRC" --percent=25.0 --min=5 || error_exit "cannot write data"
+		
+		##echo "copy cache"
+		cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
+	elif [ "$ACTION" == "hashAll" ] ; then
+		#echo "update full hashes"
+		python ./HashUpdater.py --verbose=4 --cache="$SRCDB" --data="$SRC" --percent=100.0 --min=1 || error_exit "cannot write data"
 		
 		##echo "copy cache"
 		cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
