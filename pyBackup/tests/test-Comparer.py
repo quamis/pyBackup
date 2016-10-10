@@ -13,9 +13,17 @@ pp = pprint.PrettyPrinter(indent=4)
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
 parser.add_argument('--cacheOld',  dest='cacheOld', action='store', type=str,   default='',help='TODO')
-parser.add_argument('--doApply',  dest='doApply', action='store', type=int,   default=0,help='TODO')
+parser.add_argument('--source',  dest='source', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--destination',  dest='destination', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--destinationBackup',  dest='destinationBackup', action='store', type=str,   default='',help='TODO')
+parser.add_argument('--verbose',  dest='verbose', action='store', type=int,   default='',help='TODO')
 args = vars(parser.parse_args())
 
+if args['verbose']>=4:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG, datefmt='%Y%m%d %I:%M:%S')
+else:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.WARNING, datefmt='%Y%m%d %I:%M:%S')
+    
 
 cacheNew = sqlite.sqlite();
 cacheNew.setCacheLocation(args['cacheNew'])
@@ -27,7 +35,6 @@ cacheOld.initialize()
 
 doApply = bool(args['doApply'])
 
-#cmpr = SimpleComparer()
 cmpr = CompleteComparer()
 
 cmpr.setNewCache(cacheNew)
@@ -35,16 +42,14 @@ cmpr.setOldCache(cacheOld)
 cmpr.initialize()
 
 
-
-print "moved files:"
+logging.info("moved files:")
+cnt = 0
+size= 0
 for paths in cmpr.getMovedFiles():
-    print "    ren %s --> %s" % (paths[1], paths[0])
-
-    if doApply:
-        cmpr.moveFile(paths[1], paths[0])
-        print "    ...marked"
-cmpr.commit()
-
+    print paths
+    logging.debug("    ren %s --> %s" % (paths[1], paths[0]))
+    size+=paths
+exit()
 
 print "deleted files:"
 # TODO: do some sort of backups
