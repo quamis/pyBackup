@@ -119,7 +119,16 @@ class sqlite(object):
         vals = (self._pathCleanup(p.path), "%.3f" % (time.time()))
         c.execute('INSERT OR IGNORE INTO tags VALUES (?, "time", ?)', vals)
         
-    
+    def deleteFileFromFiles(self, p):
+        c = self.cursor()
+        vals = (self._pathCleanup(p.path), )
+        c.execute('DELETE FROM files WHERE path=?', vals)
+        
+        vals = (self._pathCleanup(p.path), )
+        c.execute('DELETE FROM tags WHERE path=?', vals)
+        
+        vals = (self._pathCleanup(p.path), )
+        c.execute('DELETE FROM fullHashes WHERE path=?', vals)
         
         
     def updateFileHashIntoFiles(self, p, h):
@@ -135,6 +144,7 @@ class sqlite(object):
     def findFileByPath(self, path):
         c = self.cursor()
         vals = (self._pathCleanup(path), )
+        print vals
         c.execute('SELECT hash, path, isDir, ctime, mtime, atime, size FROM files WHERE path=?', vals)
         return c.fetchone()
         

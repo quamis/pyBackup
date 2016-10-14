@@ -66,7 +66,9 @@ for (np, fhash, sz, fullHash) in files:
     if hash!=fullHash:
         logging.error("!"*80)
         logging.error("!   fullHash check failed!")
-        logging.error("!   fullHash: %s, expected: %s" % (hash, fullHash))
+        logging.error("!   path: %s" % (np))
+        logging.error("!   fullHash: %s" % (hash))
+        logging.error("!   expected: %s" % (fullHash))
         logging.error("!"*80)
         sys.exit(1)
 

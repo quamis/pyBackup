@@ -65,6 +65,13 @@ function do_action {
 		###echo "compare"
 		python ./Comparer.py --verbose=1 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" || error_exit "cannot compare data"
 
+	elif [ "$ACTION" == "cleanup" ] ; then
+		##echo "clean cache"
+		python ./Cleanup.py --cache="$SRCDB" --optimize=1 --removeOldLeafs=1 --verbose=1 || error_exit "cannot write data"
+		
+		##echo "copy cache"
+		cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
+		
 	elif [ "$ACTION" == "check" ] ; then
 		##echo "check full hashes"
 		python ./HashChecker.py --verbose=4 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=25.0 --min=5 || error_exit "cannot write data"
