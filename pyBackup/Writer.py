@@ -107,6 +107,11 @@ wrtbackup.initialize()
 
 cacheNew.log("[%s] initialized" % (os.path.basename(__file__)))
 
+if cacheNew.getFlag('destination.path') is None:
+    cacheNew.setFlag('destination.cache.path', args['cacheOld'])
+    cacheNew.setFlag('destination.path', args['destination'])
+    cacheNew.setFlag('destinationBackup.path', args['destinationBackup'])
+    
 
 logging.info("moved files:")
 for paths in cmpr.getMovedFiles():

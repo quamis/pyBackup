@@ -144,9 +144,15 @@ class sqlite(object):
     def findFileByPath(self, path):
         c = self.cursor()
         vals = (self._pathCleanup(path), )
-        print vals
+        #print vals
         c.execute('SELECT hash, path, isDir, ctime, mtime, atime, size FROM files WHERE path=?', vals)
         return c.fetchone()
+    
+    def findFilesByPath(self, path):
+        c = self.cursor()
+        vals = (self._pathCleanup(path), )
+        c.execute('SELECT path FROM files WHERE path LIKE ? AND NOT isDir', vals)
+        return c.fetchall()
         
     def getAll(self):
         c = self.cursor()

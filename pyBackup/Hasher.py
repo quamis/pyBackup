@@ -89,8 +89,8 @@ lp.setPath(args['data'])
 if cache.getFlag('app.run.first') is None:
     cache.setFlag('app.run.count', 0)
     cache.setFlag('app.run.first', time.time())
-    cache.setFlag('cache.path', args['cache'])
-    cache.setFlag('data.path', args['data'])
+    cache.setFlag('source.cache.path', args['cache'])
+    cache.setFlag('source.path', args['data'])
 
 cache.setFlag('app.run.last', time.time())
 cache.setFlag('app.run.count', int(cache.getFlag('app.run.count'))+1)
