@@ -52,7 +52,7 @@ function do_action {
 
 		
 		##echo "check full hashes"
-		python ./HashChecker.py --verbose=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=2.5 --min=5 || error_exit "cannot write data"
+		python ./HashChecker.py --verbose=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data"
 
 		##echo "copy cache"
 		cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
@@ -96,9 +96,12 @@ function do_action {
 		##echo "analize cache"
 		echo ""
 		echo ""
+		echo "----------------------------------------------------------------------------"
+		echo "----------------------------------------------------------------------------"
 		echo "Analysis for ${NAME}"
 		echo "        ${SRC}"
 		python ./Analyze.py --cache="$SRCDB" --data="$SRC" || error_exit "cannot analyze data"
+		read -s -n 1 -p "Press any key to continue... "
 	else :
 		error_exit "invalid action: {$ACTION}"
 	fi;
