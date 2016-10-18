@@ -86,8 +86,8 @@ print("getNewFiles :     %d files, %s" % (stats['count']['getNewFiles'], humaniz
 print("getMovedFiles :   %d files, %s" % (stats['count']['getMovedFiles'], humanize.naturalsize(stats['sizes']['getMovedFiles'])))
 print("getDeletedFiles : %d files, %s" % (stats['count']['getDeletedFiles'], humanize.naturalsize(stats['sizes']['getDeletedFiles'])))
 
-avgTransferSpeed = 17.5 #  20.0 Mb/s can be written on the target drive
-avgTransferFiles = 2000 #  2000 files/s can be altered on the target drive
+avgTransferSpeed = 17.5 # Mb/s that can be written on the target drive
+avgTransferFiles =  100 # files/s that can be altered on the target drive
 print("ETA : %.2f minutes to transfer" % ( \
     ( \
         0
