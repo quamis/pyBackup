@@ -52,7 +52,7 @@ function do_action {
 
 		
 		##echo "check full hashes"
-		python ./HashChecker.py --verbose=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data"
+		python ./HashChecker.py --verbose=0 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data"
 
 		##echo "copy cache"
 		cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
@@ -74,7 +74,7 @@ function do_action {
 		
 	elif [ "$ACTION" == "check" ] ; then
 		##echo "check full hashes"
-		python ./HashChecker.py --verbose=4 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=25.0 --min=5 || error_exit "cannot write data"
+		python ./HashChecker.py --verbose=4 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=25.0 --min=5 || error_exit "cannot write data"
 
 	elif [ "$ACTION" == "checkAll" ] ; then
 		##echo "check full hashes"

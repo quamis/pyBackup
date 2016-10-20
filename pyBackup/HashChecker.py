@@ -25,6 +25,7 @@ parser.add_argument('--source',         dest='source',          action='store', 
 parser.add_argument('--destination',    dest='destination',     action='store', type=str,   default='',help='TODO')
 parser.add_argument('--percent',        dest='percent',         action='store', type=float, default='',help='TODO')
 parser.add_argument('--min',            dest='min',             action='store', type=int,   default='',help='TODO')
+parser.add_argument('--stopOnFirstFail',dest='stopOnFirstFail', action='store', type=int,   default=1,help='TODO')
 parser.add_argument('--verbose',        dest='verbose',         action='store', type=int,   default='',help='TODO')
 args = vars(parser.parse_args())
 
@@ -55,6 +56,7 @@ files = analyzer.getFilesWithFullHashes('random',
     max(args['min'], math.ceil(analyzer.getFilesWithFullHashesCount()*(args['percent']/100)))
 )
 
+failedChecks = []
 for (np, fhash, sz, fullHash) in files:
     op = wrt.getDestinationFilePath(np)
         
@@ -64,18 +66,44 @@ for (np, fhash, sz, fullHash) in files:
     
     hash = hh.hash(path)
     if hash!=fullHash:
-        logging.error("!"*80)
-        logging.error("!   fullHash check failed!")
-        logging.error("!   path: %s" % (np))
-        logging.error("!   fullHash: %s" % (hash))
-        logging.error("!   expected: %s" % (fullHash))
-        logging.error("!"*80)
-        sys.exit(1)
+        if args['stopOnFirstFail']:
+            logging.error("!"*80)
+            logging.error("!   fullHash check failed!")
+            logging.error("!   path: %s" % (np))
+            logging.error("!   fullHash: %s" % (hash))
+            logging.error("!   expected: %s" % (fullHash))
+            logging.error("!"*80)
+            sys.exit(1)
+        
+        logging.error("       fullHash check failed!")
+        failedChecks.append({
+            'np':       np, 
+            'hash':     hash, 
+            'fullHash': fullHash,
+        })
 
 
 cache.commit()
 
-logging.info("check done, all good")
+if len(failedChecks):
+    logging.error("!"*80)
+    
+    logging.error("!   fullHash check failed!")
+    for o in failedChecks:
+        logging.error("!   path: %s" % (o['np']))
+        logging.error("!   fullHash: %s" % (o['hash']))
+        logging.error("!   expected: %s" % (o['fullHash']))
+        logging.error("")
+    
+    logging.error("")    
+    logging.error("")    
+    logging.error("found %d failed files, out of %d" % (len(failedChecks), len(files)))
+        
+    logging.error("!"*80)
+        
+    sys.exit(1)
+else:
+    logging.info("check done, all good")
 
 hh.destroy()
 analyzer.destroy()
