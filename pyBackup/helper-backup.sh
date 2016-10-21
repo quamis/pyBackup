@@ -78,8 +78,21 @@ function do_action {
 
 	elif [ "$ACTION" == "checkAll" ] ; then
 		##echo "check full hashes"
-		python ./HashChecker.py --verbose=4 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 || error_exit "cannot write data"
+		python ./HashChecker.py --verbose=4 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 || error_exit "cannot write data"
 
+	elif [ "$ACTION" == "checkAllAndRemove" ] ; then
+		##echo "check full hashes"
+		OUT="tmp.autoRemove.txt"
+		python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 > "$OUT"
+		
+		while read LINE; do
+			python ./RemoveFile.py --verbose=4 --cache="$SRCDB" --destination="$DST" --source="$SRC" --path="$LINE" --doApply=1
+		done <"$OUT"
+		rm -f "$OUT"
+		
+		##echo "copy cache"
+		cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
+		
 	elif [ "$ACTION" == "hash" ] ; then
 		#echo "update full hashes"
 		python ./HashUpdater.py --verbose=4 --cache="$SRCDB" --data="$SRC" --percent=25.0 --min=5 || error_exit "cannot write data"
@@ -102,6 +115,36 @@ function do_action {
 		echo "        ${SRC}"
 		python ./Analyze.py --cache="$SRCDB" --data="$SRC" || error_exit "cannot analyze data"
 		read -s -n 1 -p "Press any key to continue... "
+	elif [ "$ACTION" == "cleanup-backup" ] ; then
+		##echo "copy cache"
+		
+		echo "Remove $DSTDB ?"
+		select yn in "Yes" "No"; do
+			case $yn in
+				Yes ) rm -f "$DSTDB" || error_exit "cannot remove data"; break;;
+				No ) break;;
+				*) echo "invalid option"; break;;
+			esac
+		done
+		
+		
+		echo "Remove $DST ?"
+		select yn in "Yes" "No"; do
+			case $yn in
+				Yes ) rm -rf "$DST" || error_exit "cannot remove data"; break;;
+				No ) break;;
+				*) echo "invalid option"; break;;
+			esac
+		done
+		
+		echo "Remove $DSTBK ?"
+		select yn in "Yes" "No"; do
+			case $yn in
+				Yes ) rm -rf "$DSTBK" || error_exit "cannot remove data"; break;;
+				No ) break;;
+				*) echo "invalid option"; break;;
+			esac
+		done
 	else :
 		error_exit "invalid action: {$ACTION}"
 	fi;

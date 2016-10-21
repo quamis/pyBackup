@@ -25,14 +25,18 @@ parser.add_argument('--source',         dest='source',          action='store', 
 parser.add_argument('--destination',    dest='destination',     action='store', type=str,   default='',help='TODO')
 parser.add_argument('--percent',        dest='percent',         action='store', type=float, default='',help='TODO')
 parser.add_argument('--min',            dest='min',             action='store', type=int,   default='',help='TODO')
-parser.add_argument('--stopOnFirstFail',dest='stopOnFirstFail', action='store', type=int,   default=1,help='TODO')
+parser.add_argument('--stopOnFirstFail',dest='stopOnFirstFail', action='store', type=int,   default=1, help='TODO')
 parser.add_argument('--verbose',        dest='verbose',         action='store', type=int,   default='',help='TODO')
 args = vars(parser.parse_args())
 
 if args['verbose']>=4:
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG, datefmt='%Y%m%d %I:%M:%S')
-else:
+elif args['verbose']>=2:
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.WARNING, datefmt='%Y%m%d %I:%M:%S')
+elif args['verbose']>=1:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.CRITICAL, datefmt='%Y%m%d %I:%M:%S')
+else:
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.CRITICAL, datefmt='%Y%m%d %I:%M:%S')
 
 pfmt = PathFormatter(120)
 
@@ -100,7 +104,11 @@ if len(failedChecks):
     logging.error("found %d failed files, out of %d" % (len(failedChecks), len(files)))
         
     logging.error("!"*80)
-        
+
+    if args['verbose']==1:
+        for o in failedChecks:
+            print("%s" % (o['np']))
+    
     sys.exit(1)
 else:
     logging.info("check done, all good")
