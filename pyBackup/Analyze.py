@@ -47,9 +47,14 @@ if args['mode']=='auto':
 
     print "getFilesWithFullHashesCount:    %d files (%.2f%%)" % (analyzer.getFilesWithFullHashesCount(), 100*(float(analyzer.getFilesWithFullHashesCount())/analyzer.getFilesCount()))
 elif args['mode']=='flags':
-    print "first run: %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.first'))).strftime('%Y-%m-%d %H:%M:%S'))
-    print "last run:  %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.last'))).strftime('%Y-%m-%d %H:%M:%S'))
-    print "run count: %s" % ( cache.getFlag('app.run.count'))
+    if not cache.getFlag('app.run.first') is None:
+        print "first run: %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.first'))).strftime('%Y-%m-%d %H:%M:%S'))
+        print "last run:  %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.last'))).strftime('%Y-%m-%d %H:%M:%S'))
+        print "run count: %s" % ( cache.getFlag('app.run.count'))
+    else:
+        print "first run: %s" % ( "2000-01-01 00:00:01" )
+        print "last run:  %s" % ( "2000-01-01 00:00:01" )
+        print "run count: %s" % ( 0 )
 
 analyzer.destroy()
 cache.destroy()
