@@ -14,7 +14,7 @@ trap "error_exit 'Received signal SIGTERM'" SIGTERM
 
 
 function do_action {
-    local NAME SRC PERIOD
+    local NAME SRC PERIOD HASHER
     local "${@}"
     
     local DST="${DST_DIR}/${NAME}/";
@@ -22,7 +22,9 @@ function do_action {
     local SRCDB="${SQLITE_DIR}${NAME}.sqlite";
     local DSTDB="${DST_DIR}${NAME}.sqlite";
 
+    
     : ${PERIOD:="always"};
+    : ${HASHER="FastContentHashV2Cached"};
 
     local SHOULD_RUN=1;
     
@@ -103,7 +105,7 @@ function do_action {
     
     if [ "$ACTION" == "backup" ] ; then
         #echo "calculate local hashes"
-        python ./Hasher.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRCDB" || error_exit "cannot hash data"
+        python ./Hasher.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRCDB" --Hasher="$HASHER" || error_exit "cannot hash data"
 
         ###echo "compare"
         ###python ./test-Comparer.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --doApply=0
@@ -131,7 +133,7 @@ function do_action {
         #echo "calculate local hashes"
         echo ""
         echo "Create hashes for ${NAME}"
-        python ./Hasher.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRCDB" || error_exit "cannot hash data"
+        python ./Hasher.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRCDB" --Hasher="$HASHER" || error_exit "cannot hash data"
 
         ###echo "compare"
         python ./Comparer.py --verbose=1 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" || error_exit "cannot compare data"

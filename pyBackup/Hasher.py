@@ -4,16 +4,17 @@
 '''
 
 import argparse
+import sys, os, time, logging
+
 from SourceReader.LocalPathReader import LocalPathReaderCached
 from SourceReader.LocalPathReader import LocalPathReader
 from Hasher.FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1Cached
 from Hasher.FastContentHashV2 import FastContentHashV2Cached
+from Hasher.FastAttributeHashV1 import FastAttributeHashV1Cached
+
 import Cache.sqlite as sqlite
 from View.ScriptStatusTracker import ScriptStatusTracker
-import sys
-import os, time
-import logging
 
 class LogTracker(ScriptStatusTracker):
     def storeEvent(self, tm, event, data):
@@ -57,10 +58,11 @@ def callbackLocalPathReader(lp, event, data):
     
     
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
-parser.add_argument('--cache',  dest='cache',   action='store', type=str,   default='',help='TODO')
-parser.add_argument('--data',   dest='data',   action='store', type=str,   default='',help='TODO')
-parser.add_argument('--verbose', dest='verbose',   action='store', type=int,   default=1,help='TODO')
-parser.add_argument('--useCache', dest='useCache',   action='store', type=int,   default=1, help='TODO')
+parser.add_argument('--cache',          dest='cache',           action='store', type=str,   default='',help='TODO')
+parser.add_argument('--data',           dest='data',            action='store', type=str,   default='',help='TODO')
+parser.add_argument('--verbose',        dest='verbose',         action='store', type=int,   default=1,help='TODO')
+parser.add_argument('--useCache',       dest='useCache',        action='store', type=int,   default=1, help='TODO')
+parser.add_argument('--Hasher',         dest='Hasher',          action='store', type=str,   default='FastContentHashV2Cached', help='TODO')
 args = vars(parser.parse_args())
 
 if args['verbose']>=4:
@@ -106,7 +108,17 @@ lp.addIgnoredFile(args['cache'])
 lp.addIgnoredFile(args['cache']+"-journal")
 
 #hh = FastContentHashV1Cached.FastContentHashV1Cached()
-hh = FastContentHashV2Cached.FastContentHashV2Cached()
+hh = None
+
+if args['Hasher'] == 'FastContentHashV1Cached':
+    hh = FastContentHashV2Cached.FastContentHashV1Cached()
+elif args['Hasher'] == 'FastContentHashV2Cached':
+    hh = FastContentHashV2Cached.FastContentHashV2Cached()
+elif args['Hasher'] == 'FastAttributeHashV1Cached':
+    hh = FastAttributeHashV1Cached.FastAttributeHashV1Cached()
+else:
+    raise ValueError("Unknown hasher specified")
+    
 hh.setCache(cache)
 hh.initialize()
 
