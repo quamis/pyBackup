@@ -36,6 +36,9 @@ function do_action {
 
         local TLM=$(( -1 ));
         SHOULD_RUN=0;
+        
+        
+        #PERIOD="always"
 
         if [ "$PERIOD" == "always" ] ; then
             TLM=$(( -1 ))
