@@ -49,8 +49,11 @@ for (path, ) in paths:
         if cache.findFileByPath(p.path):
             cache.deleteFileFromFiles(p)
             if not args['onlyFromCache']:
-                wrt.deleteFile(p)
-                print ("    hard removed")
+                try:
+                    wrt.deleteFile(p)
+                    print ("    hard removed")
+                except OSError:
+                    print ("    os error")
         else:
             raise Exception("Cannot find specified path for deletion")
 

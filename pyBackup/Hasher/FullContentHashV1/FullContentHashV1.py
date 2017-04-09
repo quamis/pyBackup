@@ -19,7 +19,11 @@ class FullContentHashV1(object):
         pass
         
     def hash(self, path):
-        fi = open(path.path, 'rb')
+        try:
+            fi = open(path.path, 'rb')
+        except IOError:
+            return "FileNotFound"
+            
         md5 = hashlib.md5()
         sha1 = hashlib.sha1()
         sha512 = hashlib.sha512()
@@ -40,3 +44,4 @@ class FullContentHashV1(object):
         
         bases = Bases()
         return "FullContentHashV1,md5:%s,sha1:%s,sha512:%s,sz:%s" % (md5.hexdigest(), sha1.hexdigest(), sha512.hexdigest(), bases.toBase16(path.size))
+        

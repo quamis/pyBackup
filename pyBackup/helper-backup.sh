@@ -38,7 +38,7 @@ function do_action {
         SHOULD_RUN=0;
         
         
-        #PERIOD="always"
+        PERIOD="always"
 
         if [ "$PERIOD" == "always" ] ; then
             TLM=$(( -1 ))
@@ -127,6 +127,7 @@ function do_action {
 
 
         ##echo "check full hashes"
+        #echo "--cacheOld=$DSTDB"; echo "--destination=$DST"echo "--source=$SRC"
         python ./HashChecker.py --verbose=1 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data, in HashChecker.py"
 
         ##echo "copy cache"
@@ -173,6 +174,7 @@ function do_action {
     elif [ "$ACTION" == "checkAllAndRemove" ] ; then
         ##echo "check full hashes"
         OUT="tmp.autoRemove.txt"
+        echo "HashChecker ${NAME}"
         python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 > "$OUT"
 
         while read LINE; do

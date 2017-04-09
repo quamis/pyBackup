@@ -141,7 +141,10 @@ for paths in cmpr.getDeletedFiles():
         op = Path.Path(paths[0], False)
         op.size = paths[1]
         
-        wrtbackup.deleteFile(op)
+        try:
+            wrtbackup.deleteFile(op)
+        except IOError as e:
+            logging.error("cannot delete backup file: %s" % (e.strerror))
         cmpr.deleteFile(op)
         wrt.deleteFile(op)
         #print "    ...deleted & written"
@@ -176,8 +179,10 @@ for paths in cmpr.getChangedFiles():
         
         op = Path.Path(paths[1], False)
         op.size = paths[3]
-        
-        wrtbackup.updateFile(op, np)
+        try:
+            wrtbackup.updateFile(op, np)
+        except IOError as e:
+            logging.error("cannot update backup file: %s" % (e.strerror))
         cmpr.updateFile(op, np)
         wrt.updateFile(op, np)
         #print "    ...updated & written"
