@@ -142,7 +142,7 @@ function do_action {
 
 
         ##echo "compare & update changes" 
-        python ./Writer.py --verbose=5 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" --fail=9 || error_exit "cannot write data, in Writer.py"
+        python ./Writer.py --verbose=1 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" --fail=9 || error_exit "cannot write data, in Writer.py"
 
 
         ##echo "clean cache"
@@ -223,7 +223,7 @@ function do_action {
         python ./Analyze.py --cache="$SRCDB" --data="$SRC" || error_exit "cannot analyze data"
         read -s -n 1 -p "Press any key to continue... "
         
-    elif [ "$ACTION" == "cleanup-backup" ] ; then
+    elif [ "$ACTION" == "completely-remove-backup" ] ; then
         ##echo "copy cache"
 
         echo "Remove $DSTDB ?"
@@ -265,7 +265,7 @@ function do_action {
         echo "    checkAll - check hashes for the whole DB"
         echo "    checkAllAndRemove - check hashes for the whole DB and automatically remove invalid files from the DB. A new backup should be created after this"
         echo "    analyze - display some stats about the backups"
-        echo "    cleanup-backup - completly remove all data regarding the backed-up data(DB, data, data.bak)"
+        echo "    completely-remove-backup - completly remove all data regarding the backed-up data(DB, data, data.bak)"
 
         error_exit "help displayed"
         

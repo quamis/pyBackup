@@ -71,6 +71,26 @@ def callbackWriter(lp, event, data):
     tracker.logEvent(tm, event, data)
     
 
+def retry_calls(fcn, onError):
+    errorCnt = 0
+    while True:
+        try:
+            fcn()
+            break
+        except (IOError, OSError) as e:
+            errorCnt+=1
+            if onError(errorCnt, fcn):
+                logging.error("retried %s times. Error: %s" % (errorCnt, e.strerror))
+                raise e
+
+def onError_default(errorCnt, fcn):
+    time.sleep(0.5*errorCnt)
+    print("retry %d: %s" % (errorCnt, inspect.getsource(fcn).strip()))
+    if errorCnt>5:
+        return True
+    return False
+    
+
 if args['verbose']>=4:
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG, datefmt='%Y%m%d %I:%M:%S')
 else:
@@ -114,24 +134,6 @@ if cacheNew.getFlag('destination.path') is None:
     cacheNew.setFlag('destinationBackup.path', args['destinationBackup'])
     
 
-def retry_calls(fcn, onError):
-    errorCnt = 0
-    while True:
-        try:
-            fcn()
-            break
-        except (IOError, OSError) as e:
-            errorCnt+=1
-            if onError(errorCnt, fcn):
-                logging.error("retried %s times. Error: %s" % (errorCnt, e.strerror))
-                raise e
-
-def onError_default(errorCnt, fcn):
-    time.sleep(0.5*errorCnt)
-    print("retry %d: %s" % (errorCnt, inspect.getsource(fcn).strip()))
-    if errorCnt>5:
-        return True
-    return False
     
 
 logging.info("moved files:")
