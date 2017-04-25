@@ -19,6 +19,7 @@ parser.add_argument('--source',  dest='source', action='store', type=str,   defa
 parser.add_argument('--destination',  dest='destination', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--destinationBackup',  dest='destinationBackup', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--verbose',  dest='verbose', action='store', type=int,   default='',help='TODO')
+parser.add_argument('--fail',  dest='fail', action='store', type=int, default=0, help='TODO')
 args = vars(parser.parse_args())
 
 class LogTracker(ScriptStatusTracker):
@@ -143,10 +144,26 @@ for paths in cmpr.getDeletedFiles():
         
         try:
             wrtbackup.deleteFile(op)
-        except IOError as e:
-            logging.error("cannot delete backup file: %s" % (e.strerror))
-        cmpr.deleteFile(op)
-        wrt.deleteFile(op)
+        except (IOError, OSError) as e:
+            logging.error("cannot delete backup file: %s (%s)" % (e.strerror, op.path))
+            if args['fail']<=8:
+                raise e
+            
+        try:
+            cmpr.deleteFile(op)
+        except (IOError, OSError) as e:
+            logging.error("cannot delete comparer file: %s (%s)" % (e.strerror, op.path))
+            if args['fail']<=6:
+                raise e
+            
+        try:
+            wrt.deleteFile(op)
+        except (IOError, OSError) as e:
+            logging.error("cannot delete writer file: %s (%s)" % (e.strerror, op.path))
+            if args['fail']<=4:
+                raise e
+        
+        
         #print "    ...deleted & written"
 cmpr.commit()
 wrt.commit()
@@ -181,10 +198,26 @@ for paths in cmpr.getChangedFiles():
         op.size = paths[3]
         try:
             wrtbackup.updateFile(op, np)
-        except IOError as e:
-            logging.error("cannot update backup file: %s" % (e.strerror))
-        cmpr.updateFile(op, np)
-        wrt.updateFile(op, np)
+        except (IOError, OSError) as e:
+            logging.error("cannot update backup file: %s (%s, %s)" % (e.strerror, op.path, np.path))
+            if args['fail']<=8:
+                raise e
+            
+        try:
+            cmpr.updateFile(op, np)
+        except (IOError, OSError) as e:
+            logging.error("cannot update comparer file: %s (%s, %s)" % (e.strerror, op.path, np.path))
+            if args['fail']<=6:
+                raise e
+        
+        try:
+            wrt.updateFile(op, np)
+        except (IOError, OSError) as e:
+            logging.error("cannot update writer file: %s (%s, %s)" % (e.strerror, op.path, np.path))
+            if args['fail']<=4:
+                raise e
+            
+        
         #print "    ...updated & written"
 cmpr.commit()
 wrt.commit()

@@ -1,3 +1,7 @@
+@2017-04-25
+    - retryNumbers pt remote
+    - sleep pt remote
+
 @2016-02-10
  - split the backup into phases
  - refactor the whole backup procedure

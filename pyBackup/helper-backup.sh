@@ -133,6 +133,33 @@ function do_action {
         ##echo "copy cache"
         cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data, in copy db"
         
+    elif [ "$ACTION" == "backup-remote" ] ; then
+        #echo "calculate local hashes"
+        python ./Hasher.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRCDB" --Hasher="$HASHER" || error_exit "cannot hash data"
+
+        ###echo "compare"
+        ###python ./test-Comparer.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --doApply=0
+
+
+        ##echo "compare & update changes" 
+        python ./Writer.py --verbose=5 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" --fail=9 || error_exit "cannot write data, in Writer.py"
+
+
+        ##echo "clean cache"
+        python ./Cleanup.py --cache="$SRCDB" --optimize=1 --removeOldLeafs=1 --verbose=1 || error_exit "cannot write data, in Cleanup.py"
+
+
+        ##echo "update full hashes"
+        python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashUpdater.py"
+
+
+        ##echo "check full hashes"
+        #echo "--cacheOld=$DSTDB"; echo "--destination=$DST"echo "--source=$SRC"
+        python ./HashChecker.py --verbose=1 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashChecker.py"
+
+        ##echo "copy cache"
+        cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data, in copy db"
+        
     elif [ "$ACTION" == "compare" ] ; then
         #echo "calculate local hashes"
         echo ""
