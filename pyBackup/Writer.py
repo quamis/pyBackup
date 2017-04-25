@@ -10,7 +10,7 @@ import Cache.sqlite as sqlite
 import os, sys, time, datetime
 from View.ScriptStatusTracker import ScriptStatusTracker
 import SourceReader.Path as Path
-import logging
+import logging, inspect
 
 parser = argparse.ArgumentParser(description='Create the sqlite DB')
 parser.add_argument('--cacheNew',  dest='cacheNew',	action='store', type=str,   default='',help='TODO')
@@ -114,6 +114,26 @@ if cacheNew.getFlag('destination.path') is None:
     cacheNew.setFlag('destinationBackup.path', args['destinationBackup'])
     
 
+def retry_calls(fcn, onError):
+    errorCnt = 0
+    while True:
+        try:
+            fcn()
+            break
+        except (IOError, OSError) as e:
+            errorCnt+=1
+            if onError(errorCnt, fcn):
+                logging.error("retried %s times. Error: %s" % (errorCnt, e.strerror))
+                raise e
+
+def onError_default(errorCnt, fcn):
+    time.sleep(0.5*errorCnt)
+    print("retry %d: %s" % (errorCnt, inspect.getsource(fcn).strip()))
+    if errorCnt>5:
+        return True
+    return False
+    
+
 logging.info("moved files:")
 for paths in cmpr.getMovedFiles():
     logging.info("    ren %s --> %s" % (paths[1], paths[0]))
@@ -125,8 +145,9 @@ for paths in cmpr.getMovedFiles():
         op = Path.Path(paths[1], False)
         op.size = paths[3]
         
-        cmpr.moveFile(op, np)
-        wrt.moveFile(op, np)
+        retry_calls( lambda: cmpr.moveFile(op, np), onError_default)
+        retry_calls( lambda: wrt.moveFile(op, np), onError_default)
+        
         #print "    ...marked & written"
 cmpr.commit()
 wrt.commit()
@@ -142,27 +163,9 @@ for paths in cmpr.getDeletedFiles():
         op = Path.Path(paths[0], False)
         op.size = paths[1]
         
-        try:
-            wrtbackup.deleteFile(op)
-        except (IOError, OSError) as e:
-            logging.error("cannot delete backup file: %s (%s)" % (e.strerror, op.path))
-            if args['fail']<=8:
-                raise e
-            
-        try:
-            cmpr.deleteFile(op)
-        except (IOError, OSError) as e:
-            logging.error("cannot delete comparer file: %s (%s)" % (e.strerror, op.path))
-            if args['fail']<=6:
-                raise e
-            
-        try:
-            wrt.deleteFile(op)
-        except (IOError, OSError) as e:
-            logging.error("cannot delete writer file: %s (%s)" % (e.strerror, op.path))
-            if args['fail']<=4:
-                raise e
-        
+        retry_calls( lambda: wrtbackup.deleteFile(op), onError_default)
+        retry_calls( lambda: cmpr.deleteFile(op), onError_default)
+        retry_calls( lambda: wrt.deleteFile(op), onError_default)
         
         #print "    ...deleted & written"
 cmpr.commit()
@@ -178,8 +181,9 @@ for paths in cmpr.getDeletedDirs():
     if doApply:
         op = Path.Path(paths[0], True)
         
-        cmpr.deleteDir(op)
-        wrt.deleteDir(op)
+        retry_calls( lambda: cmpr.deleteDir(op), onError_default)
+        retry_calls( lambda: wrt.deleteDir(op), onError_default)
+        
         #print "    ...deleted & written"
 cmpr.commit()
 wrt.commit()
@@ -196,27 +200,10 @@ for paths in cmpr.getChangedFiles():
         
         op = Path.Path(paths[1], False)
         op.size = paths[3]
-        try:
-            wrtbackup.updateFile(op, np)
-        except (IOError, OSError) as e:
-            logging.error("cannot update backup file: %s (%s, %s)" % (e.strerror, op.path, np.path))
-            if args['fail']<=8:
-                raise e
-            
-        try:
-            cmpr.updateFile(op, np)
-        except (IOError, OSError) as e:
-            logging.error("cannot update comparer file: %s (%s, %s)" % (e.strerror, op.path, np.path))
-            if args['fail']<=6:
-                raise e
         
-        try:
-            wrt.updateFile(op, np)
-        except (IOError, OSError) as e:
-            logging.error("cannot update writer file: %s (%s, %s)" % (e.strerror, op.path, np.path))
-            if args['fail']<=4:
-                raise e
-            
+        retry_calls( lambda: wrtbackup.updateFile(op, np), onError_default)
+        retry_calls( lambda: cmpr.updateFile(op, np), onError_default)
+        retry_calls( lambda: wrt.updateFile(op, np), onError_default)
         
         #print "    ...updated & written"
 cmpr.commit()
@@ -230,8 +217,9 @@ for paths in cmpr.getNewFiles():
         np = Path.Path(paths[0], False)
         np.size = paths[1]
         
-        cmpr.newFile(np)
-        wrt.newFile(np)
+        retry_calls( lambda: cmpr.newFile(np), onError_default)
+        retry_calls( lambda: wrt.newFile(np), onError_default)
+        
         #print "    ...copied & written"
 cmpr.commit()
 wrt.commit()
@@ -244,8 +232,9 @@ for paths in cmpr.getNewDirs():
     if doApply:
         np = Path.Path(paths[0], True)
         
-        cmpr.newDir(np)
-        wrt.newDir(np)
+        retry_calls( lambda: cmpr.newDir(np), onError_default)
+        retry_calls( lambda: wrt.newDir(np), onError_default)
+        
         #print "    ...created & written"
 cmpr.commit()
 wrt.commit()
