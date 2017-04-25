@@ -128,7 +128,7 @@ function do_action {
 
         ##echo "check full hashes"
         #echo "--cacheOld=$DSTDB"; echo "--destination=$DST"echo "--source=$SRC"
-        python ./HashChecker.py --verbose=1 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data, in HashChecker.py"
+        python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data, in HashChecker.py"
 
         ##echo "copy cache"
         cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data, in copy db"
