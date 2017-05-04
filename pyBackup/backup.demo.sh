@@ -33,4 +33,9 @@ sync
 #rmdir "$HOME/sshfs/"
 
 
+########################################################################################################
+## GEO's backups #######################################################################################
+# for webdav mounting, see https://serverfault.com/questions/391717/mounting-webdav-as-user-no-sudo/392133
+# the rest of the code should be identical to sshfs version
+
 sync
