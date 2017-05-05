@@ -6,6 +6,10 @@ import argparse
 import humanize
 from BackupAnalyzer.BackupAnalyzer import BackupAnalyzer
 from Hasher.FullContentHashV1 import FullContentHashV1
+from Hasher.FastContentHashV1 import FastContentHashV1
+from Hasher.FastContentHashV1 import FastContentHashV1Cached
+from Hasher.FastContentHashV2 import FastContentHashV2Cached
+from Hasher.FastAttributeHashV1 import FastAttributeHashV1Cached
 from Writer.LocalPathWriter.Writer import Writer
 from SourceReader.Path import Path
 import Cache.sqlite as sqlite
@@ -47,6 +51,8 @@ parser.add_argument('--percent',        dest='percent',         action='store', 
 parser.add_argument('--min',            dest='min',             action='store', type=int,   default='',help='TODO')
 parser.add_argument('--stopOnFirstFail',dest='stopOnFirstFail', action='store', type=int,   default=1, help='TODO')
 parser.add_argument('--verbose',        dest='verbose',         action='store', type=int,   default='',help='TODO')
+parser.add_argument('--fast',           dest='fast',            action='store', type=int,   default=0,help='TODO')
+parser.add_argument('--Hasher',         dest='Hasher',          action='store', type=str,   default='FastContentHashV2Cached', help='TODO')
 args = vars(parser.parse_args())
 
 if args['verbose']>=4:
@@ -73,6 +79,17 @@ logging.info("files with full hashes: %s files" % (analyzer.getFilesWithFullHash
 hh = FullContentHashV1.FullContentHashV1()
 hh.initialize()
 
+if args['Hasher'] == 'FastContentHashV1Cached':
+    fh = FastContentHashV2Cached.FastContentHashV1Cached()
+elif args['Hasher'] == 'FastContentHashV2Cached':
+    fh = FastContentHashV2Cached.FastContentHashV2Cached()
+elif args['Hasher'] == 'FastAttributeHashV1Cached':
+    fh = FastAttributeHashV1Cached.FastAttributeHashV1Cached()
+else:
+    raise ValueError("Unknown hasher specified")
+fh.setCache(cache)
+fh.initialize()
+
 wrt = Writer(args['destination'], args['source'])
 wrt.initialize()
 
@@ -80,17 +97,38 @@ files = analyzer.getFilesWithFullHashes('random',
     max(args['min'], math.ceil(analyzer.getFilesWithFullHashesCount()*(args['percent']/100)))
 )
 
-
 failedChecks = []
 for (np, fhash, sz, fullHash) in files:
     op = wrt.getDestinationFilePath(np)
         
-    logging.info("    check: %s" % (pfmt.format(op).ljust(120)))
     path = Path(wrt.getDestinationFilePathToContent(op), False)
     path.size = sz
     
-    hash = hh.hash(path)
-    if hash!=fullHash:
+    pathSrc = Path(wrt.getSourceFilePath(op), False)
+    pathSrc.size = sz
+    
+    hashMatches = False
+    
+    if args['fast']:
+        logging.info("    fast check: %s" % (pfmt.format(op).ljust(120)))
+        
+        fastHash = fh.hash(pathSrc)
+        #print("    fastHash: %s, fhash: %s" % (fastHash, fhash))
+        if fastHash==fhash:
+            hashMatches = True
+        else:
+            # do a "slow" hashing also... to be able to log stuff correctly, leave hashMatches=False as-is
+            logging.info("    full check: %s" % (pfmt.format(op).ljust(120)))
+            hash = hh.hash(path)
+    else:
+        logging.info("    full check: %s" % (pfmt.format(op).ljust(120)))
+        
+        hash = hh.hash(path)
+        if hash==fullHash:
+            hashMatches = True
+                
+        
+    if not hashMatches:
         failedChecks.append({
             'np':       np, 
             'hash':     hash, 

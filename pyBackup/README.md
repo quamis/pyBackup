@@ -1,8 +1,9 @@
 @2017-04-25
     x retryNumbers pt remote
     x sleep pt remote
-    - remove suport for fail, rename to... something:)
+    x remove suport for fail, rename to... something:)
     - checkAllAndRemove ar trebui sa mute in backup la stergere/cleanup
+	- checkAllFast ar trebui sa verifice doar existenta fisierului si marimea lui, eventual file times, fara sa faca hashing. Poate ar fi util sa am suport pt 2 hash-uri, unul rapid si unul complet
 
 @2016-02-10
  - split the backup into phases

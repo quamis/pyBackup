@@ -18,6 +18,9 @@ class Writer(object):
         
     def getDestinationFilePath(self, npath):
         return self.backupBasePath + npath.replace(self.sourceBasePath, '', 1)
+        
+    def getSourceFilePath(self, npath):
+        return self.sourceBasePath + npath.replace(self.backupBasePath, '', 1)
 
     def getDestinationFilePathToContent(self, p):
         return p

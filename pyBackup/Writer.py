@@ -19,7 +19,6 @@ parser.add_argument('--source',  dest='source', action='store', type=str,   defa
 parser.add_argument('--destination',  dest='destination', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--destinationBackup',  dest='destinationBackup', action='store', type=str,   default='',help='TODO')
 parser.add_argument('--verbose',  dest='verbose', action='store', type=int,   default='',help='TODO')
-parser.add_argument('--fail',  dest='fail', action='store', type=int, default=0, help='TODO')
 args = vars(parser.parse_args())
 
 class LogTracker(ScriptStatusTracker):

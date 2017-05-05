@@ -142,7 +142,7 @@ function do_action {
 
 
         ##echo "compare & update changes" 
-        python ./Writer.py --verbose=1 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" --fail=9 || error_exit "cannot write data, in Writer.py"
+        python ./Writer.py --verbose=1 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" || error_exit "cannot write data, in Writer.py"
 
 
         ##echo "clean cache"
@@ -197,6 +197,10 @@ function do_action {
     elif [ "$ACTION" == "checkAll" ] ; then
         ##echo "check full hashes"
         python ./HashChecker.py --verbose=4 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 || error_exit "cannot write data"
+		
+	elif [ "$ACTION" == "checkAllFast" ] ; then
+        ##echo "check full hashes"
+        python ./HashChecker.py --verbose=4 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 --fast=1 --Hasher="$HASHER" || error_exit "cannot write data"
 
     elif [ "$ACTION" == "checkAllAndRemove" ] ; then
         ##echo "check full hashes"
@@ -272,6 +276,7 @@ function do_action {
         echo "    hashAll - create hashes for the whole DB"
         echo "    check - check hashes for a part of the DB (25%)"
         echo "    checkAll - check hashes for the whole DB"
+		echo "    checkAllFast - check hashes for the whole DB, the fast version (uses a fast hasher instead of the full content hasher)"
         echo "    checkAllAndRemove - check hashes for the whole DB and automatically remove invalid files from the DB. A new backup should be created after this"
         echo "    analyze - display some stats about the backups"
         echo "    completely-remove-backup - completly remove all data regarding the backed-up data(DB, data, data.bak)"
