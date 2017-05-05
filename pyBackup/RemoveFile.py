@@ -64,14 +64,15 @@ for (path, ) in paths:
                     print("    ... done")
                 except (OSError, IOError) as e:
                     print("    ...error: %s" % e.strerror)
-                    pass
+                    print("    ...the backup was altered externally. Is the HDD broken?")
                 
                 try:
                     print("    wrt.deleteFile(%s)" % (wrt.getDestinationFilePath(p.path)))
                     wrt.deleteFile(p)
-                    print("    ... deleted (for real)")
+                    print("    ... deleted from the backup(for real). Please re-run the backup process")
                 except (OSError, IOError):
-                    print("    !!! error: %s" % e.strerror)
+                    print("    ...error: %s" % e.strerror)
+                    print("    ...the backup was altered externally. Is the HDD broken?")
         else:
             raise Exception("Cannot find specified path for deletion")
 
