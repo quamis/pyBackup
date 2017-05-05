@@ -44,7 +44,7 @@ wrtbackup.initialize()
 #glob.glob('./[0-9].*')
 paths = cache.findFilesByPath(args['path'].replace("*", "%"))
 
-print "trying to delete %d paths from %s" % (len(paths), args['path'])
+print("trying to delete %d paths from %s" % (len(paths), args['path']))
 
 for (path, ) in paths:
     print ("    remove %s" % (path))
@@ -53,20 +53,25 @@ for (path, ) in paths:
         p = Path.Path(path, False)
         
         if cache.findFileByPath(p.path):
+            print("try to delete %s" % (p.path))
+        
+            cache.log("    [%s] remove %s" % (os.path.basename(__file__), p.path)
             cache.deleteFileFromFiles(p)
             if not args['onlyFromCache']:
                 try:
+                    print("    wrtbackp: %s" % (wrtbackup.getDestinationFilePath(p.path)))
                     wrtbackup.deleteFile(p)
-                    print ("    backed-up")
-                except (OSError, IOError):
-                    print ("    os error on backup")
+                    print("    ... deleted (copied to history)")
+                except (OSError, IOError) as e:
+                    print("    !!! error: %s" % e.strerror)
                 
                 
                 try:
+                    print("    wrt:%s" % (wrt.getDestinationFilePath(p.path)))
                     wrt.deleteFile(p)
-                    print ("    hard removed")
+                    print("    ... deleted (for real)")
                 except (OSError, IOError):
-                    print ("    os error")
+                    print("    !!! error: %s" % e.strerror)
         else:
             raise Exception("Cannot find specified path for deletion")
 
