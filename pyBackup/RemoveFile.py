@@ -55,19 +55,19 @@ for (path, ) in paths:
         if cache.findFileByPath(p.path):
             print("try to delete %s" % (p.path))
         
-            cache.log("    [%s] remove %s" % (os.path.basename(__file__), p.path)
+            cache.log("    [%s] remove %s" % (os.path.basename(__file__), p.path))
             cache.deleteFileFromFiles(p)
             if not args['onlyFromCache']:
                 try:
-                    print("    wrtbackp: %s" % (wrtbackup.getDestinationFilePath(p.path)))
+                    print("    copy backup file to history")
                     wrtbackup.deleteFile(p)
-                    print("    ... deleted (copied to history)")
+                    print("    ... done")
                 except (OSError, IOError) as e:
-                    print("    !!! error: %s" % e.strerror)
-                
+                    print("    ...error: %s" % e.strerror)
+                    pass
                 
                 try:
-                    print("    wrt:%s" % (wrt.getDestinationFilePath(p.path)))
+                    print("    wrt.deleteFile(%s)" % (wrt.getDestinationFilePath(p.path)))
                     wrt.deleteFile(p)
                     print("    ... deleted (for real)")
                 except (OSError, IOError):

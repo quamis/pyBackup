@@ -3,7 +3,14 @@
     x sleep pt remote
     x remove suport for fail, rename to... something:)
     - checkAllAndRemove ar trebui sa mute in backup la stergere/cleanup
+		- vezi ca folderul auto* se face local, nu stiu de ce...
 	- checkAllFast ar trebui sa verifice doar existenta fisierului si marimea lui, eventual file times, fara sa faca hashing. Poate ar fi util sa am suport pt 2 hash-uri, unul rapid si unul complet
+	
+	test nextcloud weird bug:
+		./backup.sh; rm -rf ./test-data/backups/pyBackup-data-m/file001.txt; 
+		./backup.sh checkAllAndRemove
+
+	
 
 @2016-02-10
  - split the backup into phases
