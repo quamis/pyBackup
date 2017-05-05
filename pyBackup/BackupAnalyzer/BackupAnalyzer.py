@@ -52,7 +52,7 @@ class BackupAnalyzer(object):
         c = self.cache.cursor()
         if order=='random':
             val = (limit, )
-            c.execute('SELECT fn.path, fn.hash, fn.size, fnh.fullHash FROM main.files AS fn LEFT JOIN main.fullHashes AS fnh ON fn.path=fnh.path WHERE NOT fn.isDir AND NOT fnh.fullHash IS NULL ORDER BY RANDOM() LIMIT ?', val)
+            c.execute('SELECT fn.path, fn.hash, fnh.fullHash, fn.size, fn.ctime, fn.mtime, fn.atime FROM main.files AS fn LEFT JOIN main.fullHashes AS fnh ON fn.path=fnh.path WHERE NOT fn.isDir AND NOT fnh.fullHash IS NULL ORDER BY RANDOM() LIMIT ?', val)
         else:
             raise RuntimeError("Invalid order param")
             

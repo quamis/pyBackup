@@ -14,7 +14,7 @@ from Writer.LocalPathWriter.Writer import Writer
 from SourceReader.Path import Path
 import Cache.sqlite as sqlite
 from View.PathFormatter import PathFormatter
-#import os
+from os.path import isdir, join, getatime, getmtime, getctime, getsize, getatime
 import math
 import logging
 import sys
@@ -98,22 +98,29 @@ files = analyzer.getFilesWithFullHashes('random',
 )
 
 failedChecks = []
-for (np, fhash, sz, fullHash) in files:
+for (np, fhash, fullHash, np_size, np_ctime, np_mtime, np_atime) in files:
     op = wrt.getDestinationFilePath(np)
         
     path = Path(wrt.getDestinationFilePathToContent(op), False)
-    path.size = sz
-    
-    pathSrc = Path(wrt.getSourceFilePath(op), False)
-    pathSrc.size = sz
+    path.size = np_size
     
     hashMatches = False
     
     if args['fast']:
+        pathSrc = Path(wrt.getSourceFilePath(op), False)
+        pathSrc.ctime = np_ctime
+        pathSrc.mtime = np_mtime
+        pathSrc.atime = np_atime
+        try:
+            pathSrc.size = getsize(op)
+        except (OSError) as e:
+            pathSrc.size = -1
+        
         logging.info("    fast check: %s" % (pfmt.format(op).ljust(120)))
         
-        fastHash = fh.hash(pathSrc)
-        #print("    fastHash: %s, fhash: %s" % (fastHash, fhash))
+        fastHash = fh._hash(pathSrc)
+        #print("    fastHash: %s" % (fastHash))
+        #print("    fhash:    %s" % (fhash))
         if fastHash==fhash:
             hashMatches = True
         else:
@@ -144,7 +151,7 @@ for (np, fhash, sz, fullHash) in files:
             logging.error("!"*80)
             sys.exit(1)
         else:
-            logging.error("       fullHash check failed, continuing")
+            logging.error("       fullHash check failed, continuing scan")
 
 retry_calls( lambda: cache.commit(), onError_default)
 
