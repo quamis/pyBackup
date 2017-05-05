@@ -204,9 +204,18 @@ function do_action {
         echo "HashChecker ${NAME}"
         python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 > "$OUT"
 
-        while read LINE; do
-                python ./RemoveFile.py --verbose=4 --cache="$SRCDB" --destination="$DST" --source="$SRC" --path="$LINE" --doApply=1
-        done <"$OUT"
+        if [ -s "$OUT" ]; then
+            echo ""
+            echo ""
+            echo "---- REMOVE ------------------------------------------------------------------------------------------------"
+            echo ""
+            
+            while read LINE; do
+                    python ./RemoveFile.py --verbose=4 --cache="$SRCDB" --destination="$DST" --source="$SRC" --path="$LINE" --doApply=1
+            done <"$OUT"
+        else
+            echo "    all good"
+        fi
         rm -f "$OUT"
 
         ##echo "copy cache"

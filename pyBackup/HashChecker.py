@@ -91,7 +91,6 @@ for (np, fhash, sz, fullHash) in files:
     
     hash = hh.hash(path)
     if hash!=fullHash:
-        logging.error("       fullHash check failed!")
         failedChecks.append({
             'np':       np, 
             'hash':     hash, 
@@ -106,22 +105,24 @@ for (np, fhash, sz, fullHash) in files:
             logging.error("!   expected: %s" % (fullHash))
             logging.error("!"*80)
             sys.exit(1)
+        else:
+            logging.error("       fullHash check failed, continuing")
 
 retry_calls( lambda: cache.commit(), onError_default)
 
 
 if len(failedChecks):
+    logging.error("\n\n")
     logging.error("!"*80)
     
     logging.error("!   fullHash check failed!")
     for o in failedChecks:
         logging.error("!   path: %s" % (o['np']))
         logging.error("!   fullHash: %s" % (o['hash']))
-        logging.error("!   expected: %s" % (o['fullHash']))
-        logging.error("")
+        logging.error("!   expected: %s\n\n" % (o['fullHash']))
     
-    logging.error("")    
-    logging.error("")    
+    logging.error("")
+    logging.error("")
     logging.error("found %d failed files, out of %d" % (len(failedChecks), len(files)))
         
     logging.error("!"*80)

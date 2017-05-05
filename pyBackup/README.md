@@ -1,7 +1,8 @@
 @2017-04-25
-    - retryNumbers pt remote
-    - sleep pt remote
+    x retryNumbers pt remote
+    x sleep pt remote
     - remove suport for fail, rename to... something:)
+    - checkAllAndRemove ar trebui sa mute in backup la stergere/cleanup
 
 @2016-02-10
  - split the backup into phases
