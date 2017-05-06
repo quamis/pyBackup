@@ -118,7 +118,10 @@ for (np, fhash, fullHash, np_size, np_ctime, np_mtime, np_atime) in files:
         
         logging.info("    fast check: %s" % (pfmt.format(op).ljust(120)))
         
-        fastHash = fh._hash(pathSrc)
+        try:
+            fastHash = fh._hash(pathSrc)
+        except (OSError, IOError) as e:
+            fastHash = 'exception'
         #print("    fastHash: %s" % (fastHash))
         #print("    fhash:    %s" % (fhash))
         if fastHash==fhash:
@@ -127,6 +130,9 @@ for (np, fhash, fullHash, np_size, np_ctime, np_mtime, np_atime) in files:
             # do a "slow" hashing also... to be able to log stuff correctly, leave hashMatches=False as-is
             logging.info("    full check: %s" % (pfmt.format(op).ljust(120)))
             hash = hh.hash(path)
+            hashMatches = False
+            if hash==fullHash:
+                hashMatches = True
     else:
         logging.info("    full check: %s" % (pfmt.format(op).ljust(120)))
         
