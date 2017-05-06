@@ -215,7 +215,7 @@ function do_action {
             echo ""
             
             while read LINE; do
-                    python ./RemoveFile.py --verbose=4 --cache="$SRCDB" --destination="$DST" --source="$SRC" --path="$LINE" --doApply=1
+                    python ./RemoveFile.py --verbose=4 --cache="$SRCDB" --destination="$DST" --source="$SRC" --path="$LINE" --doApply=1 --destinationBackup="auto"
             done <"$OUT"
         else
             echo "    all good"

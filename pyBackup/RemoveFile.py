@@ -33,6 +33,11 @@ if args['destination']=='auto':
 if args['source']=='auto':
     args['source'] = cache.getFlag('source.path')
     print "autoload source:      %s" % (args['source'])
+
+if args['destinationBackup']=='auto':
+    args['destinationBackup'] = cache.getFlag('destinationBackup.path')
+    print "autoload destinationBackup:      %s" % (args['destinationBackup'])
+    
     
 
 wrt = Writer(args['destination'], args['source'])
