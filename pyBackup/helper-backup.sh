@@ -12,6 +12,7 @@ trap "error_exit 'Received signal SIGHUP'" SIGHUP
 trap "error_exit 'Received signal SIGINT'" SIGINT
 trap "error_exit 'Received signal SIGTERM'" SIGTERM
 
+export PYTHONIOENCODING=utf-8
 
 function do_action {
     local NAME SRC PERIOD HASHER

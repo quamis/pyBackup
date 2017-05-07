@@ -150,7 +150,7 @@ class sqlite(object):
     
     def findFilesByPath(self, path):
         c = self.cursor()
-        vals = (self._pathCleanup(path), )
+        vals = (self._pathCleanup(path).decode('utf-8'), )
         c.execute('SELECT path FROM files WHERE path LIKE ? AND NOT isDir', vals)
         return c.fetchall()
         

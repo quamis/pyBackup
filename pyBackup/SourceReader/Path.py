@@ -12,5 +12,5 @@ class Path():
         return "%s%s" % (self.path, ("/" if self.isDir else ""))
     
     def initialize(self):
-	pass
+        pass
     
