@@ -21,8 +21,9 @@ do_action NAME="demo-projects" SRC="$HOME/projects/" PERIOD="2H"
 do_action NAME="demo-config" SRC="$HOME/.config/" PERIOD="1H"
 
 sync
+
 ########################################################################################################
-## GEO's backups #######################################################################################
+## SSHFS's backups #######################################################################################
 
 #mkdir "$HOME/sshfs/" || error_exit "cannot mkdir"
 #sshfs user@host:/ "$HOME/sshfs/" -p 22 || error_exit "cannot mount sshfs"
@@ -34,7 +35,7 @@ sync
 
 
 ########################################################################################################
-## GEO's backups #######################################################################################
+## WEBDAV's backups #######################################################################################
 # for webdav mounting, see https://serverfault.com/questions/391717/mounting-webdav-as-user-no-sudo/392133
 # the rest of the code should be identical to sshfs version
 
