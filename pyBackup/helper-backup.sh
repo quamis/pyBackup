@@ -22,16 +22,16 @@ function do_action {
     local DSTBK="${DST_DIR}/${NAME}.bak/";
     local SRCDB="${SQLITE_DIR}${NAME}.sqlite";
     local DSTDB="${DST_DIR}${NAME}.sqlite";
-	
+
     : ${PERIOD:="always"};
-	: ${SOURCETYPE="local"};
-	
-	local HASHER="FastContentHashV2Cached";
-	if [ "$SOURCETYPE" == "local" ] ; then
-		HASHER="FastContentHashV2Cached";
-	elif [ "$SOURCETYPE" == "sshfs" ] ; then
-		HASHER="FastContentHashV3Cached";
-	fi;
+    : ${SOURCETYPE="local"};
+
+    local HASHER="";
+    if [ "$SOURCETYPE" == "local" ] ; then
+        HASHER="FastContentHashV2.Cached";
+    elif [ "$SOURCETYPE" == "sshfs" ] ; then
+        HASHER="FastContentHashV2.Cached_noInode";
+    fi;
 
     local SHOULD_RUN=1;
     
@@ -128,20 +128,20 @@ function do_action {
         ##echo "clean cache"
         python ./Cleanup.py --cache="$SRCDB" --optimize=1 --removeOldLeafs=1 --verbose=1 || error_exit "cannot write data, in Cleanup.py"
 
-		if [ "$SOURCETYPE" == "local" ] ; then
-			##echo "update full hashes"
-			python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=2.5 --min=15 || error_exit "cannot write data, in HashUpdater.py"
-			##echo "check full hashes"
-			python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data, in HashChecker.py"
+        if [ "$SOURCETYPE" == "local" ] ; then
+            ##echo "update full hashes"
+            python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=2.5 --min=15 || error_exit "cannot write data, in HashUpdater.py"
+            ##echo "check full hashes"
+            python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 --Hasher="$HASHER" || error_exit "cannot write data, in HashChecker.py"
 
-		elif [ "$SOURCETYPE" == "sshfs" ] ; then
-			##echo "update full hashes"
-			python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashUpdater.py"
-			##echo "check full hashes"
-			python ./HashChecker.py --verbose=1 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashChecker.py"
-		else
-			error_exit "invalid SOURCETYPE: '{$SOURCETYPE}'. review the bash scripts"
-		fi;
+        elif [ "$SOURCETYPE" == "sshfs" ] ; then
+            ##echo "update full hashes"
+            python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashUpdater.py"
+            ##echo "check full hashes"
+            python ./HashChecker.py --verbose=1 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=0.5 --min=1 --Hasher="$HASHER" || error_exit "cannot write data, in HashChecker.py"
+        else
+            error_exit "invalid SOURCETYPE: '{$SOURCETYPE}'. review the bash scripts"
+        fi;
 
         ##echo "copy cache"
         cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data, in copy db"
@@ -183,8 +183,8 @@ function do_action {
     elif [ "$ACTION" == "checkAll" ] ; then
         ##echo "check full hashes"
         python ./HashChecker.py --verbose=4 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 || error_exit "cannot write data"
-		
-	elif [ "$ACTION" == "checkAllFast" ] ; then
+    
+    elif [ "$ACTION" == "checkAllFast" ] ; then
         ##echo "check full hashes"
         python ./HashChecker.py --verbose=4 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=100.0 --min=1 --fast=1 --Hasher="$HASHER" || error_exit "cannot write data"
 
@@ -262,7 +262,7 @@ function do_action {
         echo "    hashAll - create hashes for the whole DB"
         echo "    check - check hashes for a part of the DB (25%)"
         echo "    checkAll - check hashes for the whole DB"
-		echo "    checkAllFast - check hashes for the whole DB, the fast version (uses a fast hasher instead of the full content hasher)"
+        echo "    checkAllFast - check hashes for the whole DB, the fast version (uses a fast hasher instead of the full content hasher)"
         echo "    checkAllAndRemove - check hashes for the whole DB and automatically remove invalid files from the DB. A new backup should be created after this"
         echo "    analyze - display some stats about the backups"
         echo "    completely-remove-backup - completly remove all data regarding the backed-up data(DB, data, data.bak)"

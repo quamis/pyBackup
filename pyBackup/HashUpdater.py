@@ -4,7 +4,7 @@
 '''
 import argparse
 from BackupAnalyzer.BackupAnalyzer import BackupAnalyzer
-from Hasher.FullContentHashV1 import FullContentHashV1
+import Hasher
 from SourceReader.Path import Path
 import Cache.sqlite as sqlite
 from View.PathFormatter import PathFormatter
@@ -43,7 +43,7 @@ analyzer.initialize()
 logging.info("files with full hashes: %s files" % (analyzer.getFilesWithFullHashesCount()))
 logging.info("files without full hashes: %s files" % (analyzer.getFilesWithoutFullHashesCount()))
 
-hh = FullContentHashV1.FullContentHashV1()
+hh = Hasher.FullContentHashV1.Base()
 hh.initialize()
 
 files = analyzer.getFilesWithoutFullHashes('random', 

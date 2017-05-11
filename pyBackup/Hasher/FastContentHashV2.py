@@ -8,12 +8,10 @@ import hashlib
 import time
 from bases import Bases
 
-from Hasher.FastContentHashV1 import FastContentHashV1Cached
+import Hasher
+import FastContentHashV1
 
-class FastContentHashV2Cached(FastContentHashV1Cached.FastContentHashV1Cached):
-    #def __init__(self):
-    #    super(FastContentHashV1Cached, self).__init__()
-        
+class Cached(FastContentHashV1.Cached):
     def _hash(self, path):
          # match the file into one slot of the hasherMapByExtenstion
         readCfg = self._getHasherMapCfg(path)
@@ -120,3 +118,13 @@ class FastContentHashV2Cached(FastContentHashV1Cached.FastContentHashV1Cached):
             },
         ]
                 
+                
+                
+                
+                
+                
+class Cached_noInode(Cached):
+    def _getFinalHash_ignore_hash(self, hashObj, path, readCfg, stats):
+        bases = Bases()
+        return "FCHV2,mt:%s,ct:%s,sz:%s" % (bases.toBase62(path.mtime*1000), bases.toBase62(path.ctime*1000), bases.toBase62(path.size))
+          

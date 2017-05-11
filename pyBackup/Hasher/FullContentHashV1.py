@@ -9,9 +9,12 @@ import time
 from bases import Bases
 
 
-import Hasher.Hasher as Hasher
+import Hasher
 
-class FullContentHashV1(object):
+"""
+    Complete content hasher. Should be executed rarely, as It's slow and sensitive
+"""
+class Base(object):
     def initialize(self):
         pass
     

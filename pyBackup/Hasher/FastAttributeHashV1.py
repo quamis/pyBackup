@@ -8,14 +8,12 @@ import hashlib
 import time
 from bases import Bases
 
-
-import Hasher.Hasher as Hasher
-
+import Hasher
 
 """
     useful for VERY slow read-only FS's (like Google Photos)
 """
-class FastAttributeHashV1(object):
+class Base(object):
     def initialize(self):
         pass
     
@@ -36,4 +34,29 @@ class FastAttributeHashV1(object):
          # match the file into one slot of the hasherMapByExtenstion
         hashObj = self._getHashObj()
         return self._getFinalHash(hashObj, path)
+        
+        
+
+class Cached(Base):
+    def __init__(self):
+        self.cache = None
+        super(Cached, self).__init__()
+    
+    def initialize(self):
+        super(Cached, self).initialize()
+    
+    def destroy(self):
+        super(Cached, self).destroy()
+        
+    def setCache(self, cache):
+        self.cache = cache
+    
+    def hash(self, path):
+        h = self.cache.findFileByPath(path.path)
+        if h[0]:
+            return h[0]
+        else:
+            h = super(Cached, self).hash(path)
+            self.cache.updateFileHashIntoFiles(path, h)
+            return h
         

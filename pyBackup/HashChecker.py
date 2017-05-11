@@ -5,12 +5,7 @@
 import argparse
 import humanize
 from BackupAnalyzer.BackupAnalyzer import BackupAnalyzer
-from Hasher.FullContentHashV1 import FullContentHashV1
-from Hasher.FastContentHashV1 import FastContentHashV1
-from Hasher.FastContentHashV1 import FastContentHashV1Cached
-from Hasher.FastContentHashV2 import FastContentHashV2Cached
-from Hasher.FastAttributeHashV1 import FastAttributeHashV1Cached
-from Hasher.FastContentHashV2 import FastContentHashV3Cached
+import Hasher
 from Writer.LocalPathWriter.Writer import Writer
 from SourceReader.Path import Path
 import Cache.sqlite as sqlite
@@ -53,7 +48,7 @@ parser.add_argument('--min',            dest='min',             action='store', 
 parser.add_argument('--stopOnFirstFail',dest='stopOnFirstFail', action='store', type=int,   default=1, help='TODO')
 parser.add_argument('--verbose',        dest='verbose',         action='store', type=int,   default='',help='TODO')
 parser.add_argument('--fast',           dest='fast',            action='store', type=int,   default=0,help='TODO')
-parser.add_argument('--Hasher',         dest='Hasher',          action='store', type=str,   default='FastContentHashV2Cached', help='TODO')
+parser.add_argument('--Hasher',         dest='Hasher',          action='store', type=str,   default='FastAttributeHashV1.Cached', help='TODO')
 args = vars(parser.parse_args())
 
 if args['verbose']>=4:
@@ -77,19 +72,22 @@ analyzer.initialize()
 
 logging.info("files with full hashes: %s files" % (analyzer.getFilesWithFullHashesCount()))
 
-hh = FullContentHashV1.FullContentHashV1()
+hh = Hasher.FullContentHashV1.Base()
 hh.initialize()
 
-if args['Hasher'] == 'FastContentHashV1Cached':
-    fh = FastContentHashV2Cached.FastContentHashV1Cached()
-elif args['Hasher'] == 'FastContentHashV2Cached':
-    fh = FastContentHashV2Cached.FastContentHashV2Cached()
-elif args['Hasher'] == 'FastContentHashV3Cached':
-    fh = FastContentHashV3Cached.FastContentHashV3Cached()
-elif args['Hasher'] == 'FastAttributeHashV1Cached':
-    fhh = FastAttributeHashV1Cached.FastAttributeHashV1Cached()
+fh = None
+if args['Hasher'] == 'FastContentHashV1.Cached':
+    fh = Hasher.FastContentHashV1.Cached()
+elif args['Hasher'] == 'FastContentHashV2.Cached':
+    fh = Hasher.FastContentHashV2.Cached()
+elif args['Hasher'] == 'FastContentHashV2.Cached_noInode':
+    fh = Hasher.FastContentHashV2.Cached_noInode()
+elif args['Hasher'] == 'FastAttributeHashV1.Cached':
+    fh = Hasher.FastAttributeHashV1.Cached()
 else:
+    print(args)
     raise ValueError("Unknown hasher specified")
+
 fh.setCache(cache)
 fh.initialize()
 

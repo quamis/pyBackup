@@ -8,12 +8,7 @@ import sys, os, time, logging
 
 from SourceReader.LocalPathReader import LocalPathReaderCached
 from SourceReader.LocalPathReader import LocalPathReader
-from Hasher.FastContentHashV1 import FastContentHashV1
-from Hasher.FastContentHashV1 import FastContentHashV1Cached
-from Hasher.FastContentHashV2 import FastContentHashV2Cached
-from Hasher.FastContentHashV2 import FastContentHashV3Cached
-from Hasher.FastAttributeHashV1 import FastAttributeHashV1Cached
-
+import Hasher
 import Cache.sqlite as sqlite
 from View.ScriptStatusTracker import ScriptStatusTracker
 
@@ -63,7 +58,7 @@ parser.add_argument('--cache',          dest='cache',           action='store', 
 parser.add_argument('--data',           dest='data',            action='store', type=str,   default='',help='TODO')
 parser.add_argument('--verbose',        dest='verbose',         action='store', type=int,   default=1,help='TODO')
 parser.add_argument('--useCache',       dest='useCache',        action='store', type=int,   default=1, help='TODO')
-parser.add_argument('--Hasher',         dest='Hasher',          action='store', type=str,   default='FastContentHashV2Cached', help='TODO')
+parser.add_argument('--Hasher',         dest='Hasher',          action='store', type=str,   default='FastAttributeHashV1.Cached', help='TODO')
 args = vars(parser.parse_args())
 
 if args['verbose']>=4:
@@ -109,17 +104,15 @@ lp.initialize()
 lp.addIgnoredFile(args['cache'])
 lp.addIgnoredFile(args['cache']+"-journal")
 
-#hh = FastContentHashV1Cached.FastContentHashV1Cached()
 hh = None
-
-if args['Hasher'] == 'FastContentHashV1Cached':
-    hh = FastContentHashV2Cached.FastContentHashV1Cached()
-elif args['Hasher'] == 'FastContentHashV2Cached':
-    hh = FastContentHashV2Cached.FastContentHashV2Cached()
-elif args['Hasher'] == 'FastContentHashV3Cached':
-    hh = FastContentHashV3Cached.FastContentHashV3Cached()
-elif args['Hasher'] == 'FastAttributeHashV1Cached':
-    hh = FastAttributeHashV1Cached.FastAttributeHashV1Cached()
+if args['Hasher'] == 'FastContentHashV1.Cached':
+    hh = Hasher.FastContentHashV1.Cached()
+elif args['Hasher'] == 'FastContentHashV2.Cached':
+    hh = Hasher.FastContentHashV2.Cached()
+elif args['Hasher'] == 'FastContentHashV2.Cached_noInode':
+    hh = Hasher.FastContentHashV2.Cached_noInode()
+elif args['Hasher'] == 'FastAttributeHashV1.Cached':
+    hh = Hasher.FastAttributeHashV1.Cached()
 else:
     raise ValueError("Unknown hasher specified")
     
