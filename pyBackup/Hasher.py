@@ -11,6 +11,7 @@ from SourceReader.LocalPathReader import LocalPathReader
 from Hasher.FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1Cached
 from Hasher.FastContentHashV2 import FastContentHashV2Cached
+from Hasher.FastContentHashV2 import FastContentHashV3Cached
 from Hasher.FastAttributeHashV1 import FastAttributeHashV1Cached
 
 import Cache.sqlite as sqlite
@@ -94,6 +95,7 @@ if cache.getFlag('app.run.first') is None:
     cache.setFlag('source.cache.path', args['cache'])
     cache.setFlag('source.path', args['data'])
 
+cache.setFlag('hasher.name', args['Hasher'])
 cache.setFlag('app.run.last', time.time())
 cache.setFlag('app.run.count', int(cache.getFlag('app.run.count'))+1)
 
@@ -114,6 +116,8 @@ if args['Hasher'] == 'FastContentHashV1Cached':
     hh = FastContentHashV2Cached.FastContentHashV1Cached()
 elif args['Hasher'] == 'FastContentHashV2Cached':
     hh = FastContentHashV2Cached.FastContentHashV2Cached()
+elif args['Hasher'] == 'FastContentHashV3Cached':
+    hh = FastContentHashV3Cached.FastContentHashV3Cached()
 elif args['Hasher'] == 'FastAttributeHashV1Cached':
     hh = FastAttributeHashV1Cached.FastAttributeHashV1Cached()
 else:

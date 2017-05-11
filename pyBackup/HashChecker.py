@@ -10,6 +10,7 @@ from Hasher.FastContentHashV1 import FastContentHashV1
 from Hasher.FastContentHashV1 import FastContentHashV1Cached
 from Hasher.FastContentHashV2 import FastContentHashV2Cached
 from Hasher.FastAttributeHashV1 import FastAttributeHashV1Cached
+from Hasher.FastContentHashV2 import FastContentHashV3Cached
 from Writer.LocalPathWriter.Writer import Writer
 from SourceReader.Path import Path
 import Cache.sqlite as sqlite
@@ -83,8 +84,10 @@ if args['Hasher'] == 'FastContentHashV1Cached':
     fh = FastContentHashV2Cached.FastContentHashV1Cached()
 elif args['Hasher'] == 'FastContentHashV2Cached':
     fh = FastContentHashV2Cached.FastContentHashV2Cached()
+elif args['Hasher'] == 'FastContentHashV3Cached':
+    fh = FastContentHashV3Cached.FastContentHashV3Cached()
 elif args['Hasher'] == 'FastAttributeHashV1Cached':
-    fh = FastAttributeHashV1Cached.FastAttributeHashV1Cached()
+    fhh = FastAttributeHashV1Cached.FastAttributeHashV1Cached()
 else:
     raise ValueError("Unknown hasher specified")
 fh.setCache(cache)

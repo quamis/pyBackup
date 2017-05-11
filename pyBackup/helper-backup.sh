@@ -15,17 +15,23 @@ trap "error_exit 'Received signal SIGTERM'" SIGTERM
 export PYTHONIOENCODING=utf-8
 
 function do_action {
-    local NAME SRC PERIOD HASHER
+    local NAME SRC PERIOD SOURCETYPE
     local "${@}"
     
     local DST="${DST_DIR}/${NAME}/";
     local DSTBK="${DST_DIR}/${NAME}.bak/";
     local SRCDB="${SQLITE_DIR}${NAME}.sqlite";
     local DSTDB="${DST_DIR}${NAME}.sqlite";
-
-    
+	
     : ${PERIOD:="always"};
-    : ${HASHER="FastContentHashV2Cached"};
+	: ${SOURCETYPE="local"};
+	
+	local HASHER="FastContentHashV2Cached";
+	if [ "$SOURCETYPE" == "local" ] ; then
+		HASHER="FastContentHashV2Cached";
+	elif [ "$SOURCETYPE" == "sshfs" ] ; then
+		HASHER="FastContentHashV3Cached";
+	fi;
 
     local SHOULD_RUN=1;
     
@@ -122,41 +128,20 @@ function do_action {
         ##echo "clean cache"
         python ./Cleanup.py --cache="$SRCDB" --optimize=1 --removeOldLeafs=1 --verbose=1 || error_exit "cannot write data, in Cleanup.py"
 
+		if [ "$SOURCETYPE" == "local" ] ; then
+			##echo "update full hashes"
+			python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=2.5 --min=15 || error_exit "cannot write data, in HashUpdater.py"
+			##echo "check full hashes"
+			python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data, in HashChecker.py"
 
-        ##echo "update full hashes"
-        python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=2.5 --min=15 || error_exit "cannot write data, in HashUpdater.py"
-
-
-        ##echo "check full hashes"
-        #echo "--cacheOld=$DSTDB"; echo "--destination=$DST"echo "--source=$SRC"
-        python ./HashChecker.py --verbose=1 --stopOnFirstFail=0 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=1.0 --min=5 || error_exit "cannot write data, in HashChecker.py"
-
-        ##echo "copy cache"
-        cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data, in copy db"
-        
-    elif [ "$ACTION" == "backup-remote" ] ; then
-        #echo "calculate local hashes"
-        python ./Hasher.py --verbose=1 --useCache=0 --data="$SRC" --cache="$SRCDB" --Hasher="$HASHER" || error_exit "cannot hash data"
-
-        ###echo "compare"
-        ###python ./test-Comparer.py --cacheNew="$SRC/backup.sqlite" --cacheOld="$DST/backup.sqlite" --doApply=0
-
-
-        ##echo "compare & update changes" 
-        python ./Writer.py --verbose=1 --cacheNew="$SRCDB" --source="$SRC" --cacheOld="$DSTDB" --destination="$DST" --destinationBackup="$DSTBK" || error_exit "cannot write data, in Writer.py"
-
-
-        ##echo "clean cache"
-        python ./Cleanup.py --cache="$SRCDB" --optimize=1 --removeOldLeafs=1 --verbose=1 || error_exit "cannot write data, in Cleanup.py"
-
-
-        ##echo "update full hashes"
-        python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashUpdater.py"
-
-
-        ##echo "check full hashes"
-        #echo "--cacheOld=$DSTDB"; echo "--destination=$DST"echo "--source=$SRC"
-        python ./HashChecker.py --verbose=1 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashChecker.py"
+		elif [ "$SOURCETYPE" == "sshfs" ] ; then
+			##echo "update full hashes"
+			python ./HashUpdater.py --verbose=0 --cache="$SRCDB" --data="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashUpdater.py"
+			##echo "check full hashes"
+			python ./HashChecker.py --verbose=1 --stopOnFirstFail=1 --cacheOld="$DSTDB" --destination="$DST" --source="$SRC" --percent=0.5 --min=1 || error_exit "cannot write data, in HashChecker.py"
+		else
+			error_exit "invalid SOURCETYPE: '{$SOURCETYPE}'. review the bash scripts"
+		fi;
 
         ##echo "copy cache"
         cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data, in copy db"
