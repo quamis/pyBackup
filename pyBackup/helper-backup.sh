@@ -219,7 +219,7 @@ function do_action {
         echo "----------------------------------------------------------------------------"
         echo "Analysis for ${NAME}"
         echo "        ${SRC}"
-        python ./Analyze.py --cache="$SRCDB" --data="$SRC" --mode="history" || error_exit "cannot analyze data"
+        python ./Analyze.py --cache="$SRCDB" --data="$SRC" --mode="auto" || error_exit "cannot analyze data"
         read -s -n 1 -p "Press any key to continue... "
         
     elif [ "$ACTION" == "completely-remove-backup" ] ; then
