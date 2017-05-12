@@ -3,7 +3,7 @@
 Created on Sep 7, 2013
 @author: lucian
 '''
-import os, time
+import os, time, datetime
 
 class BackupAnalyzer(object):
     def __init__(self):
@@ -164,3 +164,11 @@ class BackupAnalyzer(object):
         return c.fetchall()
     
     
+    def getFilesChangedAfter(self, dt):
+        c = self.cache.cursor()
+        ts = time.mktime(dt.timetuple())
+        c.execute('SELECT fn.path, fn.hash, fn.size, fn.ctime, fn.mtime, fn.atime FROM main.files AS fn WHERE NOT fn.isDir AND fn.mtime>%.3f ORDER BY fn.path ASC' % (ts))
+        return c.fetchall()
+    
+    def getFilesCountChangedAfter(self, dt):
+        return len(self.getFilesChangedAfter(dt))

@@ -46,15 +46,39 @@ if args['mode']=='auto':
     print "getSizeByExtensionList(archive):%s" % (humanize.naturalsize(analyzer.getSizeByExtensionList(['.gz', '.tgz', '.tar', '.rar', '.zip', '.7z', '.bz2', ])))
 
     print "getFilesWithFullHashesCount:    %d files (%.2f%%)" % (analyzer.getFilesWithFullHashesCount(), 100*(float(analyzer.getFilesWithFullHashesCount())/analyzer.getFilesCount()))
+
+elif args['mode']=='history':
+    total = analyzer.getFilesCount()
+    print "items total:                 %d files" % (total)
+    print "size total:                  %s" % (humanize.naturalsize(analyzer.getTotalSize()))
+    
+    dt = datetime.datetime.now() - datetime.timedelta(days=7)
+    cnt = analyzer.getFilesCountChangedAfter(dt)
+    print "files changed in the last   7 days: % 6d (%6.1f%%)" % (cnt, 100*(float(cnt)/total))
+    
+    dt = datetime.datetime.now() - datetime.timedelta(days=14)
+    cnt = analyzer.getFilesCountChangedAfter(dt)
+    print "files changed in the last  14 days: % 6d (%6.1f%%)" % (cnt, 100*(float(cnt)/total))
+    
+    dt = datetime.datetime.now() - datetime.timedelta(days=31)
+    cnt = analyzer.getFilesCountChangedAfter(dt)
+    print "files changed in the last  31 days: % 6d (%6.1f%%)" % (cnt, 100*(float(cnt)/total))
+    
+    dt = datetime.datetime.now() - datetime.timedelta(days=365)
+    cnt = analyzer.getFilesCountChangedAfter(dt)
+    print "files changed in the last 365 days: % 6d (%6.1f%%)" % (cnt, 100*(float(cnt)/total))
+    
 elif args['mode']=='flags':
     if not cache.getFlag('app.run.first') is None:
-        print "first run: %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.first'))).strftime('%Y-%m-%d %H:%M:%S'))
-        print "last run:  %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.last'))).strftime('%Y-%m-%d %H:%M:%S'))
-        print "run count: %s" % ( cache.getFlag('app.run.count'))
+        print "first run:   %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.first'))).strftime('%Y-%m-%d %H:%M:%S'))
+        print "last run:    %s" % ( datetime.datetime.fromtimestamp(int(cache.getFlag('app.run.last'))).strftime('%Y-%m-%d %H:%M:%S'))
+        print "run count:   %s" % ( cache.getFlag('app.run.count'))
+        print "hasher.name: %s" % ( cache.getFlag('hasher.name'))
     else:
-        print "first run: %s" % ( "2000-01-01 00:00:01" )
-        print "last run:  %s" % ( "2000-01-01 00:00:01" )
-        print "run count: %s" % ( 0 )
+        print "first run:   %s" % ( "2000-01-01 00:00:01" )
+        print "last run:    %s" % ( "2000-01-01 00:00:01" )
+        print "run count:   %s" % ( 0 )
+        print "hasher.name: %s" % ( '' )
 
 analyzer.destroy()
 cache.destroy()
