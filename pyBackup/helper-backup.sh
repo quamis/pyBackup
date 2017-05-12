@@ -212,7 +212,6 @@ function do_action {
         cp -f "$SRCDB" "$DSTDB" || error_exit "cannot write data"
             
     elif [ "$ACTION" == "analyze" ] ; then
-        ##echo "analize cache"
         echo ""
         echo ""
         echo "----------------------------------------------------------------------------"
@@ -221,6 +220,17 @@ function do_action {
         echo "        ${SRC}"
         python ./Analyze.py --cache="$SRCDB" --data="$SRC" --mode="auto" || error_exit "cannot analyze data"
         read -s -n 1 -p "Press any key to continue... "
+        
+    elif [ "$ACTION" == "analyze-history" ] ; then
+        echo ""
+        echo ""
+        echo "----------------------------------------------------------------------------"
+        echo "----------------------------------------------------------------------------"
+        echo "Analysis for ${NAME}"
+        echo "        ${SRC}"
+        python ./Analyze.py --cache="$SRCDB" --data="$SRC" --mode="history" || error_exit "cannot analyze data"
+        read -s -n 1 -p "Press any key to continue... "
+
         
     elif [ "$ACTION" == "completely-remove-backup" ] ; then
         ##echo "copy cache"
@@ -265,6 +275,7 @@ function do_action {
         echo "    checkAllFast - check hashes for the whole DB, the fast version (uses a fast hasher instead of the full content hasher)"
         echo "    checkAllAndRemove - check hashes for the whole DB and automatically remove invalid files from the DB. A new backup should be created after this"
         echo "    analyze - display some stats about the backups"
+        echo "    analyze-history - display some history stats about the backups"
         echo "    completely-remove-backup - completly remove all data regarding the backed-up data(DB, data, data.bak)"
 
         error_exit "help displayed"
